@@ -636,10 +636,10 @@ class _FlowAsToolCallable:
             conversation = self.flow.start_conversation(inputs)
             interrupts = []
         else:
-            conversation = self.flow.start_conversation(
+            conversation = self.flow._start_subconversation(
+                parent_conversation=self._parent_conversation,
                 inputs=inputs,
                 messages=self._parent_conversation.message_list,
-                conversation_id=self._parent_conversation.conversation_id,
             )
             interrupts = self._parent_conversation._get_interrupts()
 

@@ -314,15 +314,49 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         conversation_id: Optional[str] = None,
         checkpointer: Optional["Checkpointer"] = None,
         checkpoint_id: Optional[str] = None,
-        _runtime_conversation_id: Optional[str] = None,
-        _attach_checkpointer: bool = True,
         conversation_name: Optional[str] = None,
+    ) -> "Conversation":
+        return self._start_swarm_conversation(
+            inputs=inputs,
+            messages=messages,
+            conversation_id=conversation_id,
+            checkpointer=checkpointer,
+            checkpoint_id=checkpoint_id,
+            conversation_name=conversation_name,
+            parent_conversation=None,
+        )
+
+    def _start_conversation(
+        self,
+        inputs: Optional[Dict[str, Any]],
+        messages: Union[None, str, "Message", List["Message"], MessageList],
+        conversation_id: Optional[str],
+        checkpointer: Optional["Checkpointer"],
+        checkpoint_id: Optional[str],
+        parent_conversation: Optional["Conversation"] = None,
+    ) -> "Conversation":
+        return self._start_swarm_conversation(
+            inputs=inputs,
+            messages=messages,
+            conversation_id=conversation_id,
+            checkpointer=checkpointer,
+            checkpoint_id=checkpoint_id,
+            parent_conversation=parent_conversation,
+        )
+
+    def _start_swarm_conversation(
+        self,
+        inputs: Optional[Dict[str, Any]] = None,
+        messages: Union[None, str, "Message", List["Message"], MessageList] = None,
+        conversation_id: Optional[str] = None,
+        checkpointer: Optional["Checkpointer"] = None,
+        checkpoint_id: Optional[str] = None,
+        conversation_name: Optional[str] = None,
+        parent_conversation: Optional["Conversation"] = None,
     ) -> "Conversation":
         """Start a fresh swarm conversation or restore one from a checkpoint.
 
-        ``conversation_id`` is the durable conversation id. For fresh conversations,
-        ``_runtime_conversation_id`` becomes the created conversation object's
-        ``.id`` when provided.
+        ``conversation_id`` identifies the complete conversation thread.
         """
         from wayflowcore.executors._swarmconversation import (
             SwarmConversation,
@@ -331,16 +365,15 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
             SwarmUser,
         )
 
-        restored_conversation, conversation_runtime_id, conversation_root_id = (
+        restored_conversation, conversation_instance_id, conversation_thread_id = (
             self._prepare_conversation_start(
                 inputs=inputs,
                 messages=messages,
                 conversation_id=conversation_id,
                 checkpointer=checkpointer,
                 checkpoint_id=checkpoint_id,
-                _runtime_conversation_id=_runtime_conversation_id,
                 expected_conversation_type=SwarmConversation,
-                attach_checkpointer=_attach_checkpointer,
+                parent_conversation=parent_conversation,
             )
         )
         if restored_conversation is not None:
@@ -367,20 +400,26 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
             context_providers=[],
             inputs=inputs,
             messages=messages,
-            conversation_id=conversation_root_id,
         )
-        return SwarmConversation(
+        conversation = SwarmConversation(
             component=self,
             inputs=inputs or {},
             message_list=messages,
-            id=conversation_runtime_id,
+            id=conversation_instance_id,
             name=conversation_name or "swarm_conversation",
             state=state,
             status=None,
             checkpointer=checkpointer,
-            conversation_id=conversation_root_id,
+            conversation_id=conversation_thread_id,
             __metadata_info__={},
         )
+        state._create_subconversation_for_thread(
+            main_thread,
+            parent_conversation=conversation,
+            inputs=inputs,
+            message_list=messages,
+        )
+        return conversation
 
     def _referenced_tools_dict_inner(
         self, recursive: bool, visited_set: Set[str]

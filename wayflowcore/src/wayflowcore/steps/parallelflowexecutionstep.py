@@ -255,9 +255,9 @@ class ParallelFlowExecutionStep(Step):
                     if input_name in set(p.name for p in flow.input_descriptors)
                     # We extract the inputs needed by this specific flow
                 },
-                sub_conversation_id=f"parallel_subflow_{index}",
+                sub_conversation_id=flow.id,
             )
-            for index, flow in enumerate(self.flows)
+            for flow in self.flows
         ]
 
         # We run only the conversations that did not reach the end

@@ -6,7 +6,7 @@
 
 import logging
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Union, cast
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore.agent import Agent, CallerInputMode
@@ -23,6 +23,7 @@ from wayflowcore.transforms import MessageTransform
 
 if TYPE_CHECKING:
     from wayflowcore.checkpointing import Checkpointer
+    from wayflowcore.conversation import Conversation
     from wayflowcore.executors._managerworkersconversation import ManagerWorkersConversation
     from wayflowcore.messagelist import Message
 
@@ -232,9 +233,45 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         conversation_id: Optional[str] = None,
         checkpointer: Optional["Checkpointer"] = None,
         checkpoint_id: Optional[str] = None,
-        _runtime_conversation_id: Optional[str] = None,
-        _attach_checkpointer: bool = True,
         conversation_name: Optional[str] = None,
+    ) -> "ManagerWorkersConversation":
+        return self._start_managerworkers_conversation(
+            inputs=inputs,
+            messages=messages,
+            conversation_id=conversation_id,
+            checkpointer=checkpointer,
+            checkpoint_id=checkpoint_id,
+            conversation_name=conversation_name,
+            parent_conversation=None,
+        )
+
+    def _start_conversation(
+        self,
+        inputs: Optional[Dict[str, Any]],
+        messages: Union[None, str, "Message", List["Message"], "MessageList"],
+        conversation_id: Optional[str],
+        checkpointer: Optional["Checkpointer"],
+        checkpoint_id: Optional[str],
+        parent_conversation: Optional["Conversation"] = None,
+    ) -> "ManagerWorkersConversation":
+        return self._start_managerworkers_conversation(
+            inputs=inputs,
+            messages=messages,
+            conversation_id=conversation_id,
+            checkpointer=checkpointer,
+            checkpoint_id=checkpoint_id,
+            parent_conversation=parent_conversation,
+        )
+
+    def _start_managerworkers_conversation(
+        self,
+        inputs: Optional[Dict[str, Any]] = None,
+        messages: Union[None, str, "Message", List["Message"], "MessageList"] = None,
+        conversation_id: Optional[str] = None,
+        checkpointer: Optional["Checkpointer"] = None,
+        checkpoint_id: Optional[str] = None,
+        conversation_name: Optional[str] = None,
+        parent_conversation: Optional["Conversation"] = None,
     ) -> "ManagerWorkersConversation":
         """
         Initializes a conversation with the managerworkers.
@@ -253,10 +290,6 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         checkpoint_id:
             Optional checkpoint identifier to restore. Requires both ``checkpointer`` and
             ``conversation_id``.
-        _runtime_conversation_id:
-            Internal runtime id for a fresh conversation. When provided, it becomes
-            the created conversation object's ``.id`` instead of defaulting to
-            ``conversation_id``.
 
         Returns
         -------
@@ -271,16 +304,15 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
             ManagerWorkersConversationExecutionState,
         )
 
-        restored_conversation, conversation_runtime_id, conversation_root_id = (
+        restored_conversation, conversation_instance_id, conversation_thread_id = (
             self._prepare_conversation_start(
                 inputs=inputs,
                 messages=messages,
                 conversation_id=conversation_id,
                 checkpointer=checkpointer,
                 checkpoint_id=checkpoint_id,
-                _runtime_conversation_id=_runtime_conversation_id,
                 expected_conversation_type=ManagerWorkersConversation,
-                attach_checkpointer=_attach_checkpointer,
+                parent_conversation=parent_conversation,
             )
         )
         if restored_conversation is not None:
@@ -294,36 +326,37 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
                 conversational_component=self,
                 inputs=inputs or {},
                 messages=messages,
-                conversation_id=conversation_runtime_id,
+                conversation_id=conversation_instance_id,
                 nesting_level=None,
             )
         )
 
         subconversations: Dict[str, Union[AgentConversation, ManagerWorkersConversation]] = {}
-        subconversations[self.manager_agent.id] = self.manager_agent.start_conversation(
-            inputs=inputs,
-            messages=messages,
-            conversation_id=conversation_root_id,
-            _runtime_conversation_id=self.manager_agent.id,
-        )
 
         state = ManagerWorkersConversationExecutionState(
             current_agent_id=self.manager_agent.id,
             subconversations=subconversations,
-            conversation_id=conversation_root_id,
         )
 
         conversation = ManagerWorkersConversation(
             component=self,
             inputs={},
             message_list=messages,
-            id=conversation_runtime_id,
+            id=conversation_instance_id,
             name=conversation_name or "managerworkers_conversation",
             state=state,
             status=None,
             checkpointer=checkpointer,
-            conversation_id=conversation_root_id,
+            conversation_id=conversation_thread_id,
             __metadata_info__={},
+        )
+        subconversations[self.manager_agent.id] = cast(
+            "Union[AgentConversation, ManagerWorkersConversation]",
+            self.manager_agent._start_subconversation(
+                parent_conversation=conversation,
+                inputs=inputs,
+                messages=messages,
+            ),
         )
         return conversation
 

@@ -64,15 +64,15 @@ def _get_active_conversations(return_copy: bool = True) -> List["Conversation"]:
 
 
 def _get_current_conversation_id() -> Optional[str]:
-    """Return the runtime id of the currently executing conversation object."""
+    """Return the instance id of the currently executing conversation object."""
     active_conversations = _get_active_conversations(return_copy=True)
     if not active_conversations:
         return None
     return active_conversations[-1].id
 
 
-def _get_current_root_conversation_id() -> Optional[str]:
-    """Return the root conversation id shared by nested conversations."""
+def _get_current_conversation_thread_id() -> Optional[str]:
+    """Return the thread id shared by the current nested conversations."""
     active_conversations = _get_active_conversations(return_copy=True)
     if not active_conversations:
         return None
@@ -102,7 +102,7 @@ class Conversation(DataclassComponent):
     status: Optional[ExecutionStatus]
     token_usage: TokenUsage = field(default_factory=TokenUsage, init=False)
     conversation_id: str = ""
-    """Root conversation id used for checkpoint persistence and resume."""
+    """Conversation thread id used for checkpoint persistence and resume."""
     checkpointer: Optional["Checkpointer"] = field(
         default=None,
         repr=False,

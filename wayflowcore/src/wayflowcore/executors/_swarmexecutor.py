@@ -136,7 +136,8 @@ class SwarmRunner(ConversationExecutor):
             agent_sub_conversation = conversation._get_subconversation_for_thread(current_thread)
             if agent_sub_conversation is None:
                 agent_sub_conversation = conversation.state._create_subconversation_for_thread(
-                    current_thread
+                    current_thread,
+                    parent_conversation=conversation,
                 )
 
             # Handle pending tool requests (if any)

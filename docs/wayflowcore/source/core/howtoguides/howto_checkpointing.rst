@@ -54,11 +54,11 @@ For checkpointing, there are three useful identifiers:
 
 - ``conversation_id``: the durable conversation id used to resume and list checkpoints
 - ``checkpoint_id``: the exact saved snapshot to reload
-- ``conversation.id``: the runtime id of this concrete ``Conversation`` object
+- ``conversation.id``: the id of one concrete ``Conversation`` within that conversation thread
 
-For a fresh top-level conversation, ``conversation.id`` usually matches
-``conversation.conversation_id``. They can differ for restored or nested conversations, so use
-``conversation_id`` in checkpointing APIs when you mean "this logical conversation".
+Each nested conversation gets its own ``conversation.id`` while inheriting the conversation thread's
+``conversation_id``. Application code only supplies ``conversation_id``; child identities are
+created and restored internally.
 
 .. warning::
 

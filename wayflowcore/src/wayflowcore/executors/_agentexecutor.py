@@ -469,11 +469,10 @@ class AgentConversationExecutor(ConversationExecutor):
             init_messages = MessageList.from_messages([])
 
         init_messages.append_message(caller_request_message)
-        sub_agent_conversation = expert_agent.start_conversation(
+        sub_agent_conversation = expert_agent._start_subconversation(
+            parent_conversation=caller_conv,
             messages=init_messages,
             inputs=inputs,
-            conversation_id=caller_conv.conversation_id,
-            _runtime_conversation_id=caller_conv._sub_component_conversation_key(expert_agent),
         )
         return sub_agent_conversation
 
@@ -530,8 +529,7 @@ class AgentConversationExecutor(ConversationExecutor):
         messages: MessageList,
         flow: Flow,
         inputs: Dict[str, Any],
-        conversation_id: Optional[str],
-        runtime_conversation_id: Optional[str],
+        parent_conversation: "AgentConversation",
     ) -> Tuple[Any, str, ExecutionStatus]:
         """
         Execute a flow and return its outputs and its execution status.
@@ -541,11 +539,10 @@ class AgentConversationExecutor(ConversationExecutor):
         outputs: Any = None
         try:
             if state.current_flow_conversation is None:
-                state.current_flow_conversation = flow.start_conversation(
+                state.current_flow_conversation = flow._start_subconversation(
+                    parent_conversation=parent_conversation,
                     inputs=inputs,
                     messages=messages,
-                    conversation_id=conversation_id,
-                    _runtime_conversation_id=runtime_conversation_id,
                 )
                 messages.append_message(
                     Message(
@@ -775,8 +772,7 @@ class AgentConversationExecutor(ConversationExecutor):
                 messages,
                 flow,
                 tool_request.args,
-                conversation.conversation_id,
-                conversation._sub_component_conversation_key(flow),
+                conversation,
             )
         )
 

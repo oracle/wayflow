@@ -76,7 +76,6 @@ class ConversationalComponent(ComponentWithInputsOutputs, ABC):
             __metadata_info__=__metadata_info__,
         )
 
-    @abstractmethod
     def start_conversation(
         self,
         inputs: Optional[Dict[str, Any]] = None,
@@ -84,16 +83,33 @@ class ConversationalComponent(ComponentWithInputsOutputs, ABC):
         conversation_id: Optional[str] = None,
         checkpointer: Optional["Checkpointer"] = None,
         checkpoint_id: Optional[str] = None,
-        _runtime_conversation_id: Optional[str] = None,
-        _attach_checkpointer: bool = True,
     ) -> "Conversation":
         """Start a fresh conversation or restore one from checkpoint storage.
 
-        ``conversation_id`` is the durable conversation identifier used for resume and
-        storage. For fresh conversations, ``_runtime_conversation_id`` controls the
-        concrete ``Conversation.id`` assigned to the created object; if omitted, the
-        runtime id defaults to the durable conversation id.
+        ``conversation_id`` identifies the complete conversation thread for checkpoint
+        storage and resume. Each concrete conversation in that thread has its own ``id``.
         """
+        return self._start_conversation(
+            inputs=inputs,
+            messages=messages,
+            conversation_id=conversation_id,
+            checkpointer=checkpointer,
+            checkpoint_id=checkpoint_id,
+            parent_conversation=None,
+        )
+
+    @abstractmethod
+    def _start_conversation(
+        self,
+        inputs: Optional[Dict[str, Any]],
+        messages: Union[None, str, "Message", List["Message"], "MessageList"],
+        conversation_id: Optional[str],
+        checkpointer: Optional["Checkpointer"],
+        checkpoint_id: Optional[str],
+        parent_conversation: Optional["Conversation"] = None,
+    ) -> "Conversation":
+        """Create a concrete conversation for this component."""
+        raise NotImplementedError
 
     @property
     def llms(self) -> List["LlmModel"]:
@@ -161,40 +177,36 @@ class ConversationalComponent(ComponentWithInputsOutputs, ABC):
         inputs: Optional[Dict[str, Any]],
         messages: Union[None, str, "Message", List["Message"], "MessageList"],
         conversation_id: Optional[str],
-        _runtime_conversation_id: Optional[str],
         checkpointer: Optional["Checkpointer"],
         checkpoint_id: Optional[str],
         expected_conversation_type: Type[ConversationTypeT],
-        attach_checkpointer: bool,
+        parent_conversation: Optional["Conversation"],
     ) -> tuple[Optional[ConversationTypeT], str, str]:
         """Resolve whether start_conversation creates a fresh or restored conversation.
 
         Returns a tuple of:
         - an already restored conversation, or ``None`` for a fresh start
-        - the runtime conversation id to assign to ``Conversation.id`` on the concrete object
-        - the root conversation id shared across nested fresh starts
+        - the generated id to assign to the concrete ``Conversation`` object
+        - the conversation thread id shared by nested conversations
 
         ``expected_conversation_type`` keeps the restored conversation typed for mypy;
         runtime validation uses it too.
         """
-        # No checkpointer means this is a fresh conversation; just resolve ids.
+        if parent_conversation is not None:
+            if checkpoint_id is not None:
+                raise ValueError("Cannot restore a checkpoint as a subconversation.")
+            return None, IdGenerator.get_or_generate_id(), parent_conversation.conversation_id
+
+        # No checkpointer means this is a fresh root conversation; just resolve ids.
         if checkpointer is None:
             if checkpoint_id is not None:
                 raise ValueError("`checkpoint_id` requires a `checkpointer`.")
 
-            root_conversation_id = conversation_id or IdGenerator.get_or_generate_id()
-            # This value becomes the fresh conversation object's `.id`.
-            runtime_conversation_id = IdGenerator.get_or_generate_id(
-                _runtime_conversation_id or root_conversation_id
-            )
-            return None, runtime_conversation_id, root_conversation_id
+            # A root conversation is the first instance in its thread, so one ID serves both roles.
+            conversation_id = conversation_id or IdGenerator.get_or_generate_id()
+            return None, conversation_id, conversation_id
 
-        if _runtime_conversation_id is not None:
-            raise ValueError(
-                "`_runtime_conversation_id` is not supported when restoring checkpoints."
-            )
-
-        # Checkpoint restore needs the root conversation id to locate stored state.
+        # Checkpoint restore uses the thread id to locate stored state.
         resolved_conversation_id = conversation_id
         if resolved_conversation_id is None and checkpoint_id is not None:
             raise ValueError("`checkpoint_id` requires a `conversation_id`.")
@@ -225,12 +237,28 @@ class ConversationalComponent(ComponentWithInputsOutputs, ABC):
             expected_conversation_type=expected_conversation_type,
             tool_registry={tool.name: tool for tool in self._referenced_tools()},
             checkpointer=checkpointer,
-            attach_checkpointer=attach_checkpointer,
+            attach_checkpointer=True,
         )
         return (
             cast(ConversationTypeT, conversation),
             resolved_conversation_id,
             resolved_conversation_id,
+        )
+
+    def _start_subconversation(
+        self,
+        parent_conversation: "Conversation",
+        inputs: Optional[Dict[str, Any]] = None,
+        messages: Union[None, str, "Message", List["Message"], "MessageList"] = None,
+    ) -> "Conversation":
+        """Start a child that inherits its parent's conversation thread."""
+        return self._start_conversation(
+            inputs=inputs,
+            messages=messages,
+            conversation_id=None,
+            checkpointer=None,
+            checkpoint_id=None,
+            parent_conversation=parent_conversation,
         )
 
 

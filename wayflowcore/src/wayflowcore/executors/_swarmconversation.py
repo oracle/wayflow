@@ -6,7 +6,7 @@
 
 import logging
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union, cast
 
 from wayflowcore.agent import Agent
 from wayflowcore.conversation import Conversation
@@ -55,7 +55,6 @@ class SwarmConversationExecutionState(ConversationExecutionState):
     main_thread: SwarmThread
     agents_and_threads: Dict[str, Dict[str, SwarmThread]]
     context_providers: List["ContextProvider"]
-    conversation_id: str = ""
     current_thread: Optional["SwarmThread"] = None
     thread_stack: List["SwarmThread"] = field(default_factory=list)
 
@@ -64,14 +63,10 @@ class SwarmConversationExecutionState(ConversationExecutionState):
     def __post_init__(self) -> None:
         self.current_thread = self.current_thread or self.main_thread
 
-        if not self.thread_subconversations:
-            self._create_subconversation_for_thread(
-                self.main_thread, inputs=self.inputs, message_list=self.messages
-            )
-
     def _create_subconversation_for_thread(
         self,
         thread: "SwarmThread",
+        parent_conversation: "SwarmConversation",
         inputs: Optional[Dict[str, Any]] = None,
         message_list: Optional[Union[MessageList, List[Message]]] = None,
     ) -> "AgentConversation":
@@ -87,11 +82,13 @@ class SwarmConversationExecutionState(ConversationExecutionState):
                 if isinstance(message_list, list)
                 else message_list
             )
-        conversation = thread.recipient_agent.start_conversation(
-            inputs=inputs,
-            messages=thread.message_list,
-            conversation_id=self.conversation_id or None,
-            _runtime_conversation_id=thread_id,
+        conversation = cast(
+            "AgentConversation",
+            thread.recipient_agent._start_subconversation(
+                parent_conversation=parent_conversation,
+                inputs=inputs,
+                messages=thread.message_list,
+            ),
         )
         self.thread_subconversations[thread_id] = conversation
 

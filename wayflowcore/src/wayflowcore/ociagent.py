@@ -110,37 +110,48 @@ class OciAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
         conversation_id: Optional[str] = None,
         checkpointer: Optional["Checkpointer"] = None,
         checkpoint_id: Optional[str] = None,
-        _runtime_conversation_id: Optional[str] = None,
-        _attach_checkpointer: bool = True,
-    ) -> "Conversation":
+    ) -> Conversation:
         """
         Initializes a conversation with the agent.
 
         Parameters
         ----------
         inputs:
-            This argument is not used.
-            It is included for compatibility with the Flow class.
+            This argument is not used. It is included for compatibility with the Flow class.
         messages:
-            Message list to which the agent will participate
+            Message list to which the agent will participate.
         conversation_id:
             Durable conversation id used for resume, storage, and usage accounting.
         checkpointer:
-            Optional checkpoint backend. ``OciAgent`` does not support checkpoint restore yet, so
-            passing this raises ``NotImplementedError``.
+            Optional checkpoint backend. ``OciAgent`` does not support checkpoint restore yet,
+            so passing this raises ``NotImplementedError``.
         checkpoint_id:
             Optional checkpoint identifier. ``OciAgent`` does not support checkpoint restore yet,
             so passing this raises ``NotImplementedError``.
-        _runtime_conversation_id:
-            Internal runtime id for a fresh conversation. When provided, it becomes
-            the created conversation object's ``.id`` instead of defaulting to
-            ``conversation_id``.
-
         Returns
         -------
         Conversation:
             The conversation object of the agent.
         """
+        return self._start_conversation(
+            inputs=inputs,
+            messages=messages,
+            conversation_id=conversation_id,
+            checkpointer=checkpointer,
+            checkpoint_id=checkpoint_id,
+            parent_conversation=None,
+        )
+
+    def _start_conversation(
+        self,
+        inputs: Optional[Dict[str, Any]] = None,
+        messages: Union[None, str, Message, List[Message], MessageList] = None,
+        conversation_id: Optional[str] = None,
+        checkpointer: Optional["Checkpointer"] = None,
+        checkpoint_id: Optional[str] = None,
+        parent_conversation: Optional["Conversation"] = None,
+    ) -> "Conversation":
+        """Create the concrete OCI conversation, including nested conversations."""
         from wayflowcore.executors._ociagentconversation import OciAgentConversation
         from wayflowcore.executors._ociagentexecutor import (
             OciAgentState,
@@ -154,16 +165,15 @@ class OciAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
         if not isinstance(messages, MessageList):
             messages = MessageList.from_messages(messages=messages)
 
-        _restored_conversation, conversation_runtime_id, conversation_root_id = (
+        _restored_conversation, conversation_instance_id, conversation_thread_id = (
             self._prepare_conversation_start(
                 inputs=inputs,
                 messages=messages,
                 conversation_id=conversation_id,
                 checkpointer=None,
                 checkpoint_id=None,
-                _runtime_conversation_id=_runtime_conversation_id,
                 expected_conversation_type=OciAgentConversation,
-                attach_checkpointer=_attach_checkpointer,
+                parent_conversation=parent_conversation,
             )
         )
 
@@ -179,9 +189,9 @@ class OciAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
             inputs=inputs or {},
             message_list=messages,
             status=None,
-            id=conversation_runtime_id,
+            id=conversation_instance_id,
             name="oci_conversation",
-            conversation_id=conversation_root_id,
+            conversation_id=conversation_thread_id,
             __metadata_info__={},
         )
 

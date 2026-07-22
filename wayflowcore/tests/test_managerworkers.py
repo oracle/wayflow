@@ -135,7 +135,7 @@ def test_manager_can_send_message_to_worker_and_worker_can_reply():
     assert last_message.tool_result.content == "Hello manager!" and last_message.role == "assistant"
 
 
-def test_managerworkers_worker_conversation_inherits_parent_identity():
+def test_managerworkers_worker_conversation_inherits_parent_thread_identity():
     manager_llm = DummyModel()
     worker = Agent(
         DummyModel(fails_if_not_set=False),
@@ -151,8 +151,10 @@ def test_managerworkers_worker_conversation_inherits_parent_identity():
     conversation.execute()
 
     worker_conversation = conversation.subconversations[worker.id]
+    assert conversation.id == conversation.conversation_id
     assert worker_conversation.conversation_id == conversation.conversation_id
-    assert worker_conversation.id == worker.id
+    assert worker_conversation.id != worker.id
+    assert worker_conversation.id != conversation.id
 
 
 @pytest.fixture

@@ -28,6 +28,7 @@ from wayflowcore.transforms import MessageTransform
 if TYPE_CHECKING:
     from wayflowcore.checkpointing import Checkpointer
     from wayflowcore.contextproviders import ContextProvider
+    from wayflowcore.conversation import Conversation
     from wayflowcore.executors._agentconversation import AgentConversation
     from wayflowcore.flow import Flow
     from wayflowcore.ociagent import OciAgent
@@ -396,8 +397,6 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         conversation_id: Optional[str] = None,
         checkpointer: Optional["Checkpointer"] = None,
         checkpoint_id: Optional[str] = None,
-        _runtime_conversation_id: Optional[str] = None,
-        _attach_checkpointer: bool = True,
     ) -> "AgentConversation":
         """
         Initializes a conversation with the agent.
@@ -405,10 +404,9 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         Parameters
         ----------
         inputs:
-            This argument is not used.
-            It is included for compatibility with the Flow class.
+            This argument is not used. It is included for compatibility with the Flow class.
         messages:
-            Message list to which the agent will participate
+            Message list to which the agent will participate.
         conversation_id:
             Durable conversation id used for resume, storage, and usage accounting.
         checkpointer:
@@ -416,31 +414,44 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         checkpoint_id:
             Optional checkpoint identifier to restore. Requires both ``checkpointer`` and
             ``conversation_id``.
-        _runtime_conversation_id:
-            Internal runtime id for a fresh conversation. When provided, it becomes
-            the created conversation object's ``.id`` instead of defaulting to
-            ``conversation_id``.
-
         Returns
         -------
         Conversation:
             The conversation object of the agent.
         """
+        return self._start_conversation(
+            inputs=inputs,
+            messages=messages,
+            conversation_id=conversation_id,
+            checkpointer=checkpointer,
+            checkpoint_id=checkpoint_id,
+            parent_conversation=None,
+        )
+
+    def _start_conversation(
+        self,
+        inputs: Optional[Dict[str, Any]] = None,
+        messages: Union[None, str, "Message", List["Message"], "MessageList"] = None,
+        conversation_id: Optional[str] = None,
+        checkpointer: Optional["Checkpointer"] = None,
+        checkpoint_id: Optional[str] = None,
+        parent_conversation: Optional["Conversation"] = None,
+    ) -> "AgentConversation":
+        """Create the concrete agent conversation, including nested conversations."""
         from wayflowcore.events.event import ConversationCreatedEvent
         from wayflowcore.events.eventlistener import record_event
         from wayflowcore.executors._agentconversation import AgentConversation
         from wayflowcore.executors._agentexecutor import AgentConversationExecutionState
 
-        restored_conversation, conversation_runtime_id, conversation_root_id = (
+        restored_conversation, conversation_instance_id, conversation_thread_id = (
             self._prepare_conversation_start(
                 inputs=inputs,
                 messages=messages,
                 conversation_id=conversation_id,
                 checkpointer=checkpointer,
                 checkpoint_id=checkpoint_id,
-                _runtime_conversation_id=_runtime_conversation_id,
                 expected_conversation_type=AgentConversation,
-                attach_checkpointer=_attach_checkpointer,
+                parent_conversation=parent_conversation,
             )
         )
         if restored_conversation is not None:
@@ -488,7 +499,7 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
                 conversational_component=self,
                 inputs=inputs,
                 messages=messages,
-                conversation_id=conversation_runtime_id,
+                conversation_id=conversation_instance_id,
                 nesting_level=None,
             )
         )
@@ -496,13 +507,13 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         return AgentConversation(
             component=self,
             message_list=messages,
-            id=conversation_runtime_id,
+            id=conversation_instance_id,
             checkpointer=checkpointer,
             inputs=inputs or {},
             name="agent_conversation",
             state=AgentConversationExecutionState(),
             status=None,
-            conversation_id=conversation_root_id,
+            conversation_id=conversation_thread_id,
             __metadata_info__={},
         )
 

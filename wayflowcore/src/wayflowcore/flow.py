@@ -46,6 +46,7 @@ from wayflowcore.tools import Tool
 
 if TYPE_CHECKING:
     from wayflowcore.checkpointing import Checkpointer
+    from wayflowcore.conversation import Conversation
     from wayflowcore.executors._flowconversation import FlowConversation
     from wayflowcore.executors._flowexecutor import _IoKeyType
     from wayflowcore.messagelist import Message
@@ -1167,10 +1168,67 @@ class Flow(ConversationalComponent, SerializableObject):
         conversation_id: Optional[str] = None,
         checkpointer: Optional["Checkpointer"] = None,
         checkpoint_id: Optional[str] = None,
-        _runtime_conversation_id: Optional[str] = None,
-        _attach_checkpointer: bool = True,
         nesting_level: int = 0,
         context_providers_from_parent_flow: Optional[Set[str]] = None,
+    ) -> "FlowConversation":
+        return self._start_flow_conversation(
+            inputs=inputs,
+            messages=messages,
+            conversation_id=conversation_id,
+            checkpointer=checkpointer,
+            checkpoint_id=checkpoint_id,
+            nesting_level=nesting_level,
+            context_providers_from_parent_flow=context_providers_from_parent_flow,
+            parent_conversation=None,
+        )
+
+    def _start_subconversation(
+        self,
+        parent_conversation: "Conversation",
+        inputs: Optional[Dict[str, Any]] = None,
+        messages: Union[None, str, "Message", List["Message"], "MessageList"] = None,
+        nesting_level: int = 0,
+        context_providers_from_parent_flow: Optional[Set[str]] = None,
+    ) -> "FlowConversation":
+        return self._start_flow_conversation(
+            inputs=inputs,
+            messages=messages,
+            conversation_id=None,
+            checkpointer=None,
+            checkpoint_id=None,
+            nesting_level=nesting_level,
+            context_providers_from_parent_flow=context_providers_from_parent_flow,
+            parent_conversation=parent_conversation,
+        )
+
+    def _start_conversation(
+        self,
+        inputs: Optional[Dict[str, Any]],
+        messages: Union[None, str, "Message", List["Message"], "MessageList"],
+        conversation_id: Optional[str],
+        checkpointer: Optional["Checkpointer"],
+        checkpoint_id: Optional[str],
+        parent_conversation: Optional["Conversation"] = None,
+    ) -> "FlowConversation":
+        return self._start_flow_conversation(
+            inputs=inputs,
+            messages=messages,
+            conversation_id=conversation_id,
+            checkpointer=checkpointer,
+            checkpoint_id=checkpoint_id,
+            parent_conversation=parent_conversation,
+        )
+
+    def _start_flow_conversation(
+        self,
+        inputs: Optional[Dict[str, Any]] = None,
+        messages: Union[None, str, "Message", List["Message"], "MessageList"] = None,
+        conversation_id: Optional[str] = None,
+        checkpointer: Optional["Checkpointer"] = None,
+        checkpoint_id: Optional[str] = None,
+        nesting_level: int = 0,
+        context_providers_from_parent_flow: Optional[Set[str]] = None,
+        parent_conversation: Optional["Conversation"] = None,
     ) -> "FlowConversation":
         """
         Start the conversation.
@@ -1189,10 +1247,6 @@ class Flow(ConversationalComponent, SerializableObject):
         checkpoint_id:
             Optional checkpoint identifier to restore. Requires both ``checkpointer`` and
             ``conversation_id``.
-        _runtime_conversation_id:
-            Internal runtime id for a fresh conversation. When provided, it becomes
-            the created conversation object's ``.id`` instead of defaulting to
-            ``conversation_id``.
         context_providers_from_parent_flow:
             Context provider that don't need to be checked when validating existing inputs.
         nesting_level:
@@ -1207,16 +1261,15 @@ class Flow(ConversationalComponent, SerializableObject):
         from wayflowcore.events.eventlistener import record_event
         from wayflowcore.executors._flowconversation import FlowConversation
 
-        restored_conversation, conversation_runtime_id, conversation_root_id = (
+        restored_conversation, conversation_instance_id, conversation_thread_id = (
             self._prepare_conversation_start(
                 inputs=inputs,
                 messages=messages,
                 conversation_id=conversation_id,
                 checkpointer=checkpointer,
                 checkpoint_id=checkpoint_id,
-                _runtime_conversation_id=_runtime_conversation_id,
                 expected_conversation_type=FlowConversation,
-                attach_checkpointer=_attach_checkpointer,
+                parent_conversation=parent_conversation,
             )
         )
         if restored_conversation is not None:
@@ -1271,7 +1324,7 @@ class Flow(ConversationalComponent, SerializableObject):
                 conversational_component=self,
                 inputs=inputs,
                 messages=messages,
-                conversation_id=conversation_runtime_id,
+                conversation_id=conversation_instance_id,
                 nesting_level=nesting_level,
             )
         )
@@ -1303,14 +1356,14 @@ class Flow(ConversationalComponent, SerializableObject):
         return FlowConversation(
             component=self,
             inputs=inputs,
-            id=conversation_runtime_id,
+            id=conversation_instance_id,
             checkpointer=checkpointer,
             message_list=messages,
             __metadata_info__={},
             status=None,
             name="flow_conversation",
             state=state,
-            conversation_id=conversation_root_id,
+            conversation_id=conversation_thread_id,
         )
 
     @property

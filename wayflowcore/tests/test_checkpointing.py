@@ -26,6 +26,25 @@ from .test_managerworkers import _send_message
 from .testhelpers.dummy import DummyModel
 
 
+def test_root_conversation_uses_one_identity_for_instance_and_thread() -> None:
+    agent = Agent(llm=DummyModel(), name="root_identity_agent")
+
+    conversation = agent.start_conversation()
+
+    assert conversation.id == conversation.conversation_id
+
+
+def test_checkpointed_root_conversation_uses_one_identity_for_instance_and_thread() -> None:
+    agent = Agent(llm=DummyModel(), name="checkpointed_root_identity_agent")
+
+    conversation = agent.start_conversation(
+        conversation_id="checkpointed-root-identity",
+        checkpointer=InMemoryCheckpointer(),
+    )
+
+    assert conversation.id == conversation.conversation_id
+
+
 def _checkpoint_restore_wrong_component_type_scenario(
     checkpointer: InMemoryCheckpointer,
 ):
@@ -329,6 +348,11 @@ def test_managerworkers_checkpoint_restore_preserves_worker_subconversation() ->
     status = conversation.execute()
     assert isinstance(status, UserMessageRequestStatus)
     assert worker.id in conversation.subconversations
+    worker_conversation = conversation.subconversations[worker.id]
+    manager_conversation = conversation.subconversations[group.manager_agent.id]
+    assert worker_conversation.id != worker.id
+    assert worker_conversation.id != manager_conversation.id
+    assert worker_conversation.conversation_id == conversation.conversation_id
 
     checkpoint = checkpointer.load_latest(conversation.conversation_id)
     assert checkpoint is not None
@@ -339,7 +363,10 @@ def test_managerworkers_checkpoint_restore_preserves_worker_subconversation() ->
     )
 
     assert worker.id in restored_conversation.subconversations
-    assert restored_conversation.subconversations[worker.id].component is worker
+    restored_worker_conversation = restored_conversation.subconversations[worker.id]
+    assert restored_worker_conversation.component is worker
+    assert restored_worker_conversation.id == worker_conversation.id
+    assert restored_worker_conversation.conversation_id == restored_conversation.conversation_id
 
 
 @pytest.mark.parametrize(

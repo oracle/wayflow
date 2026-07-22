@@ -92,10 +92,10 @@ class FlowContextProvider(ContextProvider):
         from wayflowcore.tracing.span import ContextProviderExecutionSpan
 
         with ContextProviderExecutionSpan(context_provider=self) as span:
-            conversation = self.flow.start_conversation(
+            conversation = self.flow._start_subconversation(
+                parent_conversation=conversation,
                 inputs={},
                 messages=conversation.message_list,
-                conversation_id=conversation.conversation_id,
             )
             status = await conversation.execute_async()
             if status._requires_yielding:

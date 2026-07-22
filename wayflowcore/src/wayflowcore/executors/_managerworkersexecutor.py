@@ -393,7 +393,8 @@ class ManagerWorkersRunner(ConversationExecutor):
             if worker_subconversation is None:
                 worker_subconversation = (
                     managerworkers_conversation.state._create_subconversation_for_agent(
-                        recipient_agent
+                        recipient_agent,
+                        parent_conversation=managerworkers_conversation,
                     )
                 )
                 logger.info(

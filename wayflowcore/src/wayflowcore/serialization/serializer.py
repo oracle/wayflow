@@ -19,6 +19,7 @@ from typing import (
     ForwardRef,
     List,
     Optional,
+    Protocol,
     Type,
     TypeVar,
     cast,
@@ -558,10 +559,19 @@ def serialize(
 
 
 T = TypeVar("T", bound=SerializableObject)
+T_co = TypeVar("T_co", bound=SerializableObject, covariant=True)
+
+
+class _SerializableType(Protocol[T_co]):
+    """Type token for a serializable object, including abstract base classes."""
+
+    __name__: str
+
+    def __call__(self, *args: Any, **kwargs: Any) -> T_co: ...
 
 
 def deserialize_from_dict(
-    deserialization_type: Type[T],
+    deserialization_type: _SerializableType[T],
     obj_as_dict: Dict[str, Any],
     deserialization_context: Optional[DeserializationContext] = None,
     plugins: Optional[List["WayflowDeserializationPlugin"]] = None,
@@ -598,6 +608,8 @@ def deserialize_from_dict(
     >>> new_assistant = deserialize_from_dict(Flow, serialized_assistant)
 
     """
+    runtime_deserialization_type = cast(Type[T], deserialization_type)
+
     if deserialization_context is None:
         deserialization_context = DeserializationContext(plugins=plugins)
     elif plugins is not None:
@@ -616,7 +628,7 @@ def deserialize_from_dict(
             deserialized_obj: SerializableObject = deserialization_context.get_deserialized_object(
                 object_reference
             )
-            if not isinstance(deserialized_obj, deserialization_type):
+            if not isinstance(deserialized_obj, runtime_deserialization_type):
                 raise ValueError(
                     f"A referenced objects found of type {deserialized_obj.__class__.__name__} "
                     f"which is not compatible with the expected deserialization type of "
@@ -628,10 +640,10 @@ def deserialize_from_dict(
             obj_as_dict = deserialization_context.get_referenced_dict(object_reference)
 
     deserialization_plugin = deserialization_context.get_deserialization_plugin_for_object(
-        deserialization_type
+        runtime_deserialization_type
     )
     deserialized_obj = deserialization_plugin.deserialize(
-        deserialization_type, obj_as_dict, deserialization_context
+        runtime_deserialization_type, obj_as_dict, deserialization_context
     )
     if object_reference:
         deserialization_context.recorddeserialized_object(object_reference, deserialized_obj)
@@ -650,7 +662,7 @@ def _set_component_id(component: ObjectWithMetadata, reference: str) -> None:
 
 
 def deserialize(
-    deserialization_type: Type[T],
+    deserialization_type: _SerializableType[T],
     obj: str,
     deserialization_context: Optional[DeserializationContext] = None,
     plugins: Optional[List["WayflowDeserializationPlugin"]] = None,
@@ -775,7 +787,10 @@ def autodeserialize_from_dict(
             "Failure to deserialize due to missing `_component_type`: The following object "
             f"does not seem to be a valid WayFlow component to deserialize:\n{obj_as_dict}"
         )
-    deserialization_type = SerializableObject.get_component(component_type)
+    deserialization_type = cast(
+        _SerializableType[SerializableObject],
+        SerializableObject.get_component(component_type),
+    )
 
     if component_type is not None and component_type != deserialization_type.__name__:
         raise ValueError(
