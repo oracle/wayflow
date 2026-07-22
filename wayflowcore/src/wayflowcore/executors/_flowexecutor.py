@@ -247,7 +247,6 @@ class FlowConversationExecutor(ConversationExecutor):
     @staticmethod
     def make_key_for_step(assistant_step: Step, key: str) -> str:
         return str(assistant_step.id) + "_" + key
-        # return str(assistant_step.name) + "_" + key
 
     @staticmethod
     def get_parent_conversation(state: FlowConversationExecutionState) -> Optional[Conversation]:
@@ -310,14 +309,12 @@ class FlowConversationExecutor(ConversationExecutor):
     def cleanup_sub_conversation(
         state: FlowConversationExecutionState,
         step: Step,
-        sub_conversation_id: Optional[str] = None,
     ) -> None:
         """
         Remove a subconversation saved in the internal context of the flow execution state, to cleanup the state after the subconversation is finished.
         """
         key = FlowConversationExecutor.make_key_for_step(
-            step,
-            sub_conversation_id or FlowConversationExecutor._SUB_CONVERSATION_KEY,
+            step, FlowConversationExecutor._SUB_CONVERSATION_KEY
         )
         # We have to pop finished sub-conversations from the context store as other methods assume the conversation
         # (dict value) is not `None`.
@@ -329,11 +326,10 @@ class FlowConversationExecutor(ConversationExecutor):
         step: Step,
     ) -> Optional[Conversation]:
         """Get the current sub conversation of a given step"""
-        key = FlowConversationExecutor.make_key_for_step(
-            step,
-            FlowConversationExecutor._SUB_CONVERSATION_KEY,
+        key1 = FlowConversationExecutor.make_key_for_step(
+            step, FlowConversationExecutor._SUB_CONVERSATION_KEY
         )
-        sub_conv = state.internal_context_key_values.get(key, None)
+        sub_conv = state.internal_context_key_values.get(key1, None)
         return cast(Conversation, sub_conv) if sub_conv is not None else None
 
     @staticmethod

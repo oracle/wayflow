@@ -81,11 +81,12 @@ def _build_listener_checkpoint_metadata(
     }
     if conversation.status is not None:
         checkpoint_metadata["status_type"] = type(conversation.status).__name__
+    if event is not None:
+        checkpoint_metadata["event_type"] = event.__class__.__name__
+
     if isinstance(event, AgentExecutionIterationStartedEvent):
-        checkpoint_metadata["event_type"] = AgentExecutionIterationStartedEvent.__name__
         checkpoint_metadata["agent_iteration"] = event.execution_state.curr_iter
     elif isinstance(event, FlowExecutionIterationStartedEvent):
-        checkpoint_metadata["event_type"] = FlowExecutionIterationStartedEvent.__name__
         checkpoint_metadata["flow_step_name"] = event.execution_state.current_step_name
         checkpoint_metadata["nesting_level"] = event.execution_state.nesting_level
     if metadata:

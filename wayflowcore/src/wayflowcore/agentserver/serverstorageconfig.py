@@ -12,3 +12,6 @@ from wayflowcore.checkpointing import StorageConfig
 @dataclass
 class ServerStorageConfig(StorageConfig):
     """Configuration for server storage management."""
+
+    # this is kept as a backward compatibility alias,
+    # all parameters and functionalities are defined in StorageConfig

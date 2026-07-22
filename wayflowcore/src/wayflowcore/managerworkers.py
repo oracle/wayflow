@@ -235,7 +235,30 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         checkpoint_id: Optional[str] = None,
         conversation_name: Optional[str] = None,
     ) -> "ManagerWorkersConversation":
-        return self._start_managerworkers_conversation(
+        """
+        Initializes a conversation with the managerworkers.
+
+        Parameters
+        ----------
+        inputs:
+            Dictionary of inputs. Keys are the variable identifiers and
+            values are the actual inputs to start the main conversation.
+        messages:
+            Message list of the manager agent and the end-user.
+        conversation_id:
+            Durable conversation id used for resume, storage, and usage accounting.
+        checkpointer:
+            Optional checkpoint backend used to restore and persist this conversation.
+        checkpoint_id:
+            Optional checkpoint identifier to restore. Requires both ``checkpointer`` and
+            ``conversation_id``.
+
+        Returns
+        -------
+        Conversation:
+            The conversation object of the managerworkers.
+        """
+        return self._start_conversation_impl(
             inputs=inputs,
             messages=messages,
             conversation_id=conversation_id,
@@ -245,33 +268,15 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
             parent_conversation=None,
         )
 
-    def _start_conversation(
-        self,
-        inputs: Optional[Dict[str, Any]],
-        messages: Union[None, str, "Message", List["Message"], "MessageList"],
-        conversation_id: Optional[str],
-        checkpointer: Optional["Checkpointer"],
-        checkpoint_id: Optional[str],
-        parent_conversation: Optional["Conversation"] = None,
-    ) -> "ManagerWorkersConversation":
-        return self._start_managerworkers_conversation(
-            inputs=inputs,
-            messages=messages,
-            conversation_id=conversation_id,
-            checkpointer=checkpointer,
-            checkpoint_id=checkpoint_id,
-            parent_conversation=parent_conversation,
-        )
-
-    def _start_managerworkers_conversation(
+    def _start_conversation_impl(
         self,
         inputs: Optional[Dict[str, Any]] = None,
         messages: Union[None, str, "Message", List["Message"], "MessageList"] = None,
         conversation_id: Optional[str] = None,
         checkpointer: Optional["Checkpointer"] = None,
         checkpoint_id: Optional[str] = None,
-        conversation_name: Optional[str] = None,
         parent_conversation: Optional["Conversation"] = None,
+        conversation_name: Optional[str] = None,
     ) -> "ManagerWorkersConversation":
         """
         Initializes a conversation with the managerworkers.

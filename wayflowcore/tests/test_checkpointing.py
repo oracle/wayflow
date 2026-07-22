@@ -25,6 +25,10 @@ from .serialization.test_assistant_serialization import create_flow
 from .test_managerworkers import _send_message
 from .testhelpers.dummy import DummyModel
 
+pytestmark = pytest.mark.filterwarnings(
+    "ignore:InMemoryDatastore is for DEVELOPMENT and PROOF-OF-CONCEPT ONLY!"
+)
+
 
 def test_root_conversation_uses_one_identity_for_instance_and_thread() -> None:
     agent = Agent(llm=DummyModel(), name="root_identity_agent")
@@ -428,6 +432,42 @@ def test_checkpoint_intervals_save_expected_checkpoints(
         expected_event_types
     )
     assert checkpoints[-1].metadata["status_type"] == "FinishedStatus"
+
+
+@pytest.mark.parametrize(
+    "interval",
+    list(CheckpointingInterval),
+    ids=lambda interval: interval.name.lower(),
+)
+def test_checkpoint_intervals_save_expected_agent_checkpoints(
+    interval: CheckpointingInterval,
+) -> None:
+    checkpointer = InMemoryCheckpointer(checkpointing_interval=interval)
+    conversation_id = f"agent-{interval.name.lower()}"
+    agent = Agent(
+        llm=DummyModel(),
+        name="checkpoint_interval_agent",
+        initial_message="Hello from the agent.",
+    )
+
+    status = agent.start_conversation(
+        conversation_id=conversation_id,
+        checkpointer=checkpointer,
+    ).execute()
+
+    assert isinstance(status, UserMessageRequestStatus)
+    checkpoints = checkpointer.list_checkpoints(conversation_id)
+    assert checkpoints[-1].metadata["save_reason"] == "conversation_turn"
+    assert checkpoints[-1].metadata["status_type"] == "UserMessageRequestStatus"
+    if interval is CheckpointingInterval.ALL_INTERNAL_TURNS:
+        assert any(
+            checkpoint.metadata.get("event_type") == "AgentExecutionIterationStartedEvent"
+            for checkpoint in checkpoints
+        )
+        assert all(
+            checkpoint.metadata.get("agent_iteration") is not None
+            for checkpoint in checkpoints[:-1]
+        )
 
 
 def test_execute_async_does_not_save_final_checkpoint_when_execution_fails(

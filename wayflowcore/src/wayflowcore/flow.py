@@ -1171,7 +1171,28 @@ class Flow(ConversationalComponent, SerializableObject):
         nesting_level: int = 0,
         context_providers_from_parent_flow: Optional[Set[str]] = None,
     ) -> "FlowConversation":
-        return self._start_flow_conversation(
+        """
+        Start the conversation.
+
+        Parameters
+        ----------
+        inputs:
+            Dictionary of inputs. Keys are the variable identifiers and
+            values are the actual inputs to start the conversation.
+        conversation_id:
+            Durable conversation id used for resume, storage, and usage accounting.
+        messages:
+            List of messages before starting the conversation.
+        checkpointer:
+            Optional checkpoint backend used to restore and persist this conversation.
+        checkpoint_id:
+            Optional checkpoint identifier to restore.
+        nesting_level:
+            Internal nesting level for flow execution.
+        context_providers_from_parent_flow:
+            Context providers inherited from a parent flow.
+        """
+        return self._start_conversation_impl(
             inputs=inputs,
             messages=messages,
             conversation_id=conversation_id,
@@ -1190,7 +1211,7 @@ class Flow(ConversationalComponent, SerializableObject):
         nesting_level: int = 0,
         context_providers_from_parent_flow: Optional[Set[str]] = None,
     ) -> "FlowConversation":
-        return self._start_flow_conversation(
+        return self._start_conversation_impl(
             inputs=inputs,
             messages=messages,
             conversation_id=None,
@@ -1201,34 +1222,16 @@ class Flow(ConversationalComponent, SerializableObject):
             parent_conversation=parent_conversation,
         )
 
-    def _start_conversation(
-        self,
-        inputs: Optional[Dict[str, Any]],
-        messages: Union[None, str, "Message", List["Message"], "MessageList"],
-        conversation_id: Optional[str],
-        checkpointer: Optional["Checkpointer"],
-        checkpoint_id: Optional[str],
-        parent_conversation: Optional["Conversation"] = None,
-    ) -> "FlowConversation":
-        return self._start_flow_conversation(
-            inputs=inputs,
-            messages=messages,
-            conversation_id=conversation_id,
-            checkpointer=checkpointer,
-            checkpoint_id=checkpoint_id,
-            parent_conversation=parent_conversation,
-        )
-
-    def _start_flow_conversation(
+    def _start_conversation_impl(
         self,
         inputs: Optional[Dict[str, Any]] = None,
         messages: Union[None, str, "Message", List["Message"], "MessageList"] = None,
         conversation_id: Optional[str] = None,
         checkpointer: Optional["Checkpointer"] = None,
         checkpoint_id: Optional[str] = None,
+        parent_conversation: Optional["Conversation"] = None,
         nesting_level: int = 0,
         context_providers_from_parent_flow: Optional[Set[str]] = None,
-        parent_conversation: Optional["Conversation"] = None,
     ) -> "FlowConversation":
         """
         Start the conversation.

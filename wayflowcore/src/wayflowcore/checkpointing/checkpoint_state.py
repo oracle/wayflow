@@ -12,9 +12,9 @@ from wayflowcore.idgeneration import IdGenerator
 from wayflowcore.serialization import autodeserialize, serialize
 from wayflowcore.serialization.context import (
     DeserializationContext,
-    MissingDeserializationReferenceError,
     SerializationContext,
-    _iter_nested_components,
+    _get_nested_components,
+    _MissingDeserializationReferenceError,
 )
 
 if TYPE_CHECKING:
@@ -24,10 +24,7 @@ if TYPE_CHECKING:
     from wayflowcore.conversationalcomponent import ConversationalComponent
 
 
-_COMPONENT_ID_ERROR_HINT = "Restart-safe checkpoint restore requires stable component ids."
-
-
-class _CheckpointRestoreCompatibilityError(ValueError):
+class CheckpointRestoreCompatibilityError(ValueError):
     """Raised when a checkpoint cannot be resumed against the current live graph."""
 
 
@@ -41,9 +38,7 @@ def _save_live_conversation_checkpoint(
     from wayflowcore.checkpointing.checkpointer import ConversationCheckpoint
 
     if not _supports_checkpointing(conversation.component):
-        raise NotImplementedError(
-            "Checkpointing conversations that contain `OciAgent` is not supported yet."
-        )
+        raise NotImplementedError("Checkpointing this component is not supported yet.")
     serialization_context = SerializationContext(root=conversation)
     serialization_context._register_external_component_references(conversation.component)
 
@@ -81,16 +76,15 @@ def _load_checkpointed_conversation(
             checkpoint.state,
             deserialization_context=deserialization_context,
         )
-    except (MissingDeserializationReferenceError, DataclassFieldDeserializationError) as exc:
+    except (_MissingDeserializationReferenceError, DataclassFieldDeserializationError) as exc:
         if not _contains_missing_reference_error(exc):
             raise
-        raise _CheckpointRestoreCompatibilityError(
+        raise CheckpointRestoreCompatibilityError(
             "Cannot restore this checkpoint because the current component tree does not "
-            "match the serialized component ids. "
-            f"{_COMPONENT_ID_ERROR_HINT}"
+            "match the serialized component ids. Restart-safe checkpoint restore requires stable component ids."
         ) from exc
     if not isinstance(conversation, expected_conversation_type):
-        raise _CheckpointRestoreCompatibilityError(
+        raise CheckpointRestoreCompatibilityError(
             "Cannot restore this checkpoint because this conversation was started with another "
             f"component. Expected `{expected_conversation_type.__name__}`, got `{type(conversation).__name__}`."
         )
@@ -104,7 +98,7 @@ def _load_checkpointed_conversation(
 def _contains_missing_reference_error(error: Exception) -> bool:
     """Return whether the exception chain contains a missing component/tool reference."""
     while error is not None:
-        if isinstance(error, MissingDeserializationReferenceError):
+        if isinstance(error, _MissingDeserializationReferenceError):
             return True
         error = error.__cause__  # type: ignore[assignment]
     return False
@@ -118,5 +112,5 @@ def _supports_checkpointing(component: "ConversationalComponent") -> bool:
 
     return not any(
         isinstance(nested_component, OciAgent)
-        for nested_component in _iter_nested_components(component)
+        for nested_component in _get_nested_components(component)
     )

@@ -17,12 +17,12 @@ from typing import Any, Callable, Dict, List, Literal, Optional, Sequence, Tuple
 import yaml
 
 from wayflowcore.agentserver import ServerStorageConfig
-from wayflowcore.agentserver._storagehelpers import (
-    _prepare_oracle_datastore,
-    _prepare_postgres_datastore,
-)
 from wayflowcore.agentserver.app import create_server_app
 from wayflowcore.agentspec import AgentSpecLoader
+from wayflowcore.checkpointing.datastorecheckpointer import (
+    _prepare_oracle_checkpoint_datastore,
+    _prepare_postgres_checkpoint_datastore,
+)
 from wayflowcore.conversationalcomponent import ConversationalComponent
 from wayflowcore.datastore import (
     Datastore,
@@ -305,7 +305,7 @@ def _get_persistence_arguments(
                     "datastore_connection_config must be a PostgresDatabaseConnectionConfig instance."
                 )
             if setup_datastore:
-                _prepare_postgres_datastore(datastore_connection_config, storage_config)
+                _prepare_postgres_checkpoint_datastore(datastore_connection_config, storage_config)
             storage = PostgresDatabaseDatastore(
                 schema=storage_schema,
                 connection_config=datastore_connection_config,
@@ -326,7 +326,7 @@ def _get_persistence_arguments(
                     "datastore_connection_config must be an OracleDatabaseConnectionConfig instance."
                 )
             if setup_datastore:
-                _prepare_oracle_datastore(datastore_connection_config, storage_config)
+                _prepare_oracle_checkpoint_datastore(datastore_connection_config, storage_config)
             storage = OracleDatabaseDatastore(
                 schema=storage_schema,
                 connection_config=datastore_connection_config,

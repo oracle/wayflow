@@ -18,11 +18,11 @@ class ConversationCheckpoint:
     """Durable snapshot of a conversation at a checkpoint boundary."""
 
     checkpoint_id: str
-    """External identifier of this saved checkpoint."""
+    """ID of the checkpoint"""
     conversation_id: str
-    """Durable conversation id that this checkpoint belongs to."""
+    """ID of the stored conversation"""
     component_id: str
-    """Best-effort root component id stored for diagnostics and storage queries."""
+    """ID of the component that created the conversation"""
     created_at: int
     """Checkpoint creation time in seconds since the Unix epoch."""
     state: str
@@ -40,10 +40,13 @@ class CheckpointingInterval(Enum):
 
     # Save only after the outermost `Conversation.execute()` returns.
     CONVERSATION_TURNS = "conversation_turns"
+    """Saves the state at the end of a component turn (before returning from conversation.execute()"""
     # Save after completed internal turns that actually used an LLM.
     LLM_TURNS = "llm_turns"
+    """Saves the state at the end of a turn that uses a LLM (agent llm turn, PromptExecutionNode, ...)"""
     # Save after every completed internal agent/flow turn boundary.
     ALL_INTERNAL_TURNS = "all_internal_turns"
+    """Saves the state at every internal turn (every step of a flow, every iteration of an agent, ...) recursively in all sub-components"""
 
 
 @dataclass

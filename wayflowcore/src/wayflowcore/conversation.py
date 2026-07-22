@@ -142,11 +142,9 @@ class Conversation(DataclassComponent):
         The ``Execution`` status is returned by the Assistant and indicates if the assistant yielded,
         finished the conversation.
         """
-
-        async def _execute_async_wrapper() -> "ExecutionStatus":
-            return await self.execute_async(execution_interrupts)
-
-        return run_async_in_sync(_execute_async_wrapper, method_name="execute_async")
+        return run_async_in_sync(
+            self.execute_async, execution_interrupts, method_name="execute_async"
+        )
 
     async def execute_async(
         self,

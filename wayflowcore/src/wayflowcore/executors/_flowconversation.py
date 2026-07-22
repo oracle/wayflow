@@ -50,8 +50,8 @@ class FlowConversation(Conversation):
     def _get_internal_context_value_for_step(self, assistant_step: "Step", key: str) -> Any:
         from wayflowcore.executors._flowexecutor import FlowConversationExecutor
 
-        context_key = FlowConversationExecutor().make_key_for_step(assistant_step, key)
-        return self.state.internal_context_key_values.get(context_key)
+        key = FlowConversationExecutor().make_key_for_step(assistant_step, key)
+        return self.state.internal_context_key_values.get(key, None)
 
     def _put_internal_context_key_value(self, key: str, value: Any) -> None:
         self.state.internal_context_key_values[key] = value
@@ -118,8 +118,7 @@ class FlowConversation(Conversation):
         sub_conversation_id: Optional[str] = None,
     ) -> "FlowConversation":
         sub_conversation = self._get_current_sub_conversation(
-            step=step,
-            sub_conversation_id=sub_conversation_id,
+            step=step, sub_conversation_id=sub_conversation_id
         )
         if sub_conversation is None:
             sub_conversation = self._create_sub_conversation(
@@ -159,8 +158,7 @@ class FlowConversation(Conversation):
         from wayflowcore.executors._flowexecutor import FlowConversationExecutor
 
         key = FlowConversationExecutor().make_key_for_step(
-            step,
-            sub_conversation_id or FlowConversationExecutor._SUB_CONVERSATION_KEY,
+            step, sub_conversation_id or FlowConversationExecutor._SUB_CONVERSATION_KEY
         )
         self.state.internal_context_key_values.pop(key, None)
 

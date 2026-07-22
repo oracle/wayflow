@@ -76,6 +76,7 @@ class ConversationalComponent(ComponentWithInputsOutputs, ABC):
             __metadata_info__=__metadata_info__,
         )
 
+    @abstractmethod
     def start_conversation(
         self,
         inputs: Optional[Dict[str, Any]] = None,
@@ -84,22 +85,9 @@ class ConversationalComponent(ComponentWithInputsOutputs, ABC):
         checkpointer: Optional["Checkpointer"] = None,
         checkpoint_id: Optional[str] = None,
     ) -> "Conversation":
-        """Start a fresh conversation or restore one from checkpoint storage.
+        pass
 
-        ``conversation_id`` identifies the complete conversation thread for checkpoint
-        storage and resume. Each concrete conversation in that thread has its own ``id``.
-        """
-        return self._start_conversation(
-            inputs=inputs,
-            messages=messages,
-            conversation_id=conversation_id,
-            checkpointer=checkpointer,
-            checkpoint_id=checkpoint_id,
-            parent_conversation=None,
-        )
-
-    @abstractmethod
-    def _start_conversation(
+    def _start_conversation_impl(
         self,
         inputs: Optional[Dict[str, Any]],
         messages: Union[None, str, "Message", List["Message"], "MessageList"],
@@ -108,7 +96,7 @@ class ConversationalComponent(ComponentWithInputsOutputs, ABC):
         checkpoint_id: Optional[str],
         parent_conversation: Optional["Conversation"] = None,
     ) -> "Conversation":
-        """Create a concrete conversation for this component."""
+        """Create a concrete conversation for internal root/child entry points."""
         raise NotImplementedError
 
     @property
@@ -189,7 +177,7 @@ class ConversationalComponent(ComponentWithInputsOutputs, ABC):
         - the generated id to assign to the concrete ``Conversation`` object
         - the conversation thread id shared by nested conversations
 
-        ``expected_conversation_type`` keeps the restored conversation typed for mypy;
+        ``expected_conversation_type`` keeps the restored conversation typed for static typing;
         runtime validation uses it too.
         """
         if parent_conversation is not None:
@@ -252,7 +240,7 @@ class ConversationalComponent(ComponentWithInputsOutputs, ABC):
         messages: Union[None, str, "Message", List["Message"], "MessageList"] = None,
     ) -> "Conversation":
         """Start a child that inherits its parent's conversation thread."""
-        return self._start_conversation(
+        return self._start_conversation_impl(
             inputs=inputs,
             messages=messages,
             conversation_id=None,

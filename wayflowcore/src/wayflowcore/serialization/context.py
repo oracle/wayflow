@@ -38,11 +38,11 @@ def _create_component_type_to_plugin_mapping(
     return component_types_to_plugins
 
 
-class MissingDeserializationReferenceError(ValueError):
+class _MissingDeserializationReferenceError(ValueError):
     """Raised when deserialization encounters a reference missing from the root object."""
 
 
-def _iter_nested_components(value: Any) -> List["Component"]:
+def _get_nested_components(value: Any) -> List["Component"]:
     """Return one ordered pass over all public nested components reachable from `value`."""
     from wayflowcore.component import Component
 
@@ -155,7 +155,7 @@ class SerializationContext:
         Marks the current component and all its nested components as provided externally to the
         serialized object graph.
         """
-        for nested_component in _iter_nested_components(component):
+        for nested_component in _get_nested_components(component):
             self._external_references.add(self.get_reference(nested_component))
 
     def check_obj_is_already_serialized(self, obj: Any) -> bool:
@@ -278,7 +278,7 @@ class DeserializationContext:
           The reference of the object being deserialized
         """
         if object_reference not in self._referenced_objects:
-            raise MissingDeserializationReferenceError(
+            raise _MissingDeserializationReferenceError(
                 f"During deserialization, encountered reference {object_reference} that is missing "
                 f"in the _referenced_objects of the serialized root object."
             )
@@ -359,6 +359,6 @@ class DeserializationContext:
         Adds the current components and all its subcomponents to this
         deserialization context.
         """
-        for nested_component in _iter_nested_components(component):
+        for nested_component in _get_nested_components(component):
             component_ref = SerializationContext.get_reference(nested_component)
             self._deserialized_objects.setdefault(component_ref, nested_component)

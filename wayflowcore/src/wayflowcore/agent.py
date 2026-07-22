@@ -404,11 +404,13 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         Parameters
         ----------
         inputs:
-            This argument is not used. It is included for compatibility with the Flow class.
+            This argument is not used.
+            It is included for compatibility with the Flow class.
         messages:
-            Message list to which the agent will participate.
+            Message list to which the agent will participate
         conversation_id:
-            Durable conversation id used for resume, storage, and usage accounting.
+            Conversation id of the parent conversation.
+            It is used for resume, storage, and usage accounting.
         checkpointer:
             Optional checkpoint backend used to restore and persist this conversation.
         checkpoint_id:
@@ -419,7 +421,7 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         Conversation:
             The conversation object of the agent.
         """
-        return self._start_conversation(
+        return self._start_conversation_impl(
             inputs=inputs,
             messages=messages,
             conversation_id=conversation_id,
@@ -428,7 +430,7 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
             parent_conversation=None,
         )
 
-    def _start_conversation(
+    def _start_conversation_impl(
         self,
         inputs: Optional[Dict[str, Any]] = None,
         messages: Union[None, str, "Message", List["Message"], "MessageList"] = None,

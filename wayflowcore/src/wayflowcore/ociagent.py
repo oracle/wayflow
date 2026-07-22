@@ -133,7 +133,7 @@ class OciAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
         Conversation:
             The conversation object of the agent.
         """
-        return self._start_conversation(
+        return self._start_conversation_impl(
             inputs=inputs,
             messages=messages,
             conversation_id=conversation_id,
@@ -142,7 +142,7 @@ class OciAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
             parent_conversation=None,
         )
 
-    def _start_conversation(
+    def _start_conversation_impl(
         self,
         inputs: Optional[Dict[str, Any]] = None,
         messages: Union[None, str, Message, List[Message], MessageList] = None,

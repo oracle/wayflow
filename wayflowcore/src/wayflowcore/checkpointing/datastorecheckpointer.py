@@ -7,7 +7,6 @@
 import hashlib
 import json
 import time
-import warnings
 from textwrap import dedent
 from typing import Any, Dict, List, Optional, Sequence
 
@@ -20,7 +19,6 @@ from wayflowcore.datastore import (
     PostgresDatabaseDatastore,
 )
 from wayflowcore.datastore._relational import RelationalDatastore
-from wayflowcore.datastore.inmemory import _INMEMORY_USER_WARNING
 from wayflowcore.datastore.oracle import _execute_query_on_oracle_db
 from wayflowcore.datastore.postgres import _execute_query_on_postgres_db
 
@@ -458,9 +456,7 @@ class InMemoryCheckpointer(DatastoreCheckpointer):
         checkpointing_interval: CheckpointingInterval = CheckpointingInterval.CONVERSATION_TURNS,
     ) -> None:
         resolved_storage_config = storage_config or StorageConfig()
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", message=f"{_INMEMORY_USER_WARNING}*")
-            datastore = InMemoryDatastore(schema=resolved_storage_config.to_schema())
+        datastore = InMemoryDatastore(schema=resolved_storage_config.to_schema())
         super().__init__(
             datastore=datastore,
             storage_config=resolved_storage_config,

@@ -269,7 +269,7 @@ class A2AAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
             Optional initial message list for the conversation. Can be either a ``MessageList``
             or a list of ``Message`` objects. Defaults to an empty ``MessageList`` if not provided.
         conversation_id:
-            Durable conversation id used for resume, storage, and usage accounting.
+            Conversation id (of the parent conversation) used for resume, storage, and usage accounting.
         checkpointer:
             Optional checkpoint backend used to restore and persist this conversation.
         checkpoint_id:
@@ -280,7 +280,7 @@ class A2AAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
         Conversation:
             A new conversation object associated with this agent.
         """
-        return self._start_conversation(
+        return self._start_conversation_impl(
             inputs=inputs,
             messages=messages,
             conversation_id=conversation_id,
@@ -289,7 +289,7 @@ class A2AAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
             parent_conversation=None,
         )
 
-    def _start_conversation(
+    def _start_conversation_impl(
         self,
         inputs: Optional[Dict[str, Any]] = None,
         messages: Union[None, str, Message, List[Message], MessageList] = None,

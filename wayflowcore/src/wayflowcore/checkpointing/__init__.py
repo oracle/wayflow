@@ -4,6 +4,7 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
+from .checkpoint_state import CheckpointRestoreCompatibilityError
 from .checkpointer import Checkpointer, CheckpointingInterval, ConversationCheckpoint, StorageConfig
 from .datastorecheckpointer import (
     DatastoreCheckpointer,
@@ -14,6 +15,7 @@ from .datastorecheckpointer import (
 
 __all__ = [
     "CheckpointingInterval",
+    "CheckpointRestoreCompatibilityError",
     "Checkpointer",
     "ConversationCheckpoint",
     "DatastoreCheckpointer",

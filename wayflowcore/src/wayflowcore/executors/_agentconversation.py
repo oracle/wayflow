@@ -65,23 +65,15 @@ class AgentConversation(Conversation):
             sub_conversations += [self.state.current_flow_conversation]
         return sub_conversations
 
-    @staticmethod
-    def _sub_component_conversation_key(component: ConversationalComponent) -> str:
-        """Return the canonical runtime key for a subcomponent conversation slot."""
-        # return f"{component.__class__.__name__}:{component.name}"
-        return component.id
-
     def _get_sub_component_conversation(
         self, component: ConversationalComponent
     ) -> Optional["Conversation"]:
-        return self.state.current_sub_component_conversations.get(
-            self._sub_component_conversation_key(component)
-        )
+        return self.state.current_sub_component_conversations.get(component.id)
 
     def _set_sub_component_conversation(
         self, component: ConversationalComponent, conversation: Optional["Conversation"]
     ) -> None:
-        identifier = self._sub_component_conversation_key(component)
+        identifier = component.id
         component_conversations = self.state.current_sub_component_conversations
         if not conversation and identifier in component_conversations:
             component_conversations.pop(identifier)

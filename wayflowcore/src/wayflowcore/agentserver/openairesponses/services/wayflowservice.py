@@ -15,9 +15,12 @@ from fastapi import HTTPException
 from fastapi import status as http_status_code
 
 from wayflowcore.agentserver.serverstorageconfig import ServerStorageConfig
-from wayflowcore.checkpointing import ConversationCheckpoint, DatastoreCheckpointer
+from wayflowcore.checkpointing import (
+    CheckpointRestoreCompatibilityError,
+    ConversationCheckpoint,
+    DatastoreCheckpointer,
+)
 from wayflowcore.checkpointing.checkpoint_state import (
-    _CheckpointRestoreCompatibilityError,
     _save_live_conversation_checkpoint,
     _supports_checkpointing,
 )
@@ -460,7 +463,7 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
             )
             conversation.checkpointer = None
             return conversation
-        except _CheckpointRestoreCompatibilityError as e:
+        except CheckpointRestoreCompatibilityError as e:
             raise HTTPException(
                 status_code=http_status_code.HTTP_400_BAD_REQUEST,
                 detail=f"{incompatible_detail}: {e}",
