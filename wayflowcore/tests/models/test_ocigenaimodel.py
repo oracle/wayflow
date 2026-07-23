@@ -547,6 +547,31 @@ def test_oci_model_has_exact_count_and_reasoning_tokens():
     assert token_usage.reasoning_tokens > 0
 
 
+@retry_test(max_attempts=4)
+@pytest.mark.parametrize(
+    "model_config",
+    [OCI_REASONING_MODEL_API_KEY_CONFIG, COHERE_OCI_API_KEY_CONFIG],
+)
+def test_oci_stream_has_exact_token_count(model_config):
+    """
+    Failure rate:          0 out of 10
+    Observed on:           2026-06-30
+    Average success time:  6.02 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           4
+    Justification:         (0.08 ** 4) ~= 4.8 / 100'000
+    """
+    llm = LlmModelFactory.from_config(model_config)
+
+    for _ in llm.stream_generate(Prompt(messages=CHAT_TEXT_PROMPT)):
+        pass
+
+    token_usage = llm.token_usage_standalone
+    assert token_usage.exact_count
+    assert token_usage.input_tokens > 0
+    assert token_usage.output_tokens > 0
+
+
 def test_oci_openai_responses_generation_config_reaches_service(oci_reasoning_model):
     pytest.importorskip("oci_openai")
 
