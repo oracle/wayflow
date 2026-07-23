@@ -103,6 +103,10 @@ class OciAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
             __metadata_info__=__metadata_info__,
         )
 
+    @property
+    def _supports_checkpointing(self) -> bool:
+        return False
+
     def start_conversation(
         self,
         inputs: Optional[Dict[str, Any]] = None,

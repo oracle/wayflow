@@ -468,6 +468,15 @@ class Flow(ConversationalComponent, SerializableObject):
 
     _DEFAULT_STARTSTEP_NAME: ClassVar[str] = "__StartStep__"
 
+    @property
+    def _supports_checkpointing(self) -> bool:
+        from wayflowcore.serialization.context import _get_nested_components
+
+        return all(
+            nested_component._supports_checkpointing
+            for nested_component in _get_nested_components(self, only_conversational=True)
+        )
+
     def __init__(
         self,
         steps: Optional[Union[Dict[str, "Step"], List["Step"]]] = None,
@@ -1203,7 +1212,7 @@ class Flow(ConversationalComponent, SerializableObject):
             parent_conversation=None,
         )
 
-    def _start_subconversation(
+    def _start_nested_flow_conversation(
         self,
         parent_conversation: "Conversation",
         inputs: Optional[Dict[str, Any]] = None,
@@ -1211,6 +1220,7 @@ class Flow(ConversationalComponent, SerializableObject):
         nesting_level: int = 0,
         context_providers_from_parent_flow: Optional[Set[str]] = None,
     ) -> "FlowConversation":
+        """Start a nested flow while preserving flow execution state from its parent."""
         return self._start_conversation_impl(
             inputs=inputs,
             messages=messages,

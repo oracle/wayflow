@@ -7,19 +7,7 @@
 import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Dict,
-    Generic,
-    List,
-    Optional,
-    Set,
-    Type,
-    TypeVar,
-    Union,
-    cast,
-)
+from typing import TYPE_CHECKING, Any, Dict, Generic, List, Optional, Set, Type, TypeVar, Union
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore.componentwithio import ComponentWithInputsOutputs
@@ -32,6 +20,7 @@ logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from wayflowcore.checkpointing import Checkpointer
+    from wayflowcore.checkpointing.checkpointer import ConversationCheckpoint
     from wayflowcore.conversation import Conversation
     from wayflowcore.executors._executor import ConversationExecutor
     from wayflowcore.messagelist import MessageList
@@ -101,6 +90,12 @@ class ConversationalComponent(ComponentWithInputsOutputs, ABC):
 
     @property
     def llms(self) -> List["LlmModel"]:
+        raise NotImplementedError("to be implemented by child classes")
+
+    @property
+    @abstractmethod
+    def _supports_checkpointing(self) -> bool:
+        """Whether this component and its nested components support checkpointing."""
         raise NotImplementedError("to be implemented by child classes")
 
     def _referenced_tools(self, recursive: bool = True) -> List["Tool"]:
@@ -183,31 +178,28 @@ class ConversationalComponent(ComponentWithInputsOutputs, ABC):
         if parent_conversation is not None:
             if checkpoint_id is not None:
                 raise ValueError("Cannot restore a checkpoint as a subconversation.")
+            # Root checkpoints capture the complete child tree, so construct children
+            # normally instead of restoring them as independent conversations.
             return None, IdGenerator.get_or_generate_id(), parent_conversation.conversation_id
 
-        # No checkpointer means this is a fresh root conversation; just resolve ids.
-        if checkpointer is None:
-            if checkpoint_id is not None:
-                raise ValueError("`checkpoint_id` requires a `checkpointer`.")
+        if checkpoint_id is not None and checkpointer is None:
+            raise ValueError("`checkpoint_id` requires a `checkpointer`.")
+        if checkpoint_id is not None and conversation_id is None:
+            raise ValueError("`checkpoint_id` requires a `conversation_id`.")
 
-            # A root conversation is the first instance in its thread, so one ID serves both roles.
-            conversation_id = conversation_id or IdGenerator.get_or_generate_id()
+        # A root conversation is the first instance in its thread, so one ID serves both roles.
+        conversation_id = conversation_id or IdGenerator.get_or_generate_id()
+
+        if checkpointer is None:
             return None, conversation_id, conversation_id
 
-        # Checkpoint restore uses the thread id to locate stored state.
-        resolved_conversation_id = conversation_id
-        if resolved_conversation_id is None and checkpoint_id is not None:
-            raise ValueError("`checkpoint_id` requires a `conversation_id`.")
-        if resolved_conversation_id is None:
-            resolved_conversation_id = IdGenerator.get_or_generate_id()
-
         checkpoint = (
-            checkpointer.load(resolved_conversation_id, checkpoint_id)
+            checkpointer.load(conversation_id, checkpoint_id)
             if checkpoint_id is not None
-            else checkpointer.load_latest(resolved_conversation_id)
+            else checkpointer.load_latest(conversation_id)
         )
         if checkpoint is None:
-            return None, resolved_conversation_id, resolved_conversation_id
+            return None, conversation_id, conversation_id
 
         # Restoring and starting with new input are separate operations.
         if self._messages_or_inputs_were_passed(inputs=inputs, messages=messages):
@@ -216,22 +208,59 @@ class ConversationalComponent(ComponentWithInputsOutputs, ABC):
                 "Load the conversation first, then append new user input explicitly."
             )
 
-        from wayflowcore.checkpointing.checkpoint_state import _load_checkpointed_conversation
+        conversation = self._restore_checkpointed_conversation(
+            checkpoint=checkpoint,
+            expected_conversation_type=expected_conversation_type,
+            checkpointer=checkpointer,
+        )
+        return conversation, conversation_id, conversation_id
+
+    def _restore_checkpointed_conversation(
+        self,
+        checkpoint: "ConversationCheckpoint",
+        expected_conversation_type: Type[ConversationTypeT],
+        checkpointer: "Checkpointer",
+    ) -> ConversationTypeT:
+        """Rehydrate a checkpoint against this component's live graph and tools."""
+        from wayflowcore.checkpointing import CheckpointRestoreCompatibilityError
+        from wayflowcore.exceptions import DataclassFieldDeserializationError
+        from wayflowcore.serialization import autodeserialize
+        from wayflowcore.serialization.context import (
+            DeserializationContext,
+            _MissingDeserializationReferenceError,
+        )
 
         # Rehydrate the stored conversation against this live component tree.
-        conversation = _load_checkpointed_conversation(
-            checkpoint,
-            component=self,
-            expected_conversation_type=expected_conversation_type,
-            tool_registry={tool.name: tool for tool in self._referenced_tools()},
-            checkpointer=checkpointer,
-            attach_checkpointer=True,
-        )
-        return (
-            cast(ConversationTypeT, conversation),
-            resolved_conversation_id,
-            resolved_conversation_id,
-        )
+        deserialization_context = DeserializationContext()
+        deserialization_context.registered_tools = {
+            tool.name: tool for tool in self._referenced_tools()
+        }
+        deserialization_context._register_external_component_references(self)
+        try:
+            conversation = autodeserialize(
+                checkpoint.state,
+                deserialization_context=deserialization_context,
+            )
+        except (_MissingDeserializationReferenceError, DataclassFieldDeserializationError) as exc:
+            error: Optional[BaseException] = exc
+            while error is not None and not isinstance(
+                error, _MissingDeserializationReferenceError
+            ):
+                error = error.__cause__
+            if error is None:
+                raise
+            raise CheckpointRestoreCompatibilityError(
+                "Cannot restore this checkpoint because the current component tree does not "
+                "match the serialized component ids. Restart-safe checkpoint restore requires stable component ids."
+            ) from exc
+        if not isinstance(conversation, expected_conversation_type):
+            raise CheckpointRestoreCompatibilityError(
+                "Cannot restore this checkpoint because this conversation was started with another "
+                f"component. Expected `{expected_conversation_type.__name__}`, got `{type(conversation).__name__}`."
+            )
+        conversation.checkpoint_id = checkpoint.checkpoint_id
+        conversation.checkpointer = checkpointer
+        return conversation
 
     def _start_subconversation(
         self,

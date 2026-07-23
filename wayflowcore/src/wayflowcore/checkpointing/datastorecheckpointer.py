@@ -249,7 +249,7 @@ class DatastoreCheckpointer(Checkpointer):
             )
         return checkpoint
 
-    def save(self, checkpoint: ConversationCheckpoint) -> None:
+    def _save_checkpoint(self, checkpoint: ConversationCheckpoint) -> None:
         created_at_ns = time.time_ns()
         next_save_sequence = (
             self._save_sequence_by_conversation.get(checkpoint.conversation_id, 0) + 1

@@ -20,10 +20,6 @@ from wayflowcore.checkpointing import (
     ConversationCheckpoint,
     DatastoreCheckpointer,
 )
-from wayflowcore.checkpointing.checkpoint_state import (
-    _save_live_conversation_checkpoint,
-    _supports_checkpointing,
-)
 from wayflowcore.conversation import Conversation
 from wayflowcore.conversationalcomponent import ConversationalComponent
 from wayflowcore.datastore import Datastore, InMemoryDatastore
@@ -210,7 +206,7 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
         # Stored OpenAI responses are backed by durable WayFlow checkpoints. Components
         # that cannot checkpoint may still serve non-stored, non-resumed responses.
         should_store_response = body.store is not False
-        if not _supports_checkpointing(agent):
+        if not agent._supports_checkpointing:
             if previous_response_id is not None or conversation_id is not None:
                 raise HTTPException(
                     status_code=http_status_code.HTTP_501_NOT_IMPLEMENTED,
@@ -344,8 +340,7 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
 
         # persists a completed OpenAI Responses response as a WayFlow checkpoint
         if should_store_response:
-            _save_live_conversation_checkpoint(
-                self.checkpointer,
+            self.checkpointer.save(
                 state,
                 # Use the public response id as the checkpoint id so GET/DELETE/resume
                 # can locate the exact checkpoint from only the OpenAI Responses API id.

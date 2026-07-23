@@ -289,7 +289,7 @@ class FlowConversationExecutor(ConversationExecutor):
         resolved_sub_conversation_id = (
             sub_conversation_id or FlowConversationExecutor._SUB_CONVERSATION_KEY
         )
-        sub_conversation = flow._start_subconversation(
+        sub_conversation = flow._start_nested_flow_conversation(
             parent_conversation=conversation,
             inputs=inputs_not_from_context_providers,
             messages=conversation.message_list,

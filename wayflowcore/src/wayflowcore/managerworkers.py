@@ -44,6 +44,15 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
     description: Optional[str]
     id: str
 
+    @property
+    def _supports_checkpointing(self) -> bool:
+        from wayflowcore.serialization.context import _get_nested_components
+
+        return all(
+            nested_component._supports_checkpointing
+            for nested_component in _get_nested_components(self, only_conversational=True)
+        )
+
     def __init__(
         self,
         group_manager: Union[LlmModel, Agent],

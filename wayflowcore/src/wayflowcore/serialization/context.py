@@ -7,10 +7,11 @@
 import warnings
 from copy import deepcopy
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Type, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional, Type, Union, cast, overload
 
 if TYPE_CHECKING:
     from wayflowcore.component import Component
+    from wayflowcore.conversationalcomponent import ConversationalComponent
     from wayflowcore.serialization.plugins import (
         WayflowDeserializationPlugin,
         WayflowSerializationPlugin,
@@ -36,42 +37,6 @@ def _create_component_type_to_plugin_mapping(
                     f"component types with the same name: `{component_type}`"
                 )
     return component_types_to_plugins
-
-
-class _MissingDeserializationReferenceError(ValueError):
-    """Raised when deserialization encounters a reference missing from the root object."""
-
-
-def _get_nested_components(value: Any) -> List["Component"]:
-    """Return one ordered pass over all public nested components reachable from `value`."""
-    from wayflowcore.component import Component
-
-    ordered_components: List["Component"] = []
-    visited_component_refs: set[str] = set()
-
-    def _collect_nested_components(current_value: Any) -> None:
-        if isinstance(current_value, Component):
-            component_ref = SerializationContext.get_reference(current_value)
-            if component_ref in visited_component_refs:
-                return
-            visited_component_refs.add(component_ref)
-            ordered_components.append(current_value)
-            for name, attr in vars(current_value).items():
-                if not name.startswith("_"):
-                    _collect_nested_components(attr)
-            return
-
-        if isinstance(current_value, dict):
-            for nested_value in current_value.values():
-                _collect_nested_components(nested_value)
-            return
-
-        if isinstance(current_value, (list, tuple, set)):
-            for nested_value in current_value:
-                _collect_nested_components(nested_value)
-
-    _collect_nested_components(value)
-    return ordered_components
 
 
 class SerializationContext:
@@ -155,7 +120,7 @@ class SerializationContext:
         Marks the current component and all its nested components as provided externally to the
         serialized object graph.
         """
-        for nested_component in _get_nested_components(component):
+        for nested_component in _get_nested_components(component, include_root=True):
             self._external_references.add(self.get_reference(nested_component))
 
     def check_obj_is_already_serialized(self, obj: Any) -> bool:
@@ -359,6 +324,81 @@ class DeserializationContext:
         Adds the current components and all its subcomponents to this
         deserialization context.
         """
-        for nested_component in _get_nested_components(component):
+        for nested_component in _get_nested_components(component, include_root=True):
             component_ref = SerializationContext.get_reference(nested_component)
             self._deserialized_objects.setdefault(component_ref, nested_component)
+
+
+class _MissingDeserializationReferenceError(ValueError):
+    """Raised when deserialization encounters a reference missing from the root object."""
+
+
+@overload
+def _get_nested_components(
+    value: Any,
+    include_root: bool = False,
+    only_conversational: Literal[True] = True,
+) -> List["ConversationalComponent"]: ...
+
+
+@overload
+def _get_nested_components(
+    value: Any,
+    include_root: bool = False,
+    only_conversational: Literal[False] = False,
+) -> List["Component"]: ...
+
+
+def _get_nested_components(
+    value: Any,
+    include_root: bool = False,
+    only_conversational: bool = False,
+) -> List[Any]:
+    """Return ordered components reachable from ``value``.
+
+    Parameters
+    ----------
+    value:
+        Object whose component graph should be traversed.
+    include_root:
+        Whether to include ``value`` when it is a component.
+    only_conversational:
+        Whether to return only conversational components.
+    """
+    from wayflowcore.component import Component
+
+    component_type: Optional[Type["Component"]] = None
+    if only_conversational:
+        from wayflowcore.conversationalcomponent import ConversationalComponent
+
+        component_type = ConversationalComponent
+
+    ordered_components: List["Component"] = []
+    visited_component_refs: set[str] = set()
+
+    def _collect_nested_components(current_value: Any) -> None:
+        if isinstance(current_value, Component):
+            component_ref = SerializationContext.get_reference(current_value)
+            if component_ref in visited_component_refs:
+                return
+            visited_component_refs.add(component_ref)
+            if (current_value is not value or include_root) and (
+                component_type is None or isinstance(current_value, component_type)
+            ):
+                ordered_components.append(current_value)
+            for name, attr in vars(current_value).items():
+                if not name.startswith("_"):
+                    _collect_nested_components(attr)
+            return
+
+        if isinstance(current_value, dict):
+            for nested_value in current_value.values():
+                _collect_nested_components(nested_value)
+            return
+
+        if isinstance(current_value, (list, tuple, set)):
+            for nested_value in current_value:
+                _collect_nested_components(nested_value)
+
+    _collect_nested_components(value)
+    return ordered_components

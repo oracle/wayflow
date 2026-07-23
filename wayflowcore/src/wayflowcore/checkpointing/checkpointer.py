@@ -7,9 +7,15 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+
+
+class CheckpointRestoreCompatibilityError(ValueError):
+    """Raised when a checkpoint cannot be resumed against the current live graph."""
+
 
 if TYPE_CHECKING:
+    from wayflowcore.conversation import Conversation
     from wayflowcore.datastore import Datastore
 
 
@@ -116,14 +122,88 @@ class Checkpointer(ABC):
     def load(self, conversation_id: str, checkpoint_id: str) -> ConversationCheckpoint:
         raise NotImplementedError()
 
+    def save(
+        self,
+        checkpoint: Union["Conversation", ConversationCheckpoint],
+        *,
+        checkpoint_id: Optional[str] = None,
+        component_id: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> Optional[ConversationCheckpoint]:
+        """Persist a checkpoint or snapshot a live conversation before persisting it.
+
+        Checkpoint identifiers, component identifiers, and metadata are only valid
+        when saving a live conversation.
+        """
+        from wayflowcore.conversation import Conversation
+
+        if isinstance(checkpoint, Conversation):
+            return self._save_conversation(
+                checkpoint,
+                checkpoint_id=checkpoint_id,
+                component_id=component_id,
+                metadata=metadata,
+            )
+        if checkpoint_id is not None or component_id is not None or metadata is not None:
+            raise ValueError(
+                "`checkpoint_id`, `component_id`, and `metadata` can only be provided "
+                "when saving a live Conversation."
+            )
+        self._save_checkpoint(checkpoint)
+        return None
+
+    def _save_conversation(
+        self,
+        conversation: "Conversation",
+        *,
+        checkpoint_id: Optional[str] = None,
+        component_id: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> ConversationCheckpoint:
+        """Create and persist a checkpoint for a live conversation."""
+        import time
+
+        from wayflowcore.idgeneration import IdGenerator
+        from wayflowcore.serialization import serialize
+        from wayflowcore.serialization.context import SerializationContext
+
+        if not conversation.component._supports_checkpointing:
+            raise NotImplementedError("Checkpointing this component is not supported yet.")
+        serialization_context = SerializationContext(root=conversation)
+        serialization_context._register_external_component_references(conversation.component)
+        checkpoint = ConversationCheckpoint(
+            checkpoint_id=checkpoint_id or IdGenerator.get_or_generate_id(),
+            conversation_id=conversation.conversation_id,
+            component_id=component_id or conversation.component.id,
+            created_at=int(time.time()),
+            state=serialize(conversation, serialization_context=serialization_context),
+            metadata=dict(metadata or {}),
+        )
+        self._save_checkpoint(checkpoint)
+        conversation.checkpoint_id = checkpoint.checkpoint_id
+        return checkpoint
+
     @abstractmethod
-    def save(self, checkpoint: ConversationCheckpoint) -> None:
+    def _save_checkpoint(self, checkpoint: ConversationCheckpoint) -> None:
+        """Persist an already-materialized checkpoint in the backend."""
         raise NotImplementedError()
 
-    async def save_async(self, checkpoint: ConversationCheckpoint) -> None:
+    async def save_async(
+        self,
+        checkpoint: Union["Conversation", ConversationCheckpoint],
+        *,
+        checkpoint_id: Optional[str] = None,
+        component_id: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> Optional[ConversationCheckpoint]:
         # Async persistence is not implemented yet; this preserves the async API
         # contract while delegating to the synchronous backend implementation.
-        self.save(checkpoint)
+        return self.save(
+            checkpoint,
+            checkpoint_id=checkpoint_id,
+            component_id=component_id,
+            metadata=metadata,
+        )
 
     @abstractmethod
     def list_checkpoints(

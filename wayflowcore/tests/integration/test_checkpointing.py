@@ -11,7 +11,6 @@ import pytest
 
 from wayflowcore.agent import Agent
 from wayflowcore.checkpointing import CheckpointingInterval, InMemoryCheckpointer
-from wayflowcore.checkpointing.checkpoint_state import _save_live_conversation_checkpoint
 from wayflowcore.conversation import Conversation
 from wayflowcore.conversationalcomponent import ConversationalComponent
 from wayflowcore.executors._events.event import Event, EventType
@@ -439,7 +438,7 @@ def test_agent_checkpoint_restore_relinks_current_flow_parent() -> None:
         interrupt_step_name="agent_child_first_step",
     )
     conversation.state.current_flow_conversation = parent_flow_conversation
-    _save_live_conversation_checkpoint(checkpointer, conversation)
+    checkpointer.save(conversation)
 
     restarted_agent, restarted_parent_flow = build_agent()
     restored_conversation = restarted_agent.start_conversation(

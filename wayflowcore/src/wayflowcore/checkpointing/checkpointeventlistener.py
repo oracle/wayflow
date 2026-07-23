@@ -13,7 +13,6 @@ from ..events.event import (
     FlowExecutionIterationStartedEvent,
     LlmGenerationResponseEvent,
 )
-from .checkpoint_state import _save_live_conversation_checkpoint
 from .checkpointer import Checkpointer, CheckpointingInterval
 
 if TYPE_CHECKING:
@@ -159,8 +158,7 @@ class _ConversationCheckpointEventListener(EventListener):
         self._save_internal_turn_checkpoint(event)
 
     def _save_internal_turn_checkpoint(self, event: _IterationStartedEvent) -> None:
-        _save_live_conversation_checkpoint(
-            self.checkpointer,
+        self.checkpointer.save(
             self.conversation,
             metadata=_build_listener_checkpoint_metadata(
                 self.conversation,
@@ -196,8 +194,7 @@ def get_conversation_checkpoint_execution_context(
     with register_event_listeners([listener]):
         yield
         listener.save_pending_llm_checkpoint()
-        _save_live_conversation_checkpoint(
-            checkpointer,
+        checkpointer.save(
             conversation,
             metadata=_build_listener_checkpoint_metadata(
                 conversation,

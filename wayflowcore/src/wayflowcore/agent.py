@@ -363,6 +363,15 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         self._update_internal_state()
 
     @property
+    def _supports_checkpointing(self) -> bool:
+        from wayflowcore.serialization.context import _get_nested_components
+
+        return all(
+            nested_component._supports_checkpointing
+            for nested_component in _get_nested_components(self, only_conversational=True)
+        )
+
+    @property
     def agent_id(self) -> str:
         return self.id
 

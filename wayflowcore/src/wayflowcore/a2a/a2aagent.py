@@ -246,6 +246,10 @@ class A2AAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
             __metadata_info__=__metadata_info__,
         )
 
+    @property
+    def _supports_checkpointing(self) -> bool:
+        return True
+
     def start_conversation(
         self,
         inputs: Optional[Dict[str, Any]] = None,
@@ -269,7 +273,7 @@ class A2AAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
             Optional initial message list for the conversation. Can be either a ``MessageList``
             or a list of ``Message`` objects. Defaults to an empty ``MessageList`` if not provided.
         conversation_id:
-            Conversation id (of the parent conversation) used for resume, storage, and usage accounting.
+            Conversation id used for checkpointing the conversation and later resuming it.
         checkpointer:
             Optional checkpoint backend used to restore and persist this conversation.
         checkpoint_id:

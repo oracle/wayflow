@@ -209,6 +209,26 @@ def test_inmemory_checkpointer_can_save_load_list_and_delete_checkpoints() -> No
     ] == [first_checkpoint_id]
 
 
+def test_checkpointer_save_snapshots_a_live_conversation_with_custom_metadata() -> None:
+    checkpointer = InMemoryCheckpointer()
+    flow = create_single_step_flow(OutputMessageStep(message_template="Hello from checkpointing."))
+    conversation = flow.start_conversation(conversation_id="custom-checkpoint")
+
+    saved_checkpoint = checkpointer.save(
+        conversation,
+        checkpoint_id="response_123",
+        component_id="served-model",
+        metadata={"response": "serialized response"},
+    )
+
+    assert saved_checkpoint is not None
+    assert saved_checkpoint.checkpoint_id == "response_123"
+    assert conversation.checkpoint_id == "response_123"
+    checkpoint = checkpointer.load("custom-checkpoint", "response_123")
+    assert checkpoint.component_id == "served-model"
+    assert checkpoint.metadata["response"] == "serialized response"
+
+
 def test_checkpoint_restore_requires_conversation_id_when_checkpoint_id_is_provided() -> None:
     checkpointer = InMemoryCheckpointer()
     flow = create_single_step_flow(OutputMessageStep(message_template="Hello from checkpointing."))
