@@ -52,6 +52,7 @@ You can communicate with the following entities.
 </tool_use_rules>
 
 Always structure your response as as a thought followed by one or multiple tool calls using JSON compliant syntax.
+When making multiple tool calls, output them as a single JSON array of tool-call objects. Do not output multiple top-level JSON objects.
 The user can only see the content of the messages sent with `talk_to_user` and will not see any of your thoughts.
 -> Put **internal-only** information in the thoughts
 -> Put all necessary information in the tool calls to communicate to user/other entity.
@@ -60,7 +61,14 @@ Do not use variables in the function call. Here's the structure:
 
 YOUR THOUGHTS (WHAT ACTION YOU ARE GOING TO TAKE; REMEMBER THAT THE USER CANNOT SEE THOSE!)
 
-{"name": function name, "parameters": dictionary of argument name and its value}
+For one tool call:
+{"name": "<function_name>", "parameters": {"<argument_name>": "<argument_value>"}}
+
+For multiple tool calls:
+[
+  {"name": "<first_function_name>", "parameters": {"<argument_name>": "<argument_value>"}},
+  {"name": "<second_function_name>", "parameters": {"<argument_name>": "<argument_value>"}}
+]
 </response_rules>
 
 <tools>
@@ -85,29 +93,48 @@ Here are the instructions specific to your role.:
 """
 ).strip()
 
-_DEFAULT_MANAGERWORKERS_SYSTEM_REMINDER = ("""
+_DEFAULT_MANAGERWORKERS_SYSTEM_REMINDER = (
+    """
 --- SYSTEM REMINDER ---
 You are an helpful AI Agent, your name: {{name}}. Your user/caller is: {{caller_name}}.
 
 The user can only see the content of the messages sent with `talk_to_user` and will not see any of your thoughts.
 
 Always structure your response as a thought followed by one or multiple tool calls using JSON compliant syntax.
+When making multiple tool calls, output them as a single JSON array of tool-call objects. Do not output multiple top-level JSON objects.
 Do not use variables in the function call. Here's the structure:
 
 YOUR THOUGHTS (WHAT ACTION YOU ARE GOING TO TAKE; REMEMBER THAT THE USER CANNOT SEE THOSE!)
 
-{"name": function name, "parameters": dictionary of argument name and its value}
+For one tool call:
+{"name": "<function_name>", "parameters": {"<argument_name>": "<argument_value>"}}
 
-""" + _TOOL_OUTPUT_SYSTEM_RULE).strip()
+For multiple tool calls:
+[
+  {"name": "<first_function_name>", "parameters": {"<argument_name>": "<argument_value>"}},
+  {"name": "<second_function_name>", "parameters": {"<argument_name>": "<argument_value>"}}
+]
+
+"""
+    + _TOOL_OUTPUT_SYSTEM_RULE
+).strip()
 
 
 class ManagerWorkersJsonToolOutputParser(JsonToolOutputParser, SerializableObject):
     def parse_thoughts_and_calls(self, raw_txt: str) -> Tuple[str, str]:
         """Mananagerworkers-specific function to separate thoughts and tool calls."""
-        if "{" not in raw_txt:
+        object_start = raw_txt.find("{")
+        if object_start < 0:
             return "", raw_txt
-        thoughts, raw_tool_calls = raw_txt.split("{", maxsplit=1)
-        return thoughts.strip(), "{" + raw_tool_calls.replace("args={", "parameters={")
+
+        array_start = raw_txt.rfind("[", 0, object_start)
+        if array_start >= 0 and not raw_txt[array_start + 1 : object_start].strip():
+            tool_call_start = array_start
+        else:
+            tool_call_start = object_start
+        thoughts = raw_txt[:tool_call_start]
+        raw_tool_calls = raw_txt[tool_call_start:]
+        return thoughts.strip(), raw_tool_calls.replace("args={", "parameters={")
 
     def parse_tool_request_from_str(self, raw_txt: str) -> List[ToolRequest]:
         tool_requests = super().parse_tool_request_from_str(raw_txt)

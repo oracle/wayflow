@@ -13,6 +13,11 @@ Improvements
   Additional fields can be allowed, rejected, or validated with a property definition,
   and the configuration is preserved when importing and exporting JSON Schema.
 
+* **Improved Swarm and ManagerWorkers multiple tool calling**
+
+  Swarm and ManagerWorkers prompts now require multiple independent tool calls
+  to be emitted as one JSON array, improving parallel tool use.
+
 * **Add support for Gemma-4 models with native tool-calling**
   :ref:`OpenAICompatibleModel <openaicompatiblemodel>` and :ref:`VllmModel <vllmmodel>`
   now support Gemma-4 models with native tool-calling.
