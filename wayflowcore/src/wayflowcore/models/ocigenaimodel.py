@@ -64,6 +64,7 @@ from .ociclientconfig import (
     _client_config_to_oci_client_kwargs,
     _client_config_to_oci_openai_client_auth,
     _convert_arguments_into_client_config,
+    _detect_serving_mode_from_model_id,
 )
 
 logger = logging.getLogger(__name__)
@@ -78,13 +79,6 @@ if TYPE_CHECKING:
     from wayflowcore.templates import PromptTemplate
 else:
     oci = LazyLoader("oci")
-
-
-def _detect_serving_mode_from_model_id(model_id: str) -> ServingMode:
-    # dedicated model_ids have some specific shape
-    if "generativeaimodel" in model_id:
-        return ServingMode.DEDICATED
-    return ServingMode.ON_DEMAND
 
 
 def _classify_oci_retry_exception(

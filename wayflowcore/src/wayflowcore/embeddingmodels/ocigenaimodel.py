@@ -3,7 +3,6 @@
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
-import re
 import warnings
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, cast
 
@@ -19,6 +18,7 @@ from wayflowcore.models.ociclientconfig import (
     OCIClientConfig,
     ServingMode,
     _client_config_to_oci_client_kwargs,
+    _detect_serving_mode_from_model_id,
 )
 from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.serialization.context import DeserializationContext, SerializationContext
@@ -34,23 +34,6 @@ if TYPE_CHECKING:
     import oci  # type: ignore
 else:
     oci = LazyLoader("oci")
-
-
-_OCID_RESOURCE_TYPE_RE = re.compile(r"^ocid\d+\.(?P<resource_type>[^.]+)\.")
-
-
-def _detect_serving_mode_from_model_id(model_id: str) -> ServingMode:
-    """Infer serving mode from an OCI GenAI embedding inference identifier.
-
-    Examples
-    --------
-    ``cohere.embed-v4.0`` -> ``ServingMode.ON_DEMAND``
-    ``ocid1.generativeaiendpoint.oc1...`` -> ``ServingMode.DEDICATED``
-    """
-    match = _OCID_RESOURCE_TYPE_RE.match(model_id)
-    if match and match.group("resource_type") == "generativeaiendpoint":
-        return ServingMode.DEDICATED
-    return ServingMode.ON_DEMAND
 
 
 class OCIGenAIEmbeddingModel(EmbeddingModel, SerializableObject):
