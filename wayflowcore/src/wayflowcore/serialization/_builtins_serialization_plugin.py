@@ -1056,6 +1056,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                     runtime_ociclientconfig=runtime_embedding_model.config,
                     referenced_objects=referenced_objects,
                 ),
+                serving_mode=runtime_embedding_model.serving_mode,
                 retry_policy=(
                     self._retrypolicy_convert_to_agentspec(runtime_embedding_model.retry_policy)
                     if runtime_embedding_model.retry_policy is not None

@@ -22,6 +22,12 @@ Improvements
   :ref:`OpenAICompatibleModel <openaicompatiblemodel>` and :ref:`VllmModel <vllmmodel>`
   now support Gemma-4 models with native tool-calling.
 
+* **OCI GenAI embedding serving modes**
+
+  :ref:`OCIGenAIEmbeddingModel <ocigenaiembeddingmodel>` now supports both on-demand
+  and dedicated OCI GenAI serving modes. Dedicated mode can be selected explicitly
+  or inferred on a best-effort basis from a dedicated GenAI endpoint OCID.
+
 WayFlow 26.1.2
 --------------
 

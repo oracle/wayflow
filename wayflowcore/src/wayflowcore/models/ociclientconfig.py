@@ -6,6 +6,7 @@
 
 import logging
 import os
+import re
 import warnings
 from abc import ABC
 from copy import deepcopy
@@ -36,6 +37,31 @@ class _OCIAuthType(str, Enum):
     SECURITY_TOKEN = "SECURITY_TOKEN"  # nosec0002 # the reported issue by pybandit that variables should not be named token is hard to comply with in this context as the variable refers to the token-based authentication method for the OCI service
     INSTANCE_PRINCIPAL = "INSTANCE_PRINCIPAL"
     RESOURCE_PRINCIPAL = "RESOURCE_PRINCIPAL"
+
+
+class ServingMode(str, Enum):
+    """The serving mode in which an OCI Generative AI model is hosted."""
+
+    ON_DEMAND = "ON_DEMAND"
+    DEDICATED = "DEDICATED"
+
+
+_OCID_RESOURCE_TYPE_RE = re.compile(r"^ocid\d+\.(?P<resource_type>[^.]+)\.")
+_DEDICATED_RESOURCE_TYPES = {"generativeaimodel", "generativeaiendpoint"}
+
+
+def _detect_serving_mode_from_model_id(model_id: str) -> ServingMode:
+    """Infer OCI GenAI serving mode from a model or endpoint identifier.
+
+    Examples
+    --------
+    ``cohere.embed-v4.0`` -> ``ServingMode.ON_DEMAND``
+    ``ocid1.generativeaiendpoint.oc1...`` -> ``ServingMode.DEDICATED``
+    """
+    match = _OCID_RESOURCE_TYPE_RE.match(model_id)
+    if match and match.group("resource_type") in _DEDICATED_RESOURCE_TYPES:
+        return ServingMode.DEDICATED
+    return ServingMode.ON_DEMAND
 
 
 @dataclass

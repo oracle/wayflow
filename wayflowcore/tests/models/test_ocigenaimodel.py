@@ -461,6 +461,13 @@ def test_oci_model_raises_warning_when_parameters_are_not_supported(grok_oci_llm
             "GENERIC",
             True,
         ),
+        (
+            "ocid2.generativeaiendpoint.oc1.us-chicago-1.aaaaaaa",
+            None,
+            ModelProvider.META,
+            "GENERIC",
+            True,
+        ),
     ],
 )
 def test_model_uses_proper_provider(

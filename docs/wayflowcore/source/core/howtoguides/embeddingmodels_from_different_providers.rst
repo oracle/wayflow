@@ -60,6 +60,14 @@ OCI GenAI Embedding Model
   OCI client config to authenticate the OCI service.
   See the below examples and :ref:`ociclientconfigclassesforauthentication` for the usage and more information.
 
+.. option:: serving_mode: ServingMode, optional
+
+  The OCI serving mode. Use ``ServingMode.ON_DEMAND`` for a model name such as
+  ``cohere.embed-v4.0`` or ``ServingMode.DEDICATED`` for a dedicated GenAI
+  endpoint OCID. When omitted, WayFlow makes a best-effort attempt to infer
+  dedicated mode from a dedicated endpoint OCID and otherwise defaults to
+  on-demand mode.
+
 **Examples**
 
 .. literalinclude:: ../code_examples/example_initialize_embedding_models.py

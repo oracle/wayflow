@@ -4,6 +4,7 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
+from ..models.ociclientconfig import ServingMode  # re-exported for user convenience
 from .embeddingmodel import EmbeddingModel
 from .ocigenaimodel import OCIGenAIEmbeddingModel
 from .ollamamodel import OllamaEmbeddingModel
@@ -14,6 +15,7 @@ from .vllmmodel import VllmEmbeddingModel
 __all__ = [
     "EmbeddingModel",
     "OCIGenAIEmbeddingModel",
+    "ServingMode",
     "OllamaEmbeddingModel",
     "OpenAICompatibleEmbeddingModel",
     "OpenAIEmbeddingModel",

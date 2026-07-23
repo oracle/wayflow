@@ -36,6 +36,9 @@ OCI GenAI Embedding Models
 .. _ocigenaiembeddingmodel:
 .. autoclass:: wayflowcore.embeddingmodels.ocigenaimodel.OCIGenAIEmbeddingModel
 
+.. autoclass:: wayflowcore.models.ociclientconfig.ServingMode
+   :no-index:
+
 Ollama Embedding Models
 ~~~~~~~~~~~~~~~~~~~~~~~
 

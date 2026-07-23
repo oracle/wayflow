@@ -17,7 +17,7 @@ from wayflowcore.agentspec.components._pydantic_plugins import (
     PydanticComponentDeserializationPlugin,
     PydanticComponentSerializationPlugin,
 )
-from wayflowcore.models.ocigenaimodel import ServingMode
+from wayflowcore.models.ociclientconfig import ServingMode
 
 
 class PluginEmbeddingConfig(Component, abstract=True):
