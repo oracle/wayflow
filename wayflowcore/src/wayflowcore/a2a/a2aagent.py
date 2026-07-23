@@ -302,7 +302,6 @@ class A2AAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
         checkpoint_id: Optional[str] = None,
         parent_conversation: Optional["Conversation"] = None,
     ) -> "A2AAgentConversation":
-        """Create the concrete A2A conversation, including nested conversations."""
         from wayflowcore.executors._a2aagentconversation import A2AAgentConversation
         from wayflowcore.executors._a2aagentexecutor import A2AAgentState
 

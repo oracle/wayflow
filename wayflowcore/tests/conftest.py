@@ -24,6 +24,7 @@ from wayflowcore import Message, MessageType
 from wayflowcore._threading import shutdown_threadpool
 from wayflowcore.datastore import MTlsOracleDatabaseConnectionConfig
 from wayflowcore.datastore.oracle import TlsOracleDatabaseConnectionConfig
+from wayflowcore.datastore.postgres import TlsPostgresDatabaseConnectionConfig
 from wayflowcore.embeddingmodels import VllmEmbeddingModel
 from wayflowcore.flowhelpers import create_single_step_flow
 from wayflowcore.mcp import authless_mcp_enabled
@@ -959,6 +960,29 @@ def get_oracle_connection_config():
             "No database connection arguments configured in enviroment. "
             "Skipping Oracle DB tests..."
         )
+
+
+def all_postgres_connection_config_env_variables_are_specified():
+    postgres_connection_args = [
+        "POSTGRES_DB_USER",
+        "POSTGRES_DB_PASSWORD",
+        "POSTGRES_DB_URL",
+    ]
+    return all(arg in os.environ for arg in postgres_connection_args)
+
+
+def get_postgres_connection_config():
+    if all_postgres_connection_config_env_variables_are_specified():
+        return TlsPostgresDatabaseConnectionConfig(
+            user=os.environ["POSTGRES_DB_USER"],
+            password=os.environ["POSTGRES_DB_PASSWORD"],
+            url=os.environ["POSTGRES_DB_URL"],
+            sslmode="disable",
+        )
+    pytest.skip(
+        "No database connection arguments configured in environment. "
+        "Skipping Postgres DB tests..."
+    )
 
 
 @contextlib.contextmanager

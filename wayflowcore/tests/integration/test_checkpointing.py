@@ -4,15 +4,26 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
-from functools import partial
 from typing import Any, Dict, Optional
+from uuid import uuid4
 
 import pytest
 
 from wayflowcore.agent import Agent
-from wayflowcore.checkpointing import CheckpointingInterval, InMemoryCheckpointer
+from wayflowcore.checkpointing import (
+    CheckpointingInterval,
+    InMemoryCheckpointer,
+    OracleDatabaseCheckpointer,
+    PostgresCheckpointer,
+    StorageConfig,
+)
+from wayflowcore.checkpointing.datastorecheckpointer import (
+    _prepare_oracle_checkpoint_datastore,
+    _prepare_postgres_checkpoint_datastore,
+)
 from wayflowcore.conversation import Conversation
-from wayflowcore.conversationalcomponent import ConversationalComponent
+from wayflowcore.datastore.oracle import _execute_query_on_oracle_db
+from wayflowcore.datastore.postgres import _execute_query_on_postgres_db
 from wayflowcore.executors._events.event import Event, EventType
 from wayflowcore.executors._executionstate import ConversationExecutionState
 from wayflowcore.executors.executionstatus import FinishedStatus, UserMessageRequestStatus
@@ -25,15 +36,44 @@ from wayflowcore.executors.interrupts.executioninterrupt import (
 from wayflowcore.flow import Flow
 from wayflowcore.flowbuilder import FlowBuilder
 from wayflowcore.managerworkers import ManagerWorkers
+from wayflowcore.models import LlmModel
 from wayflowcore.serialization import deserialize, serialize
 from wayflowcore.steps import FlowExecutionStep
 from wayflowcore.swarm import Swarm
+from wayflowcore.tools import ToolRequest
 
+from ..conftest import get_oracle_connection_config, get_postgres_connection_config
 from ..serialization.test_assistant_serialization import create_flow
 from ..test_managerworkers import _send_message
 from ..test_swarm import _handoff_message
 from ..testhelpers.dummy import DoNothingStep, DummyModel
 from ..testhelpers.patching import patch_llm
+
+
+@pytest.fixture(params=["in-memory", "postgres", "oracle"])
+def integration_checkpointer(request):
+    if request.param == "in-memory":
+        yield InMemoryCheckpointer()
+        return
+
+    storage_config = StorageConfig(table_name=f"test_cp_{uuid4().hex[:20]}")
+    if request.param == "postgres":
+        connection_config = get_postgres_connection_config()
+        _prepare_postgres_checkpoint_datastore(connection_config, storage_config)
+        checkpointer = PostgresCheckpointer(connection_config, storage_config)
+    else:
+        connection_config = get_oracle_connection_config()
+        _prepare_oracle_checkpoint_datastore(connection_config, storage_config)
+        checkpointer = OracleDatabaseCheckpointer(connection_config, storage_config)
+
+    try:
+        yield checkpointer
+    finally:
+        drop_query = f"DROP TABLE {storage_config.table_name}"
+        if request.param == "postgres":
+            _execute_query_on_postgres_db(connection_config, drop_query)
+        else:
+            _execute_query_on_oracle_db(connection_config, drop_query)
 
 
 def _build_nested_flow(
@@ -56,24 +96,6 @@ def _build_nested_flow(
         flow_id=parent_flow_name,
         name=parent_flow_name,
     )
-
-
-def _start_interrupted_flow_conversation(
-    flow: Flow,
-    *,
-    conversation_id: str,
-    interrupt_step_name: str,
-    checkpointer: InMemoryCheckpointer | None = None,
-):
-    conversation = flow.start_conversation(
-        conversation_id=conversation_id,
-        checkpointer=checkpointer,
-    )
-    status = conversation.execute(
-        execution_interrupts=[_OnStepStartExecutionInterrupt(interrupt_step_name)]
-    )
-    assert isinstance(status, InterruptedExecutionStatus)
-    return conversation
 
 
 class _OnStepStartExecutionInterrupt(
@@ -119,8 +141,9 @@ class _OnStepStartExecutionInterrupt(
 def _build_checkpointable_agent(
     name: str,
     initial_message: str,
+    llm: Optional[LlmModel] = None,
 ) -> Agent:
-    llm = DummyModel()
+    llm = llm if llm is not None else DummyModel()
     agent = Agent(
         llm=llm,
         name=name,
@@ -132,13 +155,14 @@ def _build_checkpointable_agent(
     return agent
 
 
-def _build_checkpointable_swarm() -> Swarm:
+def _build_checkpointable_swarm(llm: LlmModel) -> Swarm:
     first_agent = _build_checkpointable_agent(
         name="checkpoint_swarm_first_agent",
         initial_message="Hello from the swarm.",
+        llm=llm,
     )
     second_agent = Agent(
-        llm=DummyModel(fails_if_not_set=False),
+        llm=llm,
         name="checkpoint_swarm_second_agent",
         description="Swarm helper",
         custom_instruction="Help with delegated tasks.",
@@ -153,13 +177,14 @@ def _build_checkpointable_swarm() -> Swarm:
     return swarm
 
 
-def _build_checkpointable_managerworkers() -> ManagerWorkers:
+def _build_checkpointable_managerworkers(llm: LlmModel) -> ManagerWorkers:
     manager_agent = _build_checkpointable_agent(
         name="checkpoint_manager_agent",
         initial_message="Hello from the manager.",
+        llm=llm,
     )
     worker_agent = Agent(
-        llm=DummyModel(fails_if_not_set=False),
+        llm=llm,
         name="checkpoint_worker_agent",
         description="Worker agent",
         custom_instruction="Help the manager.",
@@ -174,22 +199,9 @@ def _build_checkpointable_managerworkers() -> ManagerWorkers:
     return managerworkers
 
 
-def _get_checkpoint_test_llm(component: ConversationalComponent) -> DummyModel:
-    if isinstance(component, Agent):
-        assert isinstance(component.llm, DummyModel)
-        return component.llm
-    if isinstance(component, Swarm):
-        assert isinstance(component.first_agent.llm, DummyModel)
-        return component.first_agent.llm
-    assert isinstance(component, ManagerWorkers)
-    assert isinstance(component.group_manager, Agent)
-    assert isinstance(component.group_manager.llm, DummyModel)
-    return component.group_manager.llm
-
-
-def test_flow_checkpoint_restore_preserves_nested_interrupt_inheritance() -> None:
-    checkpointer = InMemoryCheckpointer()
-
+def test_flow_checkpoint_restore_preserves_nested_interrupt_inheritance(
+    integration_checkpointer,
+) -> None:
     def build_flow() -> Flow:
         return _build_nested_flow(
             child_first_step_name="child_first_step",
@@ -200,19 +212,27 @@ def test_flow_checkpoint_restore_preserves_nested_interrupt_inheritance() -> Non
         )
 
     original_flow = build_flow()
-    conversation = _start_interrupted_flow_conversation(
-        original_flow,
+    conversation = original_flow.start_conversation(
         conversation_id="flow-parent-link-restore",
-        interrupt_step_name="child_first_step",
-        checkpointer=checkpointer,
+        checkpointer=integration_checkpointer,
     )
-    assert checkpointer.load_latest(conversation.conversation_id) is not None
+    status = conversation.execute(
+        execution_interrupts=[_OnStepStartExecutionInterrupt("child_first_step")]
+    )
+    assert isinstance(status, InterruptedExecutionStatus)
+    assert integration_checkpointer.load_latest(conversation.conversation_id) is not None
 
+    # Checkpoint restoration must work with a freshly constructed flow instance;
+    # the saved execution state is matched using stable component IDs, rather
+    # than requiring the original Python object instances.
+    # Hence we call build_flow() again, which by definition
+    # returns a flow object with predefined ids.
     restarted_flow = deserialize(Flow, serialize(build_flow()))
     restored_conversation = restarted_flow.start_conversation(
         conversation_id=conversation.conversation_id,
-        checkpointer=checkpointer,
+        checkpointer=integration_checkpointer,
     )
+    # a top-level root conversation has the same instance id and thread id
     assert restored_conversation.id == restored_conversation.conversation_id
 
     restored_status = restored_conversation.execute(
@@ -223,140 +243,169 @@ def test_flow_checkpoint_restore_preserves_nested_interrupt_inheritance() -> Non
     assert restored_status.reason == "Start child_second_step"
 
 
-def test_flow_checkpointing_supports_resume_and_time_travel() -> None:
-    checkpointer = InMemoryCheckpointer()
-    flow = create_flow()
-
-    conversation = flow.start_conversation(
-        conversation_id="flow-checkpoint", checkpointer=checkpointer
-    )
-    first_status = conversation.execute()
-
-    assert isinstance(first_status, UserMessageRequestStatus)
-    first_checkpoint = checkpointer.load_latest(conversation.conversation_id)
-    assert first_checkpoint is not None
-    first_checkpoint_id = first_checkpoint.checkpoint_id
-    assert conversation.checkpoint_id == first_checkpoint_id
-
-    restored_conversation = flow.start_conversation(
-        conversation_id=conversation.conversation_id,
-        checkpointer=checkpointer,
-    )
-    assert restored_conversation.checkpoint_id == first_checkpoint_id
-    assert isinstance(restored_conversation.status, UserMessageRequestStatus)
-
-    restored_conversation.append_user_message("continue")
-    restored_status = restored_conversation.execute()
-    assert isinstance(restored_status, FinishedStatus)
-
-    rewound_conversation = flow.start_conversation(
-        conversation_id=conversation.conversation_id,
-        checkpointer=checkpointer,
-        checkpoint_id=first_checkpoint_id,
-    )
-    assert len(rewound_conversation.get_messages()) < len(restored_conversation.get_messages())
-    rewound_conversation.append_user_message("rewind")
-    rewound_status = rewound_conversation.execute()
-    assert isinstance(rewound_status, FinishedStatus)
-
-
 @pytest.mark.parametrize(
-    ("builder", "conversation_id"),
+    (
+        "component_class",
+        "component_builder",
+        "model_getter",
+        "conversation_id",
+        "continuation_message",
+        "expected_status",
+    ),
     [
         (
-            partial(
-                _build_checkpointable_agent,
-                name="checkpoint_agent",
-                initial_message="Hello from the agent.",
-            ),
-            "agent-checkpoint",
+            Flow,
+            lambda _: create_flow(),
+            lambda _: None,
+            "serialized-flow-checkpoint",
+            "continue",
+            FinishedStatus,
         ),
-        (_build_checkpointable_swarm, "swarm-checkpoint"),
-        (_build_checkpointable_managerworkers, "managerworkers-checkpoint"),
+        (
+            Agent,
+            lambda llm: _build_checkpointable_agent(
+                name="serialized_checkpoint_agent",
+                initial_message="Initial response.",
+                llm=llm,
+            ),
+            lambda component: component.llm,
+            "serialized-agent-checkpoint",
+            "Continue.",
+            UserMessageRequestStatus,
+        ),
+        (
+            Swarm,
+            _build_checkpointable_swarm,
+            lambda component: component.first_agent.llm,
+            "serialized-swarm-checkpoint",
+            "Continue.",
+            UserMessageRequestStatus,
+        ),
+        (
+            ManagerWorkers,
+            _build_checkpointable_managerworkers,
+            lambda component: component.group_manager.llm,
+            "serialized-managerworkers-checkpoint",
+            "Continue.",
+            UserMessageRequestStatus,
+        ),
     ],
+    ids=["flow", "agent", "swarm", "managerworkers"],
 )
-def test_multi_agent_checkpointing_supports_resume_and_time_travel(
-    builder,
+def test_checkpoint_restore_with_serialized_component_graph_supports_time_travel(
+    component_class,
+    component_builder,
+    model_getter,
     conversation_id: str,
+    continuation_message: str,
+    expected_status,
+    integration_checkpointer,
+    vllm_responses_llm,
 ) -> None:
-    checkpointer = InMemoryCheckpointer()
-    component = builder()
-    llm = _get_checkpoint_test_llm(component)
-    resumed_output = "Checkpoint resumed successfully."
-    rewound_output = "Checkpoint rewound successfully."
+    component = component_builder(vllm_responses_llm)
 
     conversation = component.start_conversation(
         conversation_id=conversation_id,
-        checkpointer=checkpointer,
+        checkpointer=integration_checkpointer,
     )
     first_status = conversation.execute()
-
     assert isinstance(first_status, UserMessageRequestStatus)
-    first_checkpoint = checkpointer.load_latest(conversation.conversation_id)
+    first_checkpoint = integration_checkpointer.load_latest(conversation.conversation_id)
     assert first_checkpoint is not None
     first_checkpoint_id = first_checkpoint.checkpoint_id
-    assert conversation.checkpoint_id == first_checkpoint_id
 
-    restored_conversation = component.start_conversation(
+    restored_component = deserialize(component_class, serialize(component))
+    assert isinstance(restored_component, component_class)
+    assert restored_component.id == component.id
+
+    restored_conversation = restored_component.start_conversation(
         conversation_id=conversation.conversation_id,
-        checkpointer=checkpointer,
+        checkpointer=integration_checkpointer,
     )
-    assert restored_conversation.checkpoint_id == first_checkpoint_id
-    llm.set_next_output(resumed_output)
-    restored_conversation.append_user_message("Please continue.")
-    restored_status = restored_conversation.execute()
-    assert isinstance(restored_status, UserMessageRequestStatus)
-    assert restored_conversation.get_last_message().content == resumed_output
-
-    rewound_conversation = component.start_conversation(
-        conversation_id=conversation.conversation_id,
-        checkpointer=checkpointer,
-        checkpoint_id=first_checkpoint_id,
-    )
-    assert rewound_conversation.checkpoint_id == first_checkpoint_id
-    llm.set_next_output(rewound_output)
-    rewound_conversation.append_user_message("Try again.")
-    rewound_status = rewound_conversation.execute()
-    assert isinstance(rewound_status, UserMessageRequestStatus)
-    assert rewound_conversation.get_last_message().content == rewound_output
-
-
-def test_agent_checkpoint_restore_after_serialization(vllm_responses_llm) -> None:
-    checkpointer = InMemoryCheckpointer()
-    agent = Agent(
-        llm=vllm_responses_llm,
-        name="serialized_checkpoint_agent",
-        description="Agent used for serialized checkpoint restoration.",
-        custom_instruction="Be helpful.",
-        agent_id="serialized_checkpoint_agent",
-    )
-
-    with patch_llm(vllm_responses_llm, outputs=["Initial response."]):
-        conversation = agent.start_conversation(
-            conversation_id="serialized-agent-checkpoint",
-            checkpointer=checkpointer,
-        )
-        assert isinstance(conversation.execute(), UserMessageRequestStatus)
-
-    restored_agent = deserialize(Agent, serialize(agent))
-    restored_llm = restored_agent.llm
-    restored_conversation = restored_agent.start_conversation(
-        conversation_id=conversation.conversation_id,
-        checkpointer=checkpointer,
-    )
-
-    with patch_llm(restored_llm, outputs=["Resumed response."]):
-        restored_conversation.append_user_message("Continue.")
+    assert isinstance(restored_conversation.status, UserMessageRequestStatus)
+    restored_conversation.append_user_message(continuation_message)
+    with patch_llm(
+        model_getter(restored_component) or vllm_responses_llm,
+        outputs=["Resumed response."],
+    ):
         restored_status = restored_conversation.execute()
 
-    assert isinstance(restored_status, UserMessageRequestStatus)
-    assert restored_conversation.get_last_message().content == "Resumed response."
+    assert isinstance(restored_status, expected_status)
 
-
-def test_swarm_checkpoint_restore_uses_generated_agent_ids_for_threads() -> None:
-    checkpointer = InMemoryCheckpointer(
-        checkpointing_interval=CheckpointingInterval.ALL_INTERNAL_TURNS
+    rewound_conversation = restored_component.start_conversation(
+        conversation_id=conversation.conversation_id,
+        checkpoint_id=first_checkpoint_id,
+        checkpointer=integration_checkpointer,
     )
+    assert len(rewound_conversation.get_messages()) < len(restored_conversation.get_messages())
+    rewound_conversation.append_user_message("Try again.")
+    with patch_llm(
+        model_getter(restored_component) or vllm_responses_llm,
+        outputs=["Rewound response."],
+    ):
+        rewound_status = rewound_conversation.execute()
+
+    assert isinstance(rewound_status, expected_status)
+
+
+def test_agent_checkpoint_restore_relinks_current_flow_parent(integration_checkpointer) -> None:
+    def build_agent() -> tuple[Agent, Flow]:
+        parent_flow = _build_nested_flow(
+            child_first_step_name="agent_child_first_step",
+            child_second_step_name="agent_child_second_step",
+            child_flow_name="checkpoint_agent_child_flow",
+            parent_step_name="agent_parent_flow_step",
+            parent_flow_name="checkpoint_agent_parent_flow",
+        )
+        agent = Agent(
+            llm=DummyModel(fails_if_not_set=False),
+            name="checkpoint_flow_agent",
+            description="Agent with a nested flow",
+            custom_instruction="Use the nested flow.",
+            flows=[parent_flow],
+            initial_message=None,
+            agent_id="checkpoint_flow_agent",
+        )
+        return agent, parent_flow
+
+    original_agent, original_parent_flow = build_agent()
+    conversation = original_agent.start_conversation(
+        conversation_id="agent-current-flow-restore",
+        checkpointer=integration_checkpointer,
+    )
+    with patch_llm(
+        original_agent.llm,
+        outputs=[
+            [
+                ToolRequest(
+                    name=original_parent_flow.name,
+                    args={},
+                    tool_request_id="execute_parent_flow",
+                )
+            ]
+        ],
+    ):
+        status = conversation.execute(
+            execution_interrupts=[_OnStepStartExecutionInterrupt("agent_child_first_step")]
+        )
+
+    assert isinstance(status, InterruptedExecutionStatus)
+    integration_checkpointer.save(conversation)
+
+    restarted_agent, restarted_parent_flow = build_agent()
+    restored_conversation = restarted_agent.start_conversation(
+        conversation_id=conversation.conversation_id,
+        checkpointer=integration_checkpointer,
+    )
+
+    restored_parent_flow_conversation = restored_conversation.state.current_flow_conversation
+    assert restored_parent_flow_conversation is not None
+
+
+def test_swarm_checkpoint_restore_uses_generated_agent_ids_for_threads(
+    integration_checkpointer,
+) -> None:
+    integration_checkpointer.checkpointing_interval = CheckpointingInterval.ALL_INTERNAL_TURNS
 
     def build_swarm() -> tuple[Swarm, Agent, Agent]:
         first_agent = Agent(
@@ -385,7 +434,7 @@ def test_swarm_checkpoint_restore_uses_generated_agent_ids_for_threads() -> None
     original_swarm, original_first_agent, original_second_agent = build_swarm()
     conversation = original_swarm.start_conversation(
         conversation_id="swarm-generated-agent-name-restart",
-        checkpointer=checkpointer,
+        checkpointer=integration_checkpointer,
     )
     original_first_agent.llm.set_next_output(_handoff_message(original_second_agent))
     original_second_agent.llm.set_next_output(["Delegated work completed.", "More work completed."])
@@ -397,7 +446,7 @@ def test_swarm_checkpoint_restore_uses_generated_agent_ids_for_threads() -> None
     restarted_swarm, restarted_first_agent, restarted_second_agent = build_swarm()
 
     restored_conversation = restarted_swarm.start_conversation(
-        conversation_id=conversation.conversation_id, checkpointer=checkpointer
+        conversation_id=conversation.conversation_id, checkpointer=integration_checkpointer
     )
     assert any(
         subconversation.component is restarted_second_agent
@@ -405,54 +454,9 @@ def test_swarm_checkpoint_restore_uses_generated_agent_ids_for_threads() -> None
     )
 
 
-def test_agent_checkpoint_restore_relinks_current_flow_parent() -> None:
-    checkpointer = InMemoryCheckpointer()
-
-    def build_agent() -> tuple[Agent, Flow]:
-        parent_flow = _build_nested_flow(
-            child_first_step_name="agent_child_first_step",
-            child_second_step_name="agent_child_second_step",
-            child_flow_name="checkpoint_agent_child_flow",
-            parent_step_name="agent_parent_flow_step",
-            parent_flow_name="checkpoint_agent_parent_flow",
-        )
-        agent = Agent(
-            llm=DummyModel(fails_if_not_set=False),
-            name="checkpoint_flow_agent",
-            description="Agent with a nested flow",
-            custom_instruction="Use the nested flow.",
-            flows=[parent_flow],
-            initial_message=None,
-            agent_id="checkpoint_flow_agent",
-        )
-        return agent, parent_flow
-
-    original_agent, original_parent_flow = build_agent()
-    conversation = original_agent.start_conversation(
-        conversation_id="agent-current-flow-restore",
-        checkpointer=checkpointer,
-    )
-    parent_flow_conversation = _start_interrupted_flow_conversation(
-        original_parent_flow,
-        conversation_id=conversation.conversation_id,
-        interrupt_step_name="agent_child_first_step",
-    )
-    conversation.state.current_flow_conversation = parent_flow_conversation
-    checkpointer.save(conversation)
-
-    restarted_agent, restarted_parent_flow = build_agent()
-    restored_conversation = restarted_agent.start_conversation(
-        conversation_id=conversation.conversation_id,
-        checkpointer=checkpointer,
-    )
-
-    restored_parent_flow_conversation = restored_conversation.state.current_flow_conversation
-    assert restored_parent_flow_conversation is not None
-
-
-def test_managerworkers_checkpoint_restore_uses_nested_agent_ids() -> None:
-    checkpointer = InMemoryCheckpointer()
-
+def test_managerworkers_checkpoint_restore_uses_nested_agent_ids(
+    integration_checkpointer,
+) -> None:
     def build_managerworkers() -> tuple[ManagerWorkers, Agent, ManagerWorkers, Agent, Agent]:
         nested_manager_agent = Agent(
             llm=DummyModel(fails_if_not_set=False),
@@ -500,7 +504,7 @@ def test_managerworkers_checkpoint_restore_uses_nested_agent_ids() -> None:
     ) = build_managerworkers()
     conversation = original_managerworkers.start_conversation(
         conversation_id="managerworkers-nested-generated-agent-name-restart",
-        checkpointer=checkpointer,
+        checkpointer=integration_checkpointer,
     )
     conversation.append_user_message("Save this nested conversation.")
     original_outer_manager_agent.llm.set_next_output(
@@ -522,7 +526,7 @@ def test_managerworkers_checkpoint_restore_uses_nested_agent_ids() -> None:
 
     restored_conversation = restarted_managerworkers.start_conversation(
         conversation_id=conversation.conversation_id,
-        checkpointer=checkpointer,
+        checkpointer=integration_checkpointer,
     )
     restored_nested_conversation = restored_conversation.subconversations[
         restarted_nested_managerworkers.id

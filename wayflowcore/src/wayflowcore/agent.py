@@ -448,7 +448,6 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         checkpoint_id: Optional[str] = None,
         parent_conversation: Optional["Conversation"] = None,
     ) -> "AgentConversation":
-        """Create the concrete agent conversation, including nested conversations."""
         from wayflowcore.events.event import ConversationCreatedEvent
         from wayflowcore.events.eventlistener import record_event
         from wayflowcore.executors._agentconversation import AgentConversation

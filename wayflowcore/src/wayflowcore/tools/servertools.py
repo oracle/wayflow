@@ -636,7 +636,7 @@ class _FlowAsToolCallable:
             conversation = self.flow.start_conversation(inputs)
             interrupts = []
         else:
-            conversation = self.flow._start_subconversation(
+            conversation = self.flow._start_conversation_impl(
                 parent_conversation=self._parent_conversation,
                 inputs=inputs,
                 messages=self._parent_conversation.message_list,

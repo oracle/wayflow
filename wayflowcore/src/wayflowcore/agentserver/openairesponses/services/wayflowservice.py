@@ -448,16 +448,13 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
         self._cache_response_conversation_id(checkpoint.checkpoint_id, checkpoint.conversation_id)
         agent = self.agents[agent_id]
         try:
-            # Use start_conversation() only to restore the checkpoint identified by
-            # (conversation_id, checkpoint_id), then clear conversation.checkpointer
-            # so execute() resumes without adding automatic checkpoint saves.
-            conversation = agent.start_conversation(
-                conversation_id=checkpoint.conversation_id,
-                checkpointer=self.checkpointer,
-                checkpoint_id=checkpoint.checkpoint_id,
+            # The service owns persistence for OpenAI Responses, so restore the
+            # exact checkpoint without attaching a checkpointer for execute().
+            return agent._restore_checkpointed_conversation(
+                checkpoint=checkpoint,
+                expected_conversation_type=agent.conversation_class,
+                attached_checkpointer=None,
             )
-            conversation.checkpointer = None
-            return conversation
         except CheckpointRestoreCompatibilityError as e:
             raise HTTPException(
                 status_code=http_status_code.HTTP_400_BAD_REQUEST,

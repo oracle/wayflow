@@ -6,7 +6,7 @@
 
 import logging
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from wayflowcore.agent import Agent
 from wayflowcore.conversation import Conversation
@@ -82,13 +82,10 @@ class SwarmConversationExecutionState(ConversationExecutionState):
                 if isinstance(message_list, list)
                 else message_list
             )
-        conversation = cast(
-            "AgentConversation",
-            thread.recipient_agent._start_subconversation(
-                parent_conversation=parent_conversation,
-                inputs=inputs,
-                messages=thread.message_list,
-            ),
+        conversation = thread.recipient_agent._start_conversation_impl(
+            parent_conversation=parent_conversation,
+            inputs=inputs,
+            messages=thread.message_list,
         )
         self.thread_subconversations[thread_id] = conversation
 

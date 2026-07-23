@@ -287,29 +287,6 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         parent_conversation: Optional["Conversation"] = None,
         conversation_name: Optional[str] = None,
     ) -> "ManagerWorkersConversation":
-        """
-        Initializes a conversation with the managerworkers.
-
-        Parameters
-        ----------
-        inputs:
-            Dictionary of inputs. Keys are the variable identifiers and
-            values are the actual inputs to start the main conversation.
-        messages:
-            Message list of the manager agent and the end-user.
-        conversation_id:
-            Durable conversation id used for resume, storage, and usage accounting.
-        checkpointer:
-            Optional checkpoint backend used to restore and persist this conversation.
-        checkpoint_id:
-            Optional checkpoint identifier to restore. Requires both ``checkpointer`` and
-            ``conversation_id``.
-
-        Returns
-        -------
-        Conversation:
-            The conversation object of the managerworkers.
-        """
         from wayflowcore.agentconversation import AgentConversation
         from wayflowcore.events.event import ConversationCreatedEvent
         from wayflowcore.events.eventlistener import record_event
@@ -366,7 +343,7 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         )
         subconversations[self.manager_agent.id] = cast(
             "Union[AgentConversation, ManagerWorkersConversation]",
-            self.manager_agent._start_subconversation(
+            self.manager_agent._start_conversation_impl(
                 parent_conversation=conversation,
                 inputs=inputs,
                 messages=messages,

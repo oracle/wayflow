@@ -1243,33 +1243,6 @@ class Flow(ConversationalComponent, SerializableObject):
         nesting_level: int = 0,
         context_providers_from_parent_flow: Optional[Set[str]] = None,
     ) -> "FlowConversation":
-        """
-        Start the conversation.
-
-        Parameters
-        ----------
-        inputs:
-            Dictionary of inputs. Keys are the variable identifiers and
-            values are the actual inputs to start the conversation.
-        conversation_id:
-            Durable conversation id used for resume, storage, and usage accounting.
-        messages:
-            List of messages (``MessageList`` object) before starting the conversation.
-        checkpointer:
-            Optional checkpoint backend used to restore and persist this conversation.
-        checkpoint_id:
-            Optional checkpoint identifier to restore. Requires both ``checkpointer`` and
-            ``conversation_id``.
-        context_providers_from_parent_flow:
-            Context provider that don't need to be checked when validating existing inputs.
-        nesting_level:
-            Nesting level of the conversation.
-
-        Returns
-        -------
-        Conversation:
-            A Flow Conversation object.
-        """
         from wayflowcore.events.event import ConversationCreatedEvent
         from wayflowcore.events.eventlistener import record_event
         from wayflowcore.executors._flowconversation import FlowConversation

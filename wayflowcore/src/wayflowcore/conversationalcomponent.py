@@ -39,7 +39,7 @@ class ConversationalComponent(ComponentWithInputsOutputs, ABC):
         input_descriptors: List["Property"],
         output_descriptors: List["Property"],
         runner: Type["ConversationExecutor"],
-        conversation_class: Any,
+        conversation_class: Type["Conversation"],
         id: Optional[str] = None,
         __metadata_info__: Optional[MetadataType] = None,
     ) -> None:
@@ -85,7 +85,6 @@ class ConversationalComponent(ComponentWithInputsOutputs, ABC):
         checkpoint_id: Optional[str],
         parent_conversation: Optional["Conversation"] = None,
     ) -> "Conversation":
-        """Create a concrete conversation for internal root/child entry points."""
         raise NotImplementedError
 
     @property
@@ -211,7 +210,7 @@ class ConversationalComponent(ComponentWithInputsOutputs, ABC):
         conversation = self._restore_checkpointed_conversation(
             checkpoint=checkpoint,
             expected_conversation_type=expected_conversation_type,
-            checkpointer=checkpointer,
+            attached_checkpointer=checkpointer,
         )
         return conversation, conversation_id, conversation_id
 
@@ -219,9 +218,13 @@ class ConversationalComponent(ComponentWithInputsOutputs, ABC):
         self,
         checkpoint: "ConversationCheckpoint",
         expected_conversation_type: Type[ConversationTypeT],
-        checkpointer: "Checkpointer",
+        attached_checkpointer: Optional["Checkpointer"],
     ) -> ConversationTypeT:
-        """Rehydrate a checkpoint against this component's live graph and tools."""
+        """Rehydrate a checkpoint against this component's live graph and tools.
+
+        ``attached_checkpointer`` controls automatic checkpoint saves after restore.
+        It is separate from checkpoint loading, which has already completed.
+        """
         from wayflowcore.checkpointing import CheckpointRestoreCompatibilityError
         from wayflowcore.exceptions import DataclassFieldDeserializationError
         from wayflowcore.serialization import autodeserialize
@@ -259,24 +262,8 @@ class ConversationalComponent(ComponentWithInputsOutputs, ABC):
                 f"component. Expected `{expected_conversation_type.__name__}`, got `{type(conversation).__name__}`."
             )
         conversation.checkpoint_id = checkpoint.checkpoint_id
-        conversation.checkpointer = checkpointer
+        conversation.checkpointer = attached_checkpointer
         return conversation
-
-    def _start_subconversation(
-        self,
-        parent_conversation: "Conversation",
-        inputs: Optional[Dict[str, Any]] = None,
-        messages: Union[None, str, "Message", List["Message"], "MessageList"] = None,
-    ) -> "Conversation":
-        """Start a child that inherits its parent's conversation thread."""
-        return self._start_conversation_impl(
-            inputs=inputs,
-            messages=messages,
-            conversation_id=None,
-            checkpointer=None,
-            checkpoint_id=None,
-            parent_conversation=parent_conversation,
-        )
 
 
 # Define a TypeVar that represents the component's type

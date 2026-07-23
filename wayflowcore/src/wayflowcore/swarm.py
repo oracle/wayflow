@@ -367,10 +367,6 @@ class Swarm(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         parent_conversation: Optional["Conversation"] = None,
         conversation_name: Optional[str] = None,
     ) -> "Conversation":
-        """Start a fresh swarm conversation or restore one from a checkpoint.
-
-        ``conversation_id`` identifies the complete conversation thread.
-        """
         from wayflowcore.executors._swarmconversation import (
             SwarmConversation,
             SwarmConversationExecutionState,

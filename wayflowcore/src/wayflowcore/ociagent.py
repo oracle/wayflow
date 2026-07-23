@@ -155,7 +155,6 @@ class OciAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
         checkpoint_id: Optional[str] = None,
         parent_conversation: Optional["Conversation"] = None,
     ) -> "Conversation":
-        """Create the concrete OCI conversation, including nested conversations."""
         from wayflowcore.executors._ociagentconversation import OciAgentConversation
         from wayflowcore.executors._ociagentexecutor import (
             OciAgentState,

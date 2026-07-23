@@ -469,7 +469,7 @@ class AgentConversationExecutor(ConversationExecutor):
             init_messages = MessageList.from_messages([])
 
         init_messages.append_message(caller_request_message)
-        sub_agent_conversation = expert_agent._start_subconversation(
+        sub_agent_conversation = expert_agent._start_conversation_impl(
             parent_conversation=caller_conv,
             messages=init_messages,
             inputs=inputs,
@@ -539,7 +539,7 @@ class AgentConversationExecutor(ConversationExecutor):
         outputs: Any = None
         try:
             if state.current_flow_conversation is None:
-                state.current_flow_conversation = flow._start_subconversation(
+                state.current_flow_conversation = flow._start_conversation_impl(
                     parent_conversation=parent_conversation,
                     inputs=inputs,
                     messages=messages,

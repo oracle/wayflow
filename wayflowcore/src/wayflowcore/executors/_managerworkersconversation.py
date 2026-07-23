@@ -6,7 +6,7 @@
 
 import logging
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Dict, List, Optional, Union, cast
+from typing import TYPE_CHECKING, Dict, List, Optional, Union
 
 from wayflowcore.agent import Agent
 from wayflowcore.conversation import Conversation
@@ -32,10 +32,7 @@ class ManagerWorkersConversationExecutionState(ConversationExecutionState):
         agent: Union[Agent, ManagerWorkers],
         parent_conversation: "ManagerWorkersConversation",
     ) -> Union["AgentConversation", "ManagerWorkersConversation"]:
-        subconv = cast(
-            "Union[AgentConversation, ManagerWorkersConversation]",
-            agent._start_subconversation(parent_conversation=parent_conversation),
-        )
+        subconv = agent._start_conversation_impl(parent_conversation=parent_conversation)
         self.subconversations[agent.id] = subconv
         return subconv
 

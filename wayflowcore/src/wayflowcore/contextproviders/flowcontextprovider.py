@@ -92,7 +92,7 @@ class FlowContextProvider(ContextProvider):
         from wayflowcore.tracing.span import ContextProviderExecutionSpan
 
         with ContextProviderExecutionSpan(context_provider=self) as span:
-            conversation = self.flow._start_subconversation(
+            conversation = self.flow._start_conversation_impl(
                 parent_conversation=conversation,
                 inputs={},
                 messages=conversation.message_list,
