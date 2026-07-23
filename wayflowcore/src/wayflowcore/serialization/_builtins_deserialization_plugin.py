@@ -378,8 +378,8 @@ from wayflowcore.models.ociclientconfig import (
 from wayflowcore.models.ociclientconfig import (
     OCIClientConfigWithSecurityToken as RuntimeOCIClientConfigWithSecurityToken,
 )
+from wayflowcore.models.ociclientconfig import ServingMode as RuntimeServingMode
 from wayflowcore.models.ocigenaimodel import ModelProvider as RuntimeModelProvider
-from wayflowcore.models.ocigenaimodel import ServingMode as RuntimeServingMode
 from wayflowcore.models.openaiapitype import OpenAIAPIType as RuntimeOpenAIAPIType
 from wayflowcore.models.openaicompatiblemodel import (
     OpenAICompatibleModel as RuntimeOpenAICompatibleModel,
@@ -792,7 +792,7 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
             return RuntimeOCIGenAIEmbeddingModel(
                 model_id=agentspec_component.model_id,
                 compartment_id=agentspec_component.compartment_id,
-                # serving_mode=agentspec_component.serving_mode, not supported yet
+                serving_mode=agentspec_component.serving_mode,
                 config=client_config,
                 retry_policy=self._convert_retry_policy_to_runtime(
                     agentspec_component.retry_policy

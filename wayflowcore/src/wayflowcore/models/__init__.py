@@ -21,8 +21,9 @@ from .ociclientconfig import (
     OCIClientConfigWithSecurityToken,
     OCIClientConfigWithUserAuthentication,
     OCIUserAuthenticationConfig,
+    ServingMode,
 )
-from .ocigenaimodel import ModelProvider, OciAPIType, OCIGenAIModel, ServingMode
+from .ocigenaimodel import ModelProvider, OciAPIType, OCIGenAIModel
 from .ollamamodel import OllamaModel
 from .openaiapitype import OpenAIAPIType
 from .openaicompatiblemodel import OpenAICompatibleModel

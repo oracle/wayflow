@@ -60,6 +60,7 @@ from .llmgenerationconfig import LlmGenerationConfig
 from .llmmodel import LlmCompletion, LlmModel, Prompt
 from .ociclientconfig import (
     OCIClientConfig,
+    ServingMode,
     _client_config_to_oci_client_kwargs,
     _client_config_to_oci_openai_client_auth,
     _convert_arguments_into_client_config,
@@ -77,15 +78,6 @@ if TYPE_CHECKING:
     from wayflowcore.templates import PromptTemplate
 else:
     oci = LazyLoader("oci")
-
-
-class ServingMode(str, Enum):
-    """
-    The serving mode in which the model is hosted
-    """
-
-    ON_DEMAND = "ON_DEMAND"
-    DEDICATED = "DEDICATED"
 
 
 def _detect_serving_mode_from_model_id(model_id: str) -> ServingMode:

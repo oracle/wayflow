@@ -3,6 +3,7 @@
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
+import re
 import warnings
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, cast
 
@@ -14,7 +15,11 @@ from wayflowcore.models._requesthelpers import (
     _classify_oci_service_error_for_retry,
     execute_sync_with_retry,
 )
-from wayflowcore.models.ociclientconfig import OCIClientConfig, _client_config_to_oci_client_kwargs
+from wayflowcore.models.ociclientconfig import (
+    OCIClientConfig,
+    ServingMode,
+    _client_config_to_oci_client_kwargs,
+)
 from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.serialization.context import DeserializationContext, SerializationContext
 from wayflowcore.serialization.serializer import (
@@ -31,6 +36,23 @@ else:
     oci = LazyLoader("oci")
 
 
+_OCID_RESOURCE_TYPE_RE = re.compile(r"^ocid\d+\.(?P<resource_type>[^.]+)\.")
+
+
+def _detect_serving_mode_from_model_id(model_id: str) -> ServingMode:
+    """Infer serving mode from an OCI GenAI embedding inference identifier.
+
+    Examples
+    --------
+    ``cohere.embed-v4.0`` -> ``ServingMode.ON_DEMAND``
+    ``ocid1.generativeaiendpoint.oc1...`` -> ``ServingMode.DEDICATED``
+    """
+    match = _OCID_RESOURCE_TYPE_RE.match(model_id)
+    if match and match.group("resource_type") == "generativeaiendpoint":
+        return ServingMode.DEDICATED
+    return ServingMode.ON_DEMAND
+
+
 class OCIGenAIEmbeddingModel(EmbeddingModel, SerializableObject):
     """Embedding model for Oracle OCI Generative AI service.
 
@@ -42,6 +64,10 @@ class OCIGenAIEmbeddingModel(EmbeddingModel, SerializableObject):
         OCI client configuration with authentication details.
     compartment_id:
         The compartment OCID
+    serving_mode:
+        OCI serving mode for the model. Either ``ServingMode.ON_DEMAND`` or
+        ``ServingMode.DEDICATED``. When set to None, a best-effort attempt is
+        made to auto-detect the serving mode based on the ``model_id``.
 
     Examples
     --------
@@ -103,6 +129,7 @@ class OCIGenAIEmbeddingModel(EmbeddingModel, SerializableObject):
         name: Optional[str] = None,
         description: Optional[str] = None,
         retry_policy: Optional[RetryPolicy] = None,
+        serving_mode: Optional[ServingMode] = None,
     ):
         super().__init__(
             __metadata_info__=__metadata_info__, id=id, name=name, description=description
@@ -150,6 +177,7 @@ class OCIGenAIEmbeddingModel(EmbeddingModel, SerializableObject):
             raise ValueError("Compartment id should not be ``None``.")
 
         self._model_id = model_id
+        self.serving_mode = serving_mode or _detect_serving_mode_from_model_id(model_id)
         self.retry_policy = retry_policy
 
         # The client is set in a lazy manner to prevent the model from crashing before being
@@ -175,12 +203,25 @@ class OCIGenAIEmbeddingModel(EmbeddingModel, SerializableObject):
         return self._lazy_client
 
     def embed(self, data: List[str]) -> List[List[float]]:
+        if self.serving_mode == ServingMode.ON_DEMAND:
+            serving_mode = oci.generative_ai_inference.models.OnDemandServingMode(
+                model_id=self._model_id
+            )
+        elif self.serving_mode == ServingMode.DEDICATED:
+            serving_mode = oci.generative_ai_inference.models.DedicatedServingMode(
+                endpoint_id=self._model_id
+            )
+        else:
+            raise ValueError(
+                f"Invalid `serving_mode` specified for OCIGenAIEmbeddingModel. "
+                f"Valid options are {ServingMode.ON_DEMAND} and {ServingMode.DEDICATED}, "
+                f"but got {self.serving_mode} instead."
+            )
+
         embed_text_details = oci.generative_ai_inference.models.EmbedTextDetails(
             inputs=data,
             compartment_id=self.compartment_id,
-            serving_mode=oci.generative_ai_inference.models.OnDemandServingMode(
-                model_id=self._model_id
-            ),
+            serving_mode=serving_mode,
         )
         response = self._embed_with_retry(embed_text_details)
         # Cast the embeddings to the expected return type (mainly for mypy)
@@ -197,6 +238,7 @@ class OCIGenAIEmbeddingModel(EmbeddingModel, SerializableObject):
             "id": self.id,
             "name": self.name,
             "description": self.description,
+            "serving_mode": self.serving_mode.value,
         }
         serialized_dict["retry_policy"] = cast(
             Any,
@@ -245,6 +287,7 @@ class OCIGenAIEmbeddingModel(EmbeddingModel, SerializableObject):
         name = input_dict.get("name", None)
         description = input_dict.get("description", None)
         retry_policy = input_dict.get("retry_policy")
+        serving_mode = input_dict.get("serving_mode")
 
         if not service_endpoint or not compartment_id:
             raise ValueError(
@@ -278,6 +321,7 @@ class OCIGenAIEmbeddingModel(EmbeddingModel, SerializableObject):
             id=id,
             name=name,
             description=description,
+            serving_mode=(ServingMode(serving_mode) if serving_mode is not None else None),
             retry_policy=(
                 deserialize_from_dict(RetryPolicy, retry_policy, deserialization_context)
                 if retry_policy is not None

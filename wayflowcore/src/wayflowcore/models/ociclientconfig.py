@@ -38,6 +38,13 @@ class _OCIAuthType(str, Enum):
     RESOURCE_PRINCIPAL = "RESOURCE_PRINCIPAL"
 
 
+class ServingMode(str, Enum):
+    """The serving mode in which an OCI Generative AI model is hosted."""
+
+    ON_DEMAND = "ON_DEMAND"
+    DEDICATED = "DEDICATED"
+
+
 @dataclass
 class OCIClientConfig(SerializableObject, ABC):
     """Base abstract class for OCI client config"""

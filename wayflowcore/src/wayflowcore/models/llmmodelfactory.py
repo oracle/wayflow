@@ -26,8 +26,8 @@ class LlmModelFactory:
         model_type = config_copy.pop("model_type")
 
         from .geminimodel import GeminiApiKeyAuth, GeminiCloudAuth, GeminiModel
-        from .ociclientconfig import OCIClientConfig
-        from .ocigenaimodel import OCIGenAIModel, ServingMode
+        from .ociclientconfig import OCIClientConfig, ServingMode
+        from .ocigenaimodel import OCIGenAIModel
         from .ollamamodel import OllamaModel
         from .openaicompatiblemodel import OpenAICompatibleModel
         from .openaimodel import OpenAIModel

@@ -20,6 +20,7 @@ from wayflowcore.embeddingmodels.openaicompatiblemodel import (
 )
 from wayflowcore.embeddingmodels.openaimodel import OpenAIEmbeddingModel
 from wayflowcore.embeddingmodels.vllmmodel import VllmEmbeddingModel
+from wayflowcore.models.ocigenaimodel import ServingMode
 from wayflowcore.serialization.serializer import autodeserialize, serialize, serialize_to_dict
 
 from .conftest import e5large_api_url, ollama_embedding_api_url
@@ -115,8 +116,12 @@ def mock_oci_modules(monkeypatch):
                 (object,),
                 {"endpoint": kwargs.get("service_endpoint", "https://mock-endpoint")},
             )
+            # Keep the request so tests can inspect the selected serving mode.
+            self.last_embed_text_details = None
 
         def embed_text(self, embed_text_details):
+            # Record the request before returning the mocked embedding response.
+            self.last_embed_text_details = embed_text_details
             # Return mock embeddings based on the input
             return MockEmbeddingResponse(embed_text_details.inputs)
 
@@ -132,11 +137,19 @@ def mock_oci_modules(monkeypatch):
         def __init__(self, model_id):
             self.model_id = model_id
 
+    # Create a mock for DedicatedServingMode
+    class MockDedicatedServingMode:
+        def __init__(self, endpoint_id):
+            self.endpoint_id = endpoint_id
+
     # Apply all the patches
     monkeypatch.setattr("oci.generative_ai_inference.GenerativeAiInferenceClient", MockGenAIClient)
     monkeypatch.setattr("oci.generative_ai_inference.models.EmbedTextDetails", MockEmbedTextDetails)
     monkeypatch.setattr(
         "oci.generative_ai_inference.models.OnDemandServingMode", MockOnDemandServingMode
+    )
+    monkeypatch.setattr(
+        "oci.generative_ai_inference.models.DedicatedServingMode", MockDedicatedServingMode
     )
 
     # Mock oci.config.from_file to return a dict with the compartment_id
@@ -161,6 +174,7 @@ def mock_oci_modules(monkeypatch):
         "client_class": MockGenAIClient,
         "embed_text_details_class": MockEmbedTextDetails,
         "on_demand_mode_class": MockOnDemandServingMode,
+        "dedicated_mode_class": MockDedicatedServingMode,
     }
 
 
@@ -695,6 +709,7 @@ def test_ocigenai_embedding_model_serialization(request, mock_oci_modules):
     assert serialized_dict["model_id"] == model_id
     assert "service_endpoint" in serialized_dict
     assert "compartment_id" in serialized_dict
+    assert serialized_dict["serving_mode"] == ServingMode.ON_DEMAND.value
 
     # Test YAML serialization
     yaml_str = serialize(original_model)
@@ -702,6 +717,33 @@ def test_ocigenai_embedding_model_serialization(request, mock_oci_modules):
 
     # Note: We skip deserialization for OCI as mentioned in the original test
     # as it requires special handling
+
+
+def test_ocigenai_embedding_model_dedicated_serving_mode(request, mock_oci_modules):
+    endpoint_id = "ocid2.generativeaiendpoint.oc1.phx.example"
+    model = OCIGenAIEmbeddingModel(
+        model_id=endpoint_id,
+        config=request.getfixturevalue("oci_client_config"),
+        compartment_id="test_compartment",
+    )
+
+    assert model.serving_mode == ServingMode.DEDICATED
+    model.embed(["hello"])
+
+    assert model._client.last_embed_text_details.serving_mode.endpoint_id == endpoint_id
+
+
+def test_ocigenai_embedding_model_explicit_serving_mode(request, mock_oci_modules):
+    model = OCIGenAIEmbeddingModel(
+        model_id="cohere.embed-v4.0",
+        config=request.getfixturevalue("oci_client_config"),
+        compartment_id="test_compartment",
+        serving_mode=ServingMode.DEDICATED,
+    )
+
+    assert model.serving_mode == ServingMode.DEDICATED
+    serialized = serialize_to_dict(model)
+    assert serialized["serving_mode"] == ServingMode.DEDICATED.value
 
 
 @pytest.mark.parametrize(

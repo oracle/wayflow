@@ -119,7 +119,7 @@ OCI GenAI Models
 .. _ocigenaimodel:
 .. autoclass:: wayflowcore.models.ocigenaimodel.OCIGenAIModel
 
-.. autoclass:: wayflowcore.models.ocigenaimodel.ServingMode
+.. autoclass:: wayflowcore.models.ociclientconfig.ServingMode
 
 .. autoclass:: wayflowcore.models.ocigenaimodel.ModelProvider
 
