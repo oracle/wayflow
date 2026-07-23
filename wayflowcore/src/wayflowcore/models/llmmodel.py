@@ -76,7 +76,9 @@ class Prompt(SerializableDataclassMixin, SerializableObject):
             else:
                 from wayflowcore.messagelist import TextContent
 
-                filled_value = self.response_format._fill_explicit_defaults(value)
+                filled_value = self.response_format._fill_nested_values_with_explicit_defaults(
+                    value
+                )
                 message.contents = [TextContent(content=json.dumps(filled_value))]
         if self.output_parser is None:
             return message

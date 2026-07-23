@@ -306,7 +306,7 @@ def test_object_property_fills_nested_explicit_defaults():
         properties={"reason": StringProperty(name="reason", default_value="unknown")},
     )
 
-    assert output._fill_explicit_defaults({}) == {"reason": "unknown"}
+    assert output._fill_nested_values_with_explicit_defaults({}) == {"reason": "unknown"}
 
 
 def test_object_property_fills_nested_explicit_defaults_for_additional_properties():
@@ -316,7 +316,7 @@ def test_object_property_fills_nested_explicit_defaults_for_additional_propertie
         )
     )
 
-    assert output._fill_explicit_defaults({"dynamic_result": {}}) == {
+    assert output._fill_nested_values_with_explicit_defaults({"dynamic_result": {}}) == {
         "dynamic_result": {"reason": "unknown"}
     }
 

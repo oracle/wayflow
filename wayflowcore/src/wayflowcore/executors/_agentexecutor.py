@@ -1406,7 +1406,7 @@ def _fill_submit_result_defaults(
             if output.has_default:
                 filled_outputs[output.name] = output.default_value
         else:
-            filled_outputs[output.name] = output._fill_explicit_defaults(
+            filled_outputs[output.name] = output._fill_nested_values_with_explicit_defaults(
                 filled_outputs[output.name]
             )
     return filled_outputs

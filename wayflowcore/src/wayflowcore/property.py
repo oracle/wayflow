@@ -122,7 +122,7 @@ class Property(SerializableObject, ABC):
             return []
         return [("", self._strict_type_violation(value))]
 
-    def _fill_explicit_defaults(self, value: Any) -> Any:
+    def _fill_nested_values_with_explicit_defaults(self, value: Any) -> Any:
         """Fill explicit defaults in a value without validating or coercing it."""
         return value
 
@@ -808,10 +808,10 @@ class ListProperty(Property):
             )
         return violations
 
-    def _fill_explicit_defaults(self, value: Any) -> Any:
+    def _fill_nested_values_with_explicit_defaults(self, value: Any) -> Any:
         if not isinstance(value, list):
             return value
-        return [self.item_type._fill_explicit_defaults(item) for item in value]
+        return [self.item_type._fill_nested_values_with_explicit_defaults(item) for item in value]
 
     @property
     def _type_default_value(self) -> Any:
@@ -894,10 +894,13 @@ class DictProperty(Property):
             )
         return violations
 
-    def _fill_explicit_defaults(self, value: Any) -> Any:
+    def _fill_nested_values_with_explicit_defaults(self, value: Any) -> Any:
         if not isinstance(value, dict):
             return value
-        return {key: self.value_type._fill_explicit_defaults(item) for key, item in value.items()}
+        return {
+            key: self.value_type._fill_nested_values_with_explicit_defaults(item)
+            for key, item in value.items()
+        }
 
     @property
     def _type_default_value(self) -> Any:
@@ -1033,7 +1036,7 @@ class ObjectProperty(Property):
             )
         return violations
 
-    def _fill_explicit_defaults(self, value: Any) -> Any:
+    def _fill_nested_values_with_explicit_defaults(self, value: Any) -> Any:
         if not isinstance(value, dict):
             return value
 
@@ -1043,12 +1046,16 @@ class ObjectProperty(Property):
                 if nested_property.has_default:
                     filled_value[name] = nested_property.default_value
             else:
-                filled_value[name] = nested_property._fill_explicit_defaults(filled_value[name])
+                filled_value[name] = nested_property._fill_nested_values_with_explicit_defaults(
+                    filled_value[name]
+                )
         if isinstance(self.additional_properties, Property):
             for name, nested_value in filled_value.items():
                 if name not in self.properties:
-                    filled_value[name] = self.additional_properties._fill_explicit_defaults(
-                        nested_value
+                    filled_value[name] = (
+                        self.additional_properties._fill_nested_values_with_explicit_defaults(
+                            nested_value
+                        )
                     )
         return filled_value
 
@@ -1176,9 +1183,9 @@ class UnionProperty(Property):
                 return []
         return super()._validate_strict_value(value)
 
-    def _fill_explicit_defaults(self, value: Any) -> Any:
+    def _fill_nested_values_with_explicit_defaults(self, value: Any) -> Any:
         for property_ in self.any_of:
-            filled_value = property_._fill_explicit_defaults(value)
+            filled_value = property_._fill_nested_values_with_explicit_defaults(value)
             if property_.is_value_of_expected_type(filled_value):
                 return filled_value
         return value
