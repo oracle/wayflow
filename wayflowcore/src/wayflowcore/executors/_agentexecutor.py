@@ -50,12 +50,7 @@ from wayflowcore.executors.interrupts.executioninterrupt import (
 from wayflowcore.messagelist import Message, MessageList, MessageType
 from wayflowcore.ociagent import OciAgent
 from wayflowcore.planning import ExecutionPlan
-from wayflowcore.property import (
-    JsonSchemaParam,
-    Property,
-    StringProperty,
-    _validate_strict_outputs,
-)
+from wayflowcore.property import JsonSchemaParam, Property, StringProperty, _validate_strict_outputs
 from wayflowcore.tools import ClientTool, Tool, ToolRequest, ToolResult
 from wayflowcore.tools.tools import _descriptors_to_json_schema_map, _sanitize_tool_name
 from wayflowcore.tracing.span import AgentExecutionSpan
@@ -1107,9 +1102,7 @@ class AgentConversationExecutor(ConversationExecutor):
                         {}, agent_config.output_descriptors
                     )
                     if agent_config.strict_output_validation:
-                        default_outputs = _validate_strict_outputs(
-                            default_outputs, agent_config.output_descriptors
-                        )
+                        _validate_strict_outputs(default_outputs, agent_config.output_descriptors)
                     else:
                         default_outputs = {
                             output.name: default_outputs.get(output.name, output.default_value)
@@ -1239,7 +1232,7 @@ class AgentConversationExecutor(ConversationExecutor):
             )
             if config.strict_output_validation:
                 try:
-                    tool_inputs = _validate_strict_outputs(tool_inputs, config.output_descriptors)
+                    _validate_strict_outputs(tool_inputs, config.output_descriptors)
                     successful_submission = True
                 except StructuredOutputValidationError as error:
                     validation_error = error

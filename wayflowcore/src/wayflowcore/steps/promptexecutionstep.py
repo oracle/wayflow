@@ -515,7 +515,8 @@ class PromptExecutionStep(Step):
         strict: bool = False,
     ) -> Dict[str, Any]:
         if strict:
-            return _validate_strict_outputs(outputs, expected_outputs)
+            _validate_strict_outputs(outputs, expected_outputs)
+            return outputs
         logger.debug(
             "PromptExecutionStep generated output: %s\nExpected outputs: %s",
             outputs,

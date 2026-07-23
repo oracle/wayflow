@@ -297,7 +297,7 @@ def test_strict_validation_respects_object_additional_properties(
         with pytest.raises(StructuredOutputValidationError):
             _validate_strict_outputs({"details": value}, descriptors)
     else:
-        assert _validate_strict_outputs({"details": value}, descriptors) == {"details": value}
+        _validate_strict_outputs({"details": value}, descriptors)
 
 
 def test_object_property_fills_nested_explicit_defaults():
