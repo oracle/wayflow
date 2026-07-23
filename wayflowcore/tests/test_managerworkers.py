@@ -532,12 +532,12 @@ def check_name_in_db_tool(name: str) -> str:
 @retry_test(max_attempts=3)
 def test_managerworkers_execution_works_with_servertool_confirmation(big_llama):
     """
-    Failure rate:          1 out of 50
-    Observed on:           2025-09-23
-    Average success time:  14.08 seconds per successful attempt
-    Average failure time:  17.05 seconds per failed attempt
+    Failure rate:          0 out of 50
+    Observed on:           2026-07-23
+    Average success time:  8.34 seconds per successful attempt
+    Average failure time:  No time measurement
     Max attempt:           3
-    Justification:         (0.04 ** 3) ~= 5.7 / 100'000
+    Justification:         (0.02 ** 3) ~= 0.7 / 100'000
     """
     llm = big_llama
     agent = Agent(
