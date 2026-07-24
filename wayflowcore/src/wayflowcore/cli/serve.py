@@ -401,6 +401,8 @@ def _load_datastore_connection_config(
     if storage_type == "oracle-db":
         if raw_type == "TlsOracleDatabaseConnectionConfig":
             return TlsOracleDatabaseConnectionConfig(**data)
+        elif raw_type == "MTlsOracleDatabaseConnectionConfig":
+            return MTlsOracleDatabaseConnectionConfig(**data)
         else:
             raise ValueError(
                 f"For oracle db storage type `{raw_type}`, the connection config type should be either `TlsOracleDatabaseConnectionConfig` or `MTlsOracleDatabaseConnectionConfig` but got `{raw_type}`"
