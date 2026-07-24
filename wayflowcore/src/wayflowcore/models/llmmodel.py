@@ -4,6 +4,7 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
+import json
 import logging
 from abc import ABC, abstractmethod
 from collections import defaultdict
@@ -67,6 +68,18 @@ class Prompt(SerializableDataclassMixin, SerializableObject):
     """Optional parameters for the llm generation."""
 
     def parse_output(self, message: "Message") -> "Message":
+        if self.response_format is not None:
+            try:
+                value = json.loads(message.content)
+            except json.JSONDecodeError:
+                pass
+            else:
+                from wayflowcore.messagelist import TextContent
+
+                filled_value = self.response_format._fill_nested_values_with_explicit_defaults(
+                    value
+                )
+                message.contents = [TextContent(content=json.dumps(filled_value))]
         if self.output_parser is None:
             return message
         if isinstance(self.output_parser, list):

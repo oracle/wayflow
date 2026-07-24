@@ -15,6 +15,7 @@ from typing import Any, ClassVar, Dict, List, Optional, Set, Tuple, Type, TypedD
 import numpy as np
 
 from wayflowcore._metadata import MetadataType
+from wayflowcore.exceptions import StructuredOutputValidationError
 from wayflowcore.serialization.context import DeserializationContext, SerializationContext
 from wayflowcore.serialization.serializer import SerializableObject
 
@@ -114,6 +115,19 @@ class Property(SerializableObject, ABC):
         if self.enum is not None and value not in self.enum:
             return False
         return self._is_value_of_expected_type(value)
+
+    def _validate_strict_value(self, value: Any) -> list[tuple[str, str]]:
+        """Validate a value without coercion or implicit defaults and return violations."""
+        if self.is_value_of_expected_type(value):
+            return []
+        return [("", self._strict_type_violation(value))]
+
+    def _fill_nested_values_with_explicit_defaults(self, value: Any) -> Any:
+        """Fill explicit defaults in a value without validating or coercing it."""
+        return value
+
+    def _strict_type_violation(self, value: Any) -> str:
+        return f"expected {self.get_type_str()}, got {type(value).__name__}"
 
     @abstractmethod
     def _is_value_of_expected_type(self, value: Any) -> bool:
@@ -782,6 +796,23 @@ class ListProperty(Property):
             all(self.item_type.is_value_of_expected_type(v) for v in value)
         )
 
+    def _validate_strict_value(self, value: Any) -> list[tuple[str, str]]:
+        if not isinstance(value, list):
+            return [("", self._strict_type_violation(value))]
+
+        violations: list[tuple[str, str]] = []
+        for index, item in enumerate(value):
+            nested_violations = self.item_type._validate_strict_value(item)
+            violations.extend(
+                (f"[{index}]{location}", message) for location, message in nested_violations
+            )
+        return violations
+
+    def _fill_nested_values_with_explicit_defaults(self, value: Any) -> Any:
+        if not isinstance(value, list):
+            return value
+        return [self.item_type._fill_nested_values_with_explicit_defaults(item) for item in value]
+
     @property
     def _type_default_value(self) -> Any:
         return []
@@ -846,6 +877,30 @@ class DictProperty(Property):
             and all(self.key_type.is_value_of_expected_type(k) for k in value.keys())
             and all(self.value_type.is_value_of_expected_type(v) for v in value.values())
         )
+
+    def _validate_strict_value(self, value: Any) -> list[tuple[str, str]]:
+        if not isinstance(value, dict):
+            return [("", self._strict_type_violation(value))]
+
+        violations: list[tuple[str, str]] = []
+        for key, item in value.items():
+            key_violations = self.key_type._validate_strict_value(key)
+            nested_violations = self.value_type._validate_strict_value(item)
+            violations.extend(
+                (f".<key>{location}", message) for location, message in key_violations
+            )
+            violations.extend(
+                (f".{key}{location}", message) for location, message in nested_violations
+            )
+        return violations
+
+    def _fill_nested_values_with_explicit_defaults(self, value: Any) -> Any:
+        if not isinstance(value, dict):
+            return value
+        return {
+            key: self.value_type._fill_nested_values_with_explicit_defaults(item)
+            for key, item in value.items()
+        }
 
     @property
     def _type_default_value(self) -> Any:
@@ -953,6 +1008,56 @@ class ObjectProperty(Property):
             self.additional_properties.is_value_of_expected_type(property_value)
             for property_value in additional_values
         )
+
+    def _validate_strict_value(self, value: Any) -> list[tuple[str, str]]:
+        if not isinstance(value, dict):
+            return [("", self._strict_type_violation(value))]
+
+        violations: list[tuple[str, str]] = []
+        for key, property_value in value.items():
+            if key in self.properties:
+                continue
+            if self.additional_properties is False:
+                violations.append((f".{key}", "unexpected field"))
+            elif isinstance(self.additional_properties, Property):
+                nested_violations = self.additional_properties._validate_strict_value(
+                    property_value
+                )
+                violations.extend(
+                    (f".{key}{location}", message) for location, message in nested_violations
+                )
+        for name, nested_property in self.properties.items():
+            if name not in value:
+                violations.append((f".{name}", "missing required field"))
+                continue
+            nested_violations = nested_property._validate_strict_value(value[name])
+            violations.extend(
+                (f".{name}{location}", message) for location, message in nested_violations
+            )
+        return violations
+
+    def _fill_nested_values_with_explicit_defaults(self, value: Any) -> Any:
+        if not isinstance(value, dict):
+            return value
+
+        filled_value = dict(value)
+        for name, nested_property in self.properties.items():
+            if name not in filled_value:
+                if nested_property.has_default:
+                    filled_value[name] = nested_property.default_value
+            else:
+                filled_value[name] = nested_property._fill_nested_values_with_explicit_defaults(
+                    filled_value[name]
+                )
+        if isinstance(self.additional_properties, Property):
+            for name, nested_value in filled_value.items():
+                if name not in self.properties:
+                    filled_value[name] = (
+                        self.additional_properties._fill_nested_values_with_explicit_defaults(
+                            nested_value
+                        )
+                    )
+        return filled_value
 
     @staticmethod
     def _check_dict_has_correct_entry(
@@ -1071,6 +1176,20 @@ class UnionProperty(Property):
     def _is_value_of_expected_type(self, value: Any) -> bool:
         return any(property_.is_value_of_expected_type(value) for property_ in self.any_of)
 
+    def _validate_strict_value(self, value: Any) -> list[tuple[str, str]]:
+        for property_ in self.any_of:
+            violations = property_._validate_strict_value(value)
+            if not violations:
+                return []
+        return super()._validate_strict_value(value)
+
+    def _fill_nested_values_with_explicit_defaults(self, value: Any) -> Any:
+        for property_ in self.any_of:
+            filled_value = property_._fill_nested_values_with_explicit_defaults(value)
+            if property_.is_value_of_expected_type(filled_value):
+                return filled_value
+        return value
+
     @property
     def _type_default_value(self) -> Any:
         return self.any_of[0]._type_default_value
@@ -1155,6 +1274,28 @@ def _format_default_value(property_: Property) -> Any:
     if default_value is not Property.empty_default:
         return default_value
     return property_._type_default_value
+
+
+def _validate_strict_outputs(outputs: Dict[str, Any], expected_outputs: List[Property]) -> None:
+    """Validate structured outputs without coercion or default filling."""
+    violations: List[str] = []
+    expected_by_name = {output.name: output for output in expected_outputs}
+
+    for output_name in outputs:
+        if output_name not in expected_by_name:
+            violations.append(f"{output_name}: unexpected field")
+
+    for output_name, output in expected_by_name.items():
+        if output_name not in outputs:
+            violations.append(f"{output_name}: missing required field")
+        else:
+            value_violations = output._validate_strict_value(outputs[output_name])
+            violations.extend(
+                f"{output_name}{location}: {message}" for location, message in value_violations
+            )
+
+    if violations:
+        raise StructuredOutputValidationError(violations=violations)
 
 
 def _convert_list_of_properties_to_json_schema(properties: List[Property]) -> JsonSchemaParam:

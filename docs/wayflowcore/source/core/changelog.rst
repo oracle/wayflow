@@ -13,6 +13,12 @@ Improvements
   Additional fields can be allowed, rejected, or validated with a property definition,
   and the configuration is preserved when importing and exporting JSON Schema.
 
+* **Optional strict structured-output validation**
+
+  ``PromptTemplate(strict_output_validation=True)`` now validates prompt outputs, and
+  ``Agent(strict_output_validation=True)`` asks agents to resubmit invalid ``submit_result`` calls.
+  See :ref:`Validate structured output strictly <strict_output_validation>` for usage details.
+
 * **Improved Swarm and ManagerWorkers multiple tool calling**
 
   Swarm and ManagerWorkers prompts now require multiple independent tool calls

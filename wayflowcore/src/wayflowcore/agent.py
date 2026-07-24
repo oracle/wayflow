@@ -79,6 +79,8 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
     """Initial hardcoded message the agent might post if it doesn't have any user message in the conversation"""
     caller_input_mode: CallerInputMode
     """Whether the agent can ask the user for additional information or needs to just deal with the task itself"""
+    strict_output_validation: bool
+    """Whether invalid submitted outputs should be rejected, rather than coerced."""
 
     agent_template: PromptTemplate
 
@@ -124,6 +126,7 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         caller_input_mode: CallerInputMode = CallerInputMode.ALWAYS,
         input_descriptors: Optional[List["Property"]] = None,
         output_descriptors: Optional[List["Property"]] = None,
+        strict_output_validation: bool = False,
         name: Optional[str] = None,
         description: str = "",
         agent_template: Optional[PromptTemplate] = None,
@@ -225,6 +228,9 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
                 but optional if a default value is passed (it will use the default value if the LLM doesn't generate
                 a value for it.
 
+        strict_output_validation:
+            Whether invalid submitted outputs should be rejected, rather than coerced.
+
         name:
             name of the agent, used for composition
         description:
@@ -307,6 +313,7 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         self.raise_exceptions = raise_exceptions
         self.initial_message = initial_message
         self.caller_input_mode = caller_input_mode
+        self.strict_output_validation = strict_output_validation
         self._add_talk_to_user_tool = _add_talk_to_user_tool
 
         self.transforms = transforms or []

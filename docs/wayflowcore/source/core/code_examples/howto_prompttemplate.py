@@ -188,6 +188,13 @@ output = ObjectProperty(
     },
 )
 # .. end-##_Configure_how_to_use_structured_generation_in_templates
+# .. start-###_Validate_structured_output_strictly
+strict_template = PromptTemplate.from_string(
+    template="Extract information about a person. The person is 65 years old, named Johnny",
+    response_format=output,
+    strict_output_validation=True,
+)
+# .. end-###_Validate_structured_output_strictly
 # .. start-###_With_native_structured_generation
 template = PromptTemplate.from_string(
     template="Extract information about a person. The person is 65 years old, named Johnny",

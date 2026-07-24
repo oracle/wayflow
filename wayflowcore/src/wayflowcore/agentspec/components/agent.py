@@ -42,6 +42,8 @@ class ExtendedAgent(Agent):
     caller_input_mode: SerializeAsEnum[CallerInputMode] = CallerInputMode.ALWAYS
     """Whether the agent is allowed to ask the user questions (CallerInputMode.ALWAYS) or not (CallerInputMode.NEVER).
     If set to NEVER, the agent won't be able to yield."""
+    strict_output_validation: bool = False
+    """Whether invalid submitted outputs should be rejected, rather than coerced."""
     agents: List[Agent] = Field(default_factory=list)
     """Other agents that the agent can call (expert agents)."""
     flows: List[Flow] = Field(default_factory=list)

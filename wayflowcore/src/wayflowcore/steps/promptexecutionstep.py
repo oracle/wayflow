@@ -22,6 +22,7 @@ from wayflowcore.property import (
     StringProperty,
     _format_default_value,
     _output_properties_to_response_format_property,
+    _validate_strict_outputs,
 )
 from wayflowcore.steps.step import Step, StepResult
 from wayflowcore.steps.templaterenderingstep import TemplateRenderingStep
@@ -436,7 +437,11 @@ class PromptExecutionStep(Step):
                 conversation.message_list.append_message(new_message)
 
         outputs, next_branch = self._gather_outputs(new_message)
-        validated_outputs = self._validate_outputs(outputs, self._internal_output_descriptors)
+        validated_outputs = self._validate_outputs(
+            outputs,
+            self._internal_output_descriptors,
+            strict=self.prepared_template.strict_output_validation,
+        )
         return StepResult(outputs=validated_outputs, branch_name=next_branch)
 
     def _gather_outputs(self, new_message: Message) -> Tuple[Dict[str, Any], str]:
@@ -507,7 +512,11 @@ class PromptExecutionStep(Step):
     def _validate_outputs(
         outputs: Dict[str, Any],
         expected_outputs: List[Property],
-    ) -> Dict[str, type]:
+        strict: bool = False,
+    ) -> Dict[str, Any]:
+        if strict:
+            _validate_strict_outputs(outputs, expected_outputs)
+            return outputs
         logger.debug(
             "PromptExecutionStep generated output: %s\nExpected outputs: %s",
             outputs,

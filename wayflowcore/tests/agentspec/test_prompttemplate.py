@@ -43,6 +43,7 @@ def test_prompttemplate_can_be_exported_to_agentspec_then_imported(remotely_host
         ],
         output_parser=ReactToolOutputParser(),
         generation_config=LlmGenerationConfig(stop=["## Observation"]),
+        strict_output_validation=True,
     )
 
     agent = Agent(llm=remotely_hosted_llm, agent_template=agent_template)
@@ -59,6 +60,7 @@ def test_prompttemplate_can_be_exported_to_agentspec_then_imported(remotely_host
 
     # Prompt template - Native tool calling check
     assert new_agent_template.native_tool_calling == agent_template.native_tool_calling
+    assert new_agent_template.strict_output_validation is True
 
     # Prompt template - Message transforms
     assert len(new_agent_template.post_rendering_transforms) == len(

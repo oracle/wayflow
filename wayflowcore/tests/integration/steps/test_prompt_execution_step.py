@@ -11,6 +11,7 @@ from typing import List
 import pytest
 
 from wayflowcore import Message, MessageType
+from wayflowcore.exceptions import StructuredOutputValidationError
 from wayflowcore.executors._agentexecutor import _DISABLE_STREAMING
 from wayflowcore.executors.executionstatus import FinishedStatus
 from wayflowcore.flow import Flow
@@ -439,6 +440,22 @@ def test_structured_generation_returns_wrong_type(remotely_hosted_llm):
     assert "first_name" in outputs
     assert outputs["last_name"] == 0
     assert outputs["first_name"] == "safra"
+
+
+def test_strict_structured_generation_rejects_wrong_type(remotely_hosted_llm):
+    template = PromptTemplate.from_string(
+        template="Return the requested values.", strict_output_validation=True
+    )
+    step = PromptExecutionStep(
+        prompt_template=template,
+        llm=remotely_hosted_llm,
+        output_descriptors=[StringProperty(name="description")],
+    )
+    with patch_llm(remotely_hosted_llm, outputs=['{"description": ["first condition"]}']):
+        with pytest.raises(
+            StructuredOutputValidationError, match="description: expected StringProperty, got list"
+        ):
+            _run_single_step_to_finish(step)
 
 
 def test_check_token_consumption(remotely_hosted_llm):

@@ -68,6 +68,8 @@ class PluginPromptTemplate(Component):
     """Specific format the llm answer should follow."""
     native_structured_generation: bool = True
     """Whether to use native structured generation or not. All llm providers might not support it."""
+    strict_output_validation: bool = False
+    """Whether invalid structured output should be rejected, rather than coerced."""
 
     generation_config: Optional[LlmGenerationConfig] = None
     """Parameters to configure the generation."""

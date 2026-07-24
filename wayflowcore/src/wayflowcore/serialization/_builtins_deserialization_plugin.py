@@ -652,6 +652,9 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 extra_arguments["max_iterations"] = agentspec_component.max_iterations
                 extra_arguments["initial_message"] = agentspec_component.initial_message
                 extra_arguments["caller_input_mode"] = agentspec_component.caller_input_mode
+                extra_arguments["strict_output_validation"] = (
+                    agentspec_component.strict_output_validation
+                )
                 extra_arguments["agents"] = [
                     conversion_context.convert(a, tool_registry, converted_components)
                     for a in agentspec_component.agents
@@ -2319,6 +2322,7 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 else None
             ),
             native_structured_generation=agentspec_template.native_structured_generation,
+            strict_output_validation=agentspec_template.strict_output_validation,
             generation_config=(
                 self._convert_llmgenerationconfig_to_runtime(agentspec_template.generation_config)
                 if agentspec_template.generation_config

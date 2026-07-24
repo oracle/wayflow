@@ -186,6 +186,21 @@ Assume the goal is to generate the following output:
 
 API reference: :ref:`ObjectProperty <ObjectProperty>`, :ref:`StringProperty <StringProperty>`.
 
+.. _strict_output_validation:
+
+Validate structured output strictly
+-----------------------------------
+
+Set ``strict_output_validation=True`` when invalid output must not be coerced or replaced with implicit type defaults. WayFlow then validates the final output, independently of the LLM provider.
+A missing descriptor with an explicit ``default_value`` remains optional; all other missing, unknown, or wrongly typed fields raise ``StructuredOutputValidationError``.
+
+.. literalinclude:: ../code_examples/howto_prompttemplate.py
+   :language: python
+   :linenos:
+   :start-after: .. start-###_Validate_structured_output_strictly
+   :end-before: .. end-###_Validate_structured_output_strictly
+
+
 With native structured generation
 ---------------------------------
 

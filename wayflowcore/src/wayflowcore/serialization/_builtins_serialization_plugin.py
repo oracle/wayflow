@@ -1912,6 +1912,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 else None
             ),
             native_structured_generation=runtime_prompttemplate.native_structured_generation,
+            strict_output_validation=runtime_prompttemplate.strict_output_validation,
             generation_config=(
                 self._llmgenerationconfig_convert_to_agentspec(
                     runtime_prompttemplate.generation_config
@@ -2279,6 +2280,12 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                     != extended_agent_model_fields["max_iterations"].default
                 )
             )
+            or (
+                strict_output_validation := (
+                    runtime_agent.strict_output_validation
+                    != extended_agent_model_fields["strict_output_validation"].default
+                )
+            )
             or (has_subagents := len(agents) > 0)
             or (has_subflows := len(flows) > 0)
         ):
@@ -2309,6 +2316,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 max_iterations=runtime_agent.max_iterations,
                 initial_message=runtime_agent.initial_message,
                 caller_input_mode=runtime_agent.caller_input_mode,
+                strict_output_validation=runtime_agent.strict_output_validation,
                 human_in_the_loop=runtime_agent.caller_input_mode == CallerInputMode.ALWAYS,
                 agent_template=(
                     self._prompttemplate_convert_to_agentspec(

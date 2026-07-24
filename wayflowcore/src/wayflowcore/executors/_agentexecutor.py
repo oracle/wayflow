@@ -29,7 +29,7 @@ from wayflowcore.events.event import (
     ToolConfirmationRequestStartEvent,
     ToolExecutionStartEvent,
 )
-from wayflowcore.exceptions import AuthInterrupt
+from wayflowcore.exceptions import AuthInterrupt, StructuredOutputValidationError
 from wayflowcore.executors._executionstate import ConversationExecutionState
 from wayflowcore.executors._executor import ConversationExecutor, ExecutionInterruptedException
 from wayflowcore.executors._interrupts_eventlistener import (
@@ -50,7 +50,7 @@ from wayflowcore.executors.interrupts.executioninterrupt import (
 from wayflowcore.messagelist import Message, MessageList, MessageType
 from wayflowcore.ociagent import OciAgent
 from wayflowcore.planning import ExecutionPlan
-from wayflowcore.property import JsonSchemaParam, Property, StringProperty
+from wayflowcore.property import JsonSchemaParam, Property, StringProperty, _validate_strict_outputs
 from wayflowcore.tools import ClientTool, Tool, ToolRequest, ToolResult
 from wayflowcore.tools.tools import _descriptors_to_json_schema_map, _sanitize_tool_name
 from wayflowcore.tracing.span import AgentExecutionSpan
@@ -1008,10 +1008,6 @@ class AgentConversationExecutor(ConversationExecutor):
     ) -> Tuple[Optional[ExecutionStatus], bool]:
         should_yield = False
         if tool_request.name == _SUBMIT_TOOL_NAME:
-            _normalize_tool_request_args(
-                tool_request,
-                _descriptors_to_json_schema_map(agent_config.output_descriptors),
-            )
             outputs = AgentConversationExecutor._collect_submit_tool_outputs(
                 config=agent_config,
                 submit_tool_call=tool_request,
@@ -1102,10 +1098,16 @@ class AgentConversationExecutor(ConversationExecutor):
                 agent_state._get_current_tool_request()
             elif agent_state.curr_iter >= agent_config.max_iterations:
                 if len(agent_config.output_descriptors) > 0:
-                    # need to generate some outputs
-                    default_outputs = {
-                        o.name: o.default_value for o in agent_config.output_descriptors
-                    }
+                    default_outputs = _fill_submit_result_defaults(
+                        {}, agent_config.output_descriptors
+                    )
+                    if agent_config.strict_output_validation:
+                        _validate_strict_outputs(default_outputs, agent_config.output_descriptors)
+                    else:
+                        default_outputs = {
+                            output.name: default_outputs.get(output.name, output.default_value)
+                            for output in agent_config.output_descriptors
+                        }
                     return FinishedStatus(
                         output_values=default_outputs, _conversation_id=conversation.id
                     )
@@ -1217,22 +1219,49 @@ class AgentConversationExecutor(ConversationExecutor):
         We check if the submit tool arguments are the expected outputs. If yes, we return, if not, we loop
         back to ask the agent to correct itself.
         """
+        validation_error: Optional[StructuredOutputValidationError] = None
+        missing_inputs: List[str] = []
         if len(config.output_descriptors) == 0:
             if config.caller_input_mode != CallerInputMode.NEVER:
                 raise ValueError("Internal error, the agent should not have the submit tool")
             tool_inputs = {}
             successful_submission = True
         else:
-            tool_inputs = submit_tool_call.args or {}
-            missing_inputs = [
-                o.name
-                for o in config.output_descriptors
-                if o.name not in tool_inputs and not o.has_default
-            ]
-            successful_submission = len(missing_inputs) == 0
+            tool_inputs = _fill_submit_result_defaults(
+                submit_tool_call.args or {}, config.output_descriptors
+            )
+            if config.strict_output_validation:
+                try:
+                    _validate_strict_outputs(tool_inputs, config.output_descriptors)
+                    successful_submission = True
+                except StructuredOutputValidationError as error:
+                    validation_error = error
+                    successful_submission = False
+            else:
+                submit_tool_call.args = tool_inputs
+                _normalize_tool_request_args(
+                    submit_tool_call,
+                    _descriptors_to_json_schema_map(config.output_descriptors),
+                )
+                tool_inputs = submit_tool_call.args or {}
+                missing_inputs = [
+                    o.name
+                    for o in config.output_descriptors
+                    if o.name not in tool_inputs and not o.has_default
+                ]
+                successful_submission = len(missing_inputs) == 0
 
         if successful_submission:
             tool_output_content = "The submission was successful"
+        elif validation_error is not None:
+            tool_output_content = (
+                "The submission is invalid:\n- "
+                + "\n- ".join(validation_error.violations)
+                + "\nPlease resubmit with exactly the declared fields and types."
+            )
+            logger.debug(
+                "The agent made an invalid output submission: %s", validation_error.violations
+            )
         else:
             tool_output_content = f"The submission: {tool_inputs}\n is missing some inputs: {missing_inputs}. Please resubmit with the correct inputs."
             logger.debug(
@@ -1365,3 +1394,19 @@ def _get_end_filtering_delimiter(state: AgentConversationExecutionState) -> str:
 
 def _conversation_contains_user_messages(conversation: Conversation) -> bool:
     return any(m.message_type == MessageType.USER for m in conversation.get_messages())
+
+
+def _fill_submit_result_defaults(
+    outputs: Dict[str, Any], expected_outputs: List[Property]
+) -> Dict[str, Any]:
+    """Fill absent explicit defaults in submit_result arguments."""
+    filled_outputs = dict(outputs)
+    for output in expected_outputs:
+        if output.name not in filled_outputs:
+            if output.has_default:
+                filled_outputs[output.name] = output.default_value
+        else:
+            filled_outputs[output.name] = output._fill_nested_values_with_explicit_defaults(
+                filled_outputs[output.name]
+            )
+    return filled_outputs
