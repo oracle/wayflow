@@ -293,8 +293,10 @@ class AgentExecutionStep(Step):
         init_messages = (
             caller_conv.message_list if self._share_conversation else MessageList.from_messages([])
         )
-        agent_sub_conversation = self.agent.start_conversation(
-            inputs=inputs, messages=init_messages
+        agent_sub_conversation = self.agent._start_conversation_impl(
+            parent_conversation=caller_conv,
+            inputs=inputs,
+            messages=init_messages,
         )
 
         return agent_sub_conversation

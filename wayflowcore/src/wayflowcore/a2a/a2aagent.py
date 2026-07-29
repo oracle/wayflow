@@ -19,6 +19,8 @@ from wayflowcore.serialization.serializer import SerializableDataclassMixin, Ser
 from wayflowcore.tools import Tool
 
 if TYPE_CHECKING:
+    from wayflowcore.checkpointing import Checkpointer
+    from wayflowcore.conversation import Conversation
     from wayflowcore.executors._a2aagentconversation import A2AAgentConversation
 
 logger = logging.getLogger(__name__)
@@ -244,10 +246,17 @@ class A2AAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
             __metadata_info__=__metadata_info__,
         )
 
+    @property
+    def _supports_checkpointing(self) -> bool:
+        return True
+
     def start_conversation(
         self,
         inputs: Optional[Dict[str, Any]] = None,
         messages: Union[None, str, Message, List[Message], MessageList] = None,
+        conversation_id: Optional[str] = None,
+        checkpointer: Optional["Checkpointer"] = None,
+        checkpoint_id: Optional[str] = None,
     ) -> "A2AAgentConversation":
         """
         Initiates a new conversation with the remote server agent.
@@ -263,14 +272,52 @@ class A2AAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
         messages:
             Optional initial message list for the conversation. Can be either a ``MessageList``
             or a list of ``Message`` objects. Defaults to an empty ``MessageList`` if not provided.
-
+        conversation_id:
+            Conversation id used for checkpointing the conversation and later resuming it.
+        checkpointer:
+            Optional checkpoint backend used to restore and persist this conversation.
+        checkpoint_id:
+            Optional checkpoint identifier to restore. Requires both ``checkpointer`` and
+            ``conversation_id``.
         Returns
         -------
         Conversation:
             A new conversation object associated with this agent.
         """
+        return self._start_conversation_impl(
+            inputs=inputs,
+            messages=messages,
+            conversation_id=conversation_id,
+            checkpointer=checkpointer,
+            checkpoint_id=checkpoint_id,
+            parent_conversation=None,
+        )
+
+    def _start_conversation_impl(
+        self,
+        inputs: Optional[Dict[str, Any]] = None,
+        messages: Union[None, str, Message, List[Message], MessageList] = None,
+        conversation_id: Optional[str] = None,
+        checkpointer: Optional["Checkpointer"] = None,
+        checkpoint_id: Optional[str] = None,
+        parent_conversation: Optional["Conversation"] = None,
+    ) -> "A2AAgentConversation":
         from wayflowcore.executors._a2aagentconversation import A2AAgentConversation
         from wayflowcore.executors._a2aagentexecutor import A2AAgentState
+
+        restored_conversation, conversation_instance_id, conversation_thread_id = (
+            self._prepare_conversation_start(
+                inputs=inputs,
+                messages=messages,
+                conversation_id=conversation_id,
+                checkpointer=checkpointer,
+                checkpoint_id=checkpoint_id,
+                expected_conversation_type=A2AAgentConversation,
+                parent_conversation=parent_conversation,
+            )
+        )
+        if restored_conversation is not None:
+            return restored_conversation
 
         if not isinstance(messages, MessageList):
             messages = MessageList.from_messages(messages=messages)
@@ -281,8 +328,10 @@ class A2AAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
             inputs=inputs or {},  # Inputs are ignored in execution
             message_list=messages,
             status=None,
-            conversation_id=IdGenerator.get_or_generate_id(None),
+            id=conversation_instance_id,
+            checkpointer=checkpointer,
             name="a2a_conversation",
+            conversation_id=conversation_thread_id,
             __metadata_info__={},
         )
 

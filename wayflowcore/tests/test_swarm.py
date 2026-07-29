@@ -494,9 +494,7 @@ def test_swarm_warns_agent_on_sending_message_to_caller_instead_of_using_talk_to
         # controlled execution
         conv.execute()
 
-    agent1_agent2_message_list = conv.state.agents_and_threads[agent1.name][
-        agent2.name
-    ].message_list
+    agent1_agent2_message_list = conv.state.agents_and_threads[agent1.id][agent2.id].message_list
     last_message = (
         agent1_agent2_message_list.get_last_message()
     )  # Message warning the `agent2` about what it is doing wrong
@@ -581,9 +579,7 @@ def test_circular_calling_warning_with_handoff():
         # controlled execution
         conv.execute()
 
-    agent3_agent2_message_list = conv.state.agents_and_threads[agent3.name][
-        agent2.name
-    ].message_list
+    agent3_agent2_message_list = conv.state.agents_and_threads[agent3.id][agent2.id].message_list
     last_message = (
         agent3_agent2_message_list.get_last_message()
     )  # Message warning the `agent3` about what it is doing wrong

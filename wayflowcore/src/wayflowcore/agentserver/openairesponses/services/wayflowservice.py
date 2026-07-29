@@ -4,10 +4,9 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
-
-import json
 import logging
 import time
+from collections import OrderedDict
 from typing import Any, AsyncIterable, Dict, List, Optional, Union, cast
 
 import anyio
@@ -16,10 +15,14 @@ from fastapi import HTTPException
 from fastapi import status as http_status_code
 
 from wayflowcore.agentserver.serverstorageconfig import ServerStorageConfig
+from wayflowcore.checkpointing import (
+    CheckpointRestoreCompatibilityError,
+    ConversationCheckpoint,
+    DatastoreCheckpointer,
+)
 from wayflowcore.conversation import Conversation
 from wayflowcore.conversationalcomponent import ConversationalComponent
 from wayflowcore.datastore import Datastore, InMemoryDatastore
-from wayflowcore.datastore._relational import RelationalDatastore
 from wayflowcore.events import register_event_listeners
 from wayflowcore.executors.executionstatus import (
     ExecutionStatus,
@@ -27,9 +30,7 @@ from wayflowcore.executors.executionstatus import (
     UserMessageRequestStatus,
 )
 from wayflowcore.idgeneration import IdGenerator
-from wayflowcore.serialization import serialize
 
-from ..._storagehelpers import _deserialize_conversation_safely
 from ..models.openairesponsespydanticmodels import (
     Conversation2,
     CreateResponse,
@@ -62,6 +63,8 @@ logger = logging.getLogger(__name__)
 
 
 class WayFlowOpenAIResponsesService(OpenAIResponsesService):
+    _RESPONSE_CONVERSATION_CACHE_MAX_SIZE = 1024
+
     def __init__(
         self,
         agents: Dict[str, ConversationalComponent],
@@ -71,7 +74,15 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
         self.agents = agents
         self.storage_config = storage_config or ServerStorageConfig()
         self.storage = storage or InMemoryDatastore(schema=self.storage_config.to_schema())
+        self.checkpointer = DatastoreCheckpointer(
+            datastore=self.storage,
+            storage_config=self.storage_config,
+        )
         self.created_at = int(time.time())
+        # Process-local fast path from public OpenAI `response_id` to the owning
+        # WayFlow `conversation_id`, so we can fetch the exact saved checkpoint for
+        # that response via `checkpointer.load(conversation_id, response_id)`.
+        self._response_conversation_ids: OrderedDict[str, str] = OrderedDict()
         self.tool_registries = {
             agent_name: {t.name: t for t in agent._referenced_tools()}
             for agent_name, agent in self.agents.items()
@@ -126,23 +137,23 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
                 detail="Get endpoint for wayflow server only supports non-streaming requests",
             )
 
-        try:
-            metadata = self._lookup_conversation(
-                where={self.storage_config.turn_id_column_name: response_id},
-                what=self.storage_config.extra_metadata_column_name,
-            )
-        except ValueError:
+        checkpoint = self._find_checkpoint_for_response_id(response_id)
+        if checkpoint is None:
             raise HTTPException(
                 status_code=http_status_code.HTTP_404_NOT_FOUND, detail="Response not found"
             )
-        response_as_txt = json.loads(metadata)["response"]
+        response_as_txt = checkpoint.metadata.get("response")
+        if not isinstance(response_as_txt, str):
+            raise HTTPException(
+                status_code=http_status_code.HTTP_404_NOT_FOUND, detail="Response not found"
+            )
         return Response.model_validate_json(response_as_txt)
 
     async def delete_response(self, response_id: str) -> Optional[ResponseError]:
-        self.storage.delete(
-            collection_name=self.storage_config.table_name,
-            where={self.storage_config.turn_id_column_name: response_id},
-        )
+        checkpoint = self._find_checkpoint_for_response_id(response_id)
+        if checkpoint is not None:
+            self.checkpointer.delete(checkpoint.conversation_id, checkpoint.checkpoint_id)
+            self._response_conversation_ids.pop(response_id)
         return None
 
     async def cancel_response(self, response_id: str) -> Union[Response, ResponseError]:
@@ -191,6 +202,23 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
         conversation_id = body.conversation
         if conversation_id is not None and not isinstance(conversation_id, str):
             conversation_id = conversation_id.id
+
+        # Stored OpenAI responses are backed by durable WayFlow checkpoints. Components
+        # that cannot checkpoint may still serve non-stored, non-resumed responses.
+        should_store_response = body.store is not False
+        if not agent._supports_checkpointing:
+            if previous_response_id is not None or conversation_id is not None:
+                raise HTTPException(
+                    status_code=http_status_code.HTTP_501_NOT_IMPLEMENTED,
+                    detail=(
+                        f"`{agent.__class__.__name__}` does not support stored response resume yet."
+                    ),
+                )
+            if should_store_response:
+                raise HTTPException(
+                    status_code=http_status_code.HTTP_501_NOT_IMPLEMENTED,
+                    detail=(f"`{agent.__class__.__name__}` does not support stored responses."),
+                )
 
         state = self._load_state(
             previous_response_id=previous_response_id,
@@ -270,6 +298,7 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
             async for ev in receive_stream:
                 # These events come from the synchronous callback
                 yield ev
+            await receive_stream.aclose()
 
         if raised_exception:
             if "not a multimodal model" in str(raised_exception):
@@ -309,11 +338,21 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
             token_usage_listener.usage
         )
 
-        if body.store is None or body.store is True:
-            self._save_state(
-                state=state,
-                response=current_response,
+        # persists a completed OpenAI Responses response as a WayFlow checkpoint
+        if should_store_response:
+            self.checkpointer.save(
+                state,
+                # Use the public response id as the checkpoint id so GET/DELETE/resume
+                # can locate the exact checkpoint from only the OpenAI Responses API id.
+                checkpoint_id=current_response.id,
+                # The stored component id is the served model id that owns this
+                # persisted conversation state. Resume must use the same model id.
+                component_id=model,
+                metadata={
+                    "response": current_response.model_dump_json(),
+                },
             )
+            self._cache_response_conversation_id(current_response.id, state.id)
 
         if current_response.error is not None:
             yield ResponseFailedEvent(
@@ -369,106 +408,96 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
         agent_id: str,
     ) -> Optional[Conversation]:
         if previous_response_id:
-            try:
-                serialized_conversation = self._lookup_conversation(
-                    where={self.storage_config.turn_id_column_name: previous_response_id},
-                    what=self.storage_config.conversation_turn_state_column_name,
-                )
-            except ValueError:
+            # previous_response_id resumes the exact checkpoint created for that public
+            # response id, not just the latest checkpoint in the conversation.
+            checkpoint = self._find_checkpoint_for_response_id(previous_response_id)
+            if checkpoint is None:
                 raise HTTPException(
                     status_code=http_status_code.HTTP_404_NOT_FOUND,
                     detail=f"No previous response with id `{previous_response_id}` was found",
                 )
+            incompatible_detail = (
+                f"Previous response `{previous_response_id}` is not compatible "
+                f"with model `{agent_id}`"
+            )
         elif conversation_id:
-            try:
-                serialized_conversation = self._lookup_conversation(
-                    where={
-                        self.storage_config.conversation_id_column_name: conversation_id,
-                        self.storage_config.is_last_turn_column_name: 1,  # only latest round
-                    },
-                    what=self.storage_config.conversation_turn_state_column_name,
-                )
-            except ValueError:
+            # conversation resume follows OpenAI Responses semantics: continue from the
+            # latest stored turn in that conversation rather than a specific response id.
+            checkpoint = self.checkpointer.load_latest(conversation_id)
+            if checkpoint is None:
                 raise HTTPException(
                     status_code=http_status_code.HTTP_404_NOT_FOUND,
                     detail=f"No conversation with id `{conversation_id}` was found",
                 )
+            incompatible_detail = (
+                f"Conversation `{conversation_id}` is not compatible with model `{agent_id}`"
+            )
         else:
             return None
-        try:
-            return _deserialize_conversation_safely(
-                serialized_state=serialized_conversation,
-                tool_registry=self.tool_registries[agent_id],
-                component=self.agents[agent_id],
+
+        checkpoint_model = checkpoint.component_id
+        if checkpoint_model != agent_id:
+            raise HTTPException(
+                status_code=http_status_code.HTTP_400_BAD_REQUEST,
+                detail=(
+                    f"{incompatible_detail}: checkpoint belongs to model "
+                    f"`{checkpoint_model}` and cannot be resumed with model `{agent_id}`."
+                ),
             )
+
+        self._cache_response_conversation_id(checkpoint.checkpoint_id, checkpoint.conversation_id)
+        agent = self.agents[agent_id]
+        try:
+            # The service owns persistence for OpenAI Responses, so restore the
+            # exact checkpoint without attaching a checkpointer for execute().
+            return agent._restore_checkpointed_conversation(
+                checkpoint=checkpoint,
+                expected_conversation_type=agent.conversation_class,
+                attached_checkpointer=None,
+            )
+        except CheckpointRestoreCompatibilityError as e:
+            raise HTTPException(
+                status_code=http_status_code.HTTP_400_BAD_REQUEST,
+                detail=f"{incompatible_detail}: {e}",
+            ) from e
         except (TypeError, ValueError) as e:
             raise HTTPException(
                 status_code=http_status_code.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Conversation state is corrupted, it cannot be de-serialized: {e}",
-            )
+            ) from e
 
-    def _save_state(
-        self,
-        response: Response,
-        state: Conversation,
-    ) -> None:
-        conversation_model = response.conversation
-        if conversation_model is None:
-            raise ValueError("Internal Error: Conversation should not be None")
-        conversation_id = conversation_model.id
+    def _find_checkpoint_for_response_id(
+        self, response_id: str
+    ) -> Optional[ConversationCheckpoint]:
+        """Resolve the checkpoint stored under a public OpenAI Responses `response_id`."""
+        checkpoint = self._load_cached_checkpoint_for_response_id(response_id)
+        if checkpoint is not None:
+            return checkpoint
+
+        checkpoint = self.checkpointer._find_checkpoint_by_id(response_id)
+        if checkpoint is not None:
+            self._cache_response_conversation_id(response_id, checkpoint.conversation_id)
+        return checkpoint
+
+    def _load_cached_checkpoint_for_response_id(
+        self, response_id: str
+    ) -> Optional[ConversationCheckpoint]:
+        conversation_id = self._response_conversation_ids.get(response_id)
         if conversation_id is None:
-            raise ValueError("Internal Error: Conversation ID should not be None")
+            return None
 
-        updates = {self.storage_config.is_last_turn_column_name: 0}
-        updates_where = {
-            self.storage_config.conversation_id_column_name: conversation_id,
-            self.storage_config.is_last_turn_column_name: 1,
-        }
-        serialized_state = serialize(state)
-        new_entity = {
-            self.storage_config.agent_id_column_name: response.model,
-            self.storage_config.conversation_id_column_name: conversation_id,
-            self.storage_config.turn_id_column_name: response.id,
-            self.storage_config.created_at_column_name: int(time.time()),
-            self.storage_config.conversation_turn_state_column_name: serialized_state,
-            self.storage_config.is_last_turn_column_name: 1,
-            self.storage_config.extra_metadata_column_name: json.dumps(
-                {"response": response.model_dump_json()}
-            ),
-        }
-        if isinstance(self.storage, RelationalDatastore):
-            # for relational datastores, we prefer making a single
-            # transaction, to avoid corrupting the state of the DB
-            # if the process crashes between the update and the insert
-            data_table = self.storage.data_tables[self.storage_config.table_name]
-            sql_update_stmt = data_table._update_query(
-                where=updates_where,
-                update=updates,
-            )
-            sql_create_stmt, new_entities = data_table._create_query([new_entity])
-            with data_table.engine.connect() as connection:
-                connection.execute(sql_update_stmt)
-                connection.execute(sql_create_stmt, new_entities)
-                connection.commit()
+        self._response_conversation_ids.move_to_end(response_id)
+        try:
+            return self.checkpointer.load(conversation_id, response_id)
+        except ValueError:
+            self._response_conversation_ids.pop(response_id)
+            return None
 
-        else:
-            self.storage.update(
-                collection_name=self.storage_config.table_name,
-                where=updates_where,
-                update=updates,
-            )
-            self.storage.create(
-                collection_name=self.storage_config.table_name,
-                entities=[new_entity],
-            )
-
-    def _lookup_conversation(self, where: Dict[str, Any], what: str) -> Any:
-        serialized_conversations = self.storage.list(
-            collection_name=self.storage_config.table_name, where=where
-        )
-        if len(serialized_conversations) != 1:
-            raise ValueError(f"No conversation with: {where}")
-        return serialized_conversations[0][what]
+    def _cache_response_conversation_id(self, response_id: str, conversation_id: str) -> None:
+        self._response_conversation_ids[response_id] = conversation_id
+        self._response_conversation_ids.move_to_end(response_id)
+        if len(self._response_conversation_ids) > self._RESPONSE_CONVERSATION_CACHE_MAX_SIZE:
+            self._response_conversation_ids.popitem(last=False)
 
     async def _create_state(
         self,

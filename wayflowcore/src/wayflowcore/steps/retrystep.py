@@ -8,10 +8,7 @@ import logging
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, cast
 
 from wayflowcore._metadata import MetadataType
-from wayflowcore.executors._flowexecutor import (
-    FlowConversationExecutionState,
-    FlowConversationExecutor,
-)
+from wayflowcore.executors._flowexecutor import FlowConversationExecutor
 from wayflowcore.executors.executionstatus import FinishedStatus
 from wayflowcore.property import BooleanProperty, IntegerProperty, Property
 from wayflowcore.steps import FlowExecutionStep
@@ -20,6 +17,7 @@ from wayflowcore.tools import Tool
 
 if TYPE_CHECKING:
     from wayflowcore.executors._flowconversation import FlowConversation
+    from wayflowcore.executors._flowexecutor import FlowConversationExecutionState
     from wayflowcore.flow import Flow
 
 logger = logging.getLogger(__name__)
@@ -38,6 +36,10 @@ class RetryStep(Step):
 
     BRANCH_FAILURE = "failure"
     """Name of the branch taken in case the condition is still not met after the maximum number of trials"""
+
+    # Stored through FlowConversationExecutor.make_key_for_step so generated step names can
+    # be remapped when a checkpoint is restored into a freshly-instantiated flow.
+    _RETRY_COUNTER_KEY = "retry_counter"
 
     def __init__(
         self,
@@ -255,11 +257,13 @@ class RetryStep(Step):
         """
         return self.flow.might_yield
 
-    def _retry_count(self, state: FlowConversationExecutionState) -> int:
-        return cast(int, state.internal_context_key_values.get(f"retry_counter_{id(self)}", 0))
+    def _retry_count(self, state: "FlowConversationExecutionState") -> int:
+        key = FlowConversationExecutor.make_key_for_step(self, self._RETRY_COUNTER_KEY)
+        return cast(int, state.internal_context_key_values.get(key, 0))
 
-    def _set_counter(self, state: FlowConversationExecutionState, value: int) -> None:
-        state.internal_context_key_values[f"retry_counter_{id(self)}"] = value
+    def _set_counter(self, state: "FlowConversationExecutionState", value: int) -> None:
+        key = FlowConversationExecutor.make_key_for_step(self, self._RETRY_COUNTER_KEY)
+        state.internal_context_key_values[key] = value
 
     async def _invoke_step_async(
         self,

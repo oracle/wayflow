@@ -24,15 +24,16 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class ManagerWorkersConversationExecutionState(ConversationExecutionState):
-    current_agent_name: str
+    current_agent_id: str
     subconversations: Dict[str, Union["AgentConversation", "ManagerWorkersConversation"]]
 
     def _create_subconversation_for_agent(
-        self, agent: Union[Agent, ManagerWorkers]
+        self,
+        agent: Union[Agent, ManagerWorkers],
+        parent_conversation: "ManagerWorkersConversation",
     ) -> Union["AgentConversation", "ManagerWorkersConversation"]:
-        subconv = agent.start_conversation()
-        self.subconversations[agent.name] = subconv
-
+        subconv = agent._start_conversation_impl(parent_conversation=parent_conversation)
+        self.subconversations[agent.id] = subconv
         return subconv
 
 
@@ -70,9 +71,9 @@ class ManagerWorkersConversation(Conversation):
         return repr(self)
 
     def _get_agent_subconversation(
-        self, agent_name: str
+        self, agent: Union[Agent, ManagerWorkers]
     ) -> Optional[Union["AgentConversation", "ManagerWorkersConversation"]]:
-        return self.state.subconversations.get(agent_name)
+        return self.state.subconversations.get(agent.id)
 
     def _get_main_subconversation(
         self,
@@ -80,7 +81,7 @@ class ManagerWorkersConversation(Conversation):
         "Return subconversation between the manger agent and the user"
         from wayflowcore.agentconversation import AgentConversation
 
-        main_subconv = self._get_agent_subconversation(self.component.manager_agent.name)
+        main_subconv = self._get_agent_subconversation(self.component.manager_agent)
 
         if main_subconv is None:
             raise (ValueError(f"Internal error: Main subconversation is None"))
@@ -90,7 +91,8 @@ class ManagerWorkersConversation(Conversation):
         return main_subconv
 
     def append_tool_result(self, tool_result: ToolResult) -> None:
-        current_conv = self._get_agent_subconversation(self.state.current_agent_name)
+        current_agent = self.component._agent_by_id[self.state.current_agent_id]
+        current_conv = self._get_agent_subconversation(current_agent)
         if current_conv is None:
             raise (ValueError(f"Internal error: Current subconversation is None"))
         current_conv.append_tool_result(tool_result)

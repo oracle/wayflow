@@ -218,6 +218,8 @@ class SerializableDataclassMixin:
                     or k.name == "__metadata_info__"  # except the metadata
                 )
                 and k.init  # not part of the dataclass __init__ -> would fail at deserialization
+                # Runtime-only dataclass fields can opt out of durable serialization.
+                and k.metadata.get("serialize", True)
             )
         }
 

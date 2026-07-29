@@ -24,7 +24,11 @@ from wayflowcore.datastore.postgres import (
 from wayflowcore.property import FloatProperty, IntegerProperty, Property, StringProperty
 from wayflowcore.steps.step import Step
 
-from ..conftest import get_oracle_connection_config
+from ..conftest import (
+    all_postgres_connection_config_env_variables_are_specified,
+    get_oracle_connection_config,
+    get_postgres_connection_config,
+)
 
 
 def get_basic_office_entities():
@@ -132,30 +136,6 @@ def all_oracle_mtls_connection_config_env_variables_are_specified():
         "ADB_WALLET_SECRET",
     ]
     return all([arg in os.environ for arg in mtls_connection_args])
-
-
-def all_postgres_connection_config_env_variables_are_specified():
-    tls_connection_args = [
-        "POSTGRES_DB_USER",
-        "POSTGRES_DB_PASSWORD",
-        "POSTGRES_DB_URL",
-    ]
-    return all([arg in os.environ for arg in tls_connection_args])
-
-
-def get_postgres_connection_config():
-    if all_postgres_connection_config_env_variables_are_specified():
-        return TlsPostgresDatabaseConnectionConfig(
-            user=os.environ["POSTGRES_DB_USER"],
-            password=os.environ["POSTGRES_DB_PASSWORD"],
-            url=os.environ["POSTGRES_DB_URL"],
-            sslmode="disable",
-        )
-    else:
-        pytest.skip(
-            "No database connection arguments configured in environment. "
-            "Skipping Postgres DB tests..."
-        )
 
 
 def get_tls_postgres_connection_config():

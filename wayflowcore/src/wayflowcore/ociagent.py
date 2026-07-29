@@ -19,6 +19,7 @@ from wayflowcore.serialization.serializer import SerializableDataclassMixin, Ser
 from wayflowcore.tools import Tool
 
 if TYPE_CHECKING:
+    from wayflowcore.checkpointing import Checkpointer
     from wayflowcore.conversation import Conversation
 
 
@@ -102,27 +103,58 @@ class OciAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
             __metadata_info__=__metadata_info__,
         )
 
+    @property
+    def _supports_checkpointing(self) -> bool:
+        return False
+
     def start_conversation(
         self,
         inputs: Optional[Dict[str, Any]] = None,
         messages: Union[None, str, Message, List[Message], MessageList] = None,
-    ) -> "Conversation":
+        conversation_id: Optional[str] = None,
+        checkpointer: Optional["Checkpointer"] = None,
+        checkpoint_id: Optional[str] = None,
+    ) -> Conversation:
         """
         Initializes a conversation with the agent.
 
         Parameters
         ----------
         inputs:
-            This argument is not used.
-            It is included for compatibility with the Flow class.
+            This argument is not used. It is included for compatibility with the Flow class.
         messages:
-            Message list to which the agent will participate
-
+            Message list to which the agent will participate.
+        conversation_id:
+            Durable conversation id used for resume, storage, and usage accounting.
+        checkpointer:
+            Optional checkpoint backend. ``OciAgent`` does not support checkpoint restore yet,
+            so passing this raises ``NotImplementedError``.
+        checkpoint_id:
+            Optional checkpoint identifier. ``OciAgent`` does not support checkpoint restore yet,
+            so passing this raises ``NotImplementedError``.
         Returns
         -------
         Conversation:
             The conversation object of the agent.
         """
+        return self._start_conversation_impl(
+            inputs=inputs,
+            messages=messages,
+            conversation_id=conversation_id,
+            checkpointer=checkpointer,
+            checkpoint_id=checkpoint_id,
+            parent_conversation=None,
+        )
+
+    def _start_conversation_impl(
+        self,
+        inputs: Optional[Dict[str, Any]] = None,
+        messages: Union[None, str, Message, List[Message], MessageList] = None,
+        conversation_id: Optional[str] = None,
+        checkpointer: Optional["Checkpointer"] = None,
+        checkpoint_id: Optional[str] = None,
+        parent_conversation: Optional["Conversation"] = None,
+    ) -> "Conversation":
         from wayflowcore.executors._ociagentconversation import OciAgentConversation
         from wayflowcore.executors._ociagentexecutor import (
             OciAgentState,
@@ -130,8 +162,23 @@ class OciAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
             _init_oci_agent_session,
         )
 
+        if any(value is not None for value in (checkpointer, checkpoint_id)):
+            raise NotImplementedError("`OciAgent` checkpoint restore is not supported yet.")
+
         if not isinstance(messages, MessageList):
             messages = MessageList.from_messages(messages=messages)
+
+        _restored_conversation, conversation_instance_id, conversation_thread_id = (
+            self._prepare_conversation_start(
+                inputs=inputs,
+                messages=messages,
+                conversation_id=conversation_id,
+                checkpointer=None,
+                checkpoint_id=None,
+                expected_conversation_type=OciAgentConversation,
+                parent_conversation=parent_conversation,
+            )
+        )
 
         _client = _init_oci_agent_client(self)
 
@@ -145,8 +192,9 @@ class OciAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
             inputs=inputs or {},
             message_list=messages,
             status=None,
-            conversation_id=IdGenerator.get_or_generate_id(None),
+            id=conversation_instance_id,
             name="oci_conversation",
+            conversation_id=conversation_thread_id,
             __metadata_info__={},
         )
 

@@ -254,8 +254,9 @@ def test_build_linear_flow_returns_flow_and_json():
     s2 = OutputMessageStep(name="s2", message_template="B")
 
     # Flow object
-    flow = FlowBuilder.build_linear_flow([s1, s2], name="MyFlow")
+    flow = FlowBuilder.build_linear_flow([s1, s2], name="MyFlow", flow_id="my-flow")
     assert flow.name == "MyFlow"
+    assert flow.flow_id == "my-flow"
     assert set(flow.steps.keys()) >= {"s1", "s2"}
 
     # JSON spec

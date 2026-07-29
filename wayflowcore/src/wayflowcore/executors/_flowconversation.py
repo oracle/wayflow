@@ -16,6 +16,7 @@ from wayflowcore.variable import Variable
 
 if TYPE_CHECKING:
     from wayflowcore.executors._flowexecutor import FlowConversationExecutor
+    from wayflowcore.serialization.context import DeserializationContext
     from wayflowcore.steps.step import Step
 
 
@@ -23,6 +24,22 @@ if TYPE_CHECKING:
 class FlowConversation(Conversation):
     component: Flow
     state: FlowConversationExecutionState
+
+    @classmethod
+    def _deserialize_from_dict(
+        cls, input_dict: Dict[str, Any], deserialization_context: "DeserializationContext"
+    ) -> "FlowConversation":
+        conversation = cast(
+            FlowConversation,
+            super()._deserialize_from_dict(input_dict, deserialization_context),
+        )
+        # FlowConversationExecutionState._serialize_context_value serializes
+        # _SUPER_CONVERSATION_KEY as None to avoid a parent -> child -> parent cycle,
+        # so restore direct child flow parents here.
+        for child_conversation in conversation._get_all_sub_conversations():
+            if isinstance(child_conversation, FlowConversation):
+                child_conversation.state._register_super_conversation(conversation)
+        return conversation
 
     def _gather_flow_outputs(self) -> Dict[str, Any]:
         return FlowConversationExecutor.gather_flow_outputs(
@@ -184,14 +201,16 @@ class FlowConversation(Conversation):
         result = f"State: {self.state}\nList of messages:\n"
 
         for i, message in enumerate(self.message_list.messages):
-            message_str = dedent("""
+            message_str = dedent(
+                """
                 Message #{}
                 Message type: {}
                 Message content:\n
                 {}\n
                 tool_requests: {}
                 tool_results: {}
-            """).format(
+            """
+            ).format(
                 i, message.message_type, message.content, message.tool_requests, message.tool_result
             )
 

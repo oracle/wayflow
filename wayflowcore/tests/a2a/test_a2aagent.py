@@ -10,8 +10,10 @@ import httpx
 import pytest
 
 from wayflowcore.a2a.a2aagent import A2AAgent, A2AConnectionConfig, A2ASessionParameters
+from wayflowcore.checkpointing import InMemoryCheckpointer
 from wayflowcore.executors._a2aagentconversation import A2AAgentConversation
 from wayflowcore.executors._a2aagentexecutor import DEFAULT_RESPONSE
+from wayflowcore.executors.executionstatus import UserMessageRequestStatus
 from wayflowcore.messagelist import Message
 
 from ..testhelpers.testhelpers import retry_test
@@ -117,6 +119,60 @@ def test_a2aagent_handles_single_message_conversation(a2a_agent):
     conversation.append_user_message("What is 20*8? Just output the answer.")
     status = conversation.execute()
     assert "160" in conversation.get_last_message().content
+
+
+@retry_test(max_attempts=4)
+def test_a2aagent_checkpointing_supports_resume_and_time_travel(a2a_agent: A2AAgent) -> None:
+    """
+    Failure rate:          0 out of 20
+    Observed on:           2026-03-23
+    Average success time:  0.00 seconds per successful attempt
+    Average failure time:  No time measurement
+    Max attempt:           4
+    Justification:         (0.05 ** 4) ~= 0.6 / 100'000
+    """
+    checkpointer = InMemoryCheckpointer()
+
+    conversation = a2a_agent.start_conversation(
+        conversation_id="a2a-checkpoint", checkpointer=checkpointer
+    )
+    conversation.append_user_message("What is 5+5? Just output the answer.")
+    first_status = conversation.execute()
+
+    assert isinstance(first_status, UserMessageRequestStatus)
+    checkpoint = checkpointer.load_latest(conversation.conversation_id)
+    assert checkpoint is not None
+    first_checkpoint_id = checkpoint.checkpoint_id
+    first_message_count = len(conversation.get_messages())
+
+    restored_conversation = a2a_agent.start_conversation(
+        conversation_id=conversation.conversation_id,
+        checkpointer=checkpointer,
+    )
+    assert len(restored_conversation.get_messages()) == first_message_count
+    restored_conversation.append_user_message(
+        "What if you replace 5 by 10? Just output the answer."
+    )
+    restored_status = restored_conversation.execute()
+
+    assert isinstance(restored_status, UserMessageRequestStatus)
+    assert len(restored_conversation.get_messages()) > first_message_count
+    assert restored_conversation.get_last_message() is not None
+    assert checkpointer.load_latest(conversation.conversation_id) is not None
+
+    rewound_conversation = a2a_agent.start_conversation(
+        conversation_id=conversation.conversation_id,
+        checkpointer=checkpointer,
+        checkpoint_id=first_checkpoint_id,
+    )
+    assert len(rewound_conversation.get_messages()) == first_message_count
+    assert len(rewound_conversation.get_messages()) < len(restored_conversation.get_messages())
+    rewound_conversation.append_user_message("What if you replace 5 by 7? Just output the answer.")
+    rewound_status = rewound_conversation.execute()
+
+    assert isinstance(rewound_status, UserMessageRequestStatus)
+    assert len(rewound_conversation.get_messages()) > first_message_count
+    assert rewound_conversation.get_last_message() is not None
 
 
 @retry_test(max_attempts=4)

@@ -16,18 +16,19 @@ import httpx
 import pytest
 import yaml
 
-from wayflowcore.datastore import OracleDatabaseConnectionConfig, TlsOracleDatabaseConnectionConfig
+from wayflowcore.datastore import OracleDatabaseConnectionConfig
 from wayflowcore.datastore.oracle import _execute_query_on_oracle_db
 from wayflowcore.datastore.postgres import (
     PostgresDatabaseConnectionConfig,
     _execute_query_on_postgres_db,
 )
 
-from ..datastores.conftest import (
-    all_oracle_tls_connection_config_env_variables_are_specified,
+from ..conftest import (
     all_postgres_connection_config_env_variables_are_specified,
+    get_oracle_connection_config,
     get_postgres_connection_config,
 )
+from ..datastores.conftest import all_oracle_tls_connection_config_env_variables_are_specified
 from ..utils import LogTee, _terminate_process_tree, get_available_port
 from .datastore_agent_server import ORACLE_DB_CREATE_DDL, ORACLE_DB_DELETE_DDL
 
@@ -240,15 +241,6 @@ wayflow_server_http_inmemory = register_wayflow_server_fixture(
     **HR_AGENT_PARAMS,
     server_storage="in-memory",
 )
-
-
-def get_oracle_connection_config():
-    return TlsOracleDatabaseConnectionConfig(
-        user=os.environ["ADB_DB_USER"],
-        password=os.environ["ADB_DB_PASSWORD"],
-        dsn=os.environ["ADB_DSN"],
-        config_dir=os.environ.get("ADB_CONFIG_DIR", None),
-    )
 
 
 wayflow_server_http_postgres = register_wayflow_server_fixture(

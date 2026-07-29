@@ -63,18 +63,14 @@ class SwarmConversationExecutionState(ConversationExecutionState):
     def __post_init__(self) -> None:
         self.current_thread = self.current_thread or self.main_thread
 
-        if not self.thread_subconversations:
-            self._create_subconversation_for_thread(
-                self.main_thread, inputs=self.inputs, message_list=self.messages
-            )
-
     def _create_subconversation_for_thread(
         self,
         thread: "SwarmThread",
+        parent_conversation: "SwarmConversation",
         inputs: Optional[Dict[str, Any]] = None,
         message_list: Optional[Union[MessageList, List[Message]]] = None,
     ) -> "AgentConversation":
-        thread_id = thread.identifier
+        thread_id = thread.id
         if thread_id in self.thread_subconversations:
             raise KeyError(
                 f"Trying to create a new subconversation for thread {thread_id} but a conversation already exists"
@@ -86,7 +82,8 @@ class SwarmConversationExecutionState(ConversationExecutionState):
                 if isinstance(message_list, list)
                 else message_list
             )
-        conversation = thread.recipient_agent.start_conversation(
+        conversation = thread.recipient_agent._start_conversation_impl(
+            parent_conversation=parent_conversation,
             inputs=inputs,
             messages=thread.message_list,
         )
@@ -118,7 +115,7 @@ class SwarmConversation(Conversation):
         return []
 
     def _get_all_sub_conversations(self) -> List["Conversation"]:
-        return []
+        return list(self.state.thread_subconversations.values())
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(state={self.state!r}, thread_subconversations={self.thread_subconversations!r})"
@@ -163,9 +160,12 @@ class SwarmConversation(Conversation):
     def _get_subconversation_for_thread(
         self, thread: "SwarmThread"
     ) -> Optional["AgentConversation"]:
-        return self.thread_subconversations.get(thread.identifier)
+        return self.thread_subconversations.get(thread.id)
 
     def _get_recipient_names_for_agent(self, agent: Agent) -> List[str]:
-        if agent.name not in self.state.agents_and_threads:
+        if agent.id not in self.state.agents_and_threads:
             raise ValueError(f"Agent {agent} is not a sender of any thread")
-        return list(self.state.agents_and_threads[agent.name].keys())
+        return [
+            thread.recipient_agent.name
+            for thread in self.state.agents_and_threads[agent.id].values()
+        ]

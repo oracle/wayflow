@@ -26,7 +26,9 @@ from wayflowcore.tools.servertools import _convert_previously_supported_tools_if
 from wayflowcore.transforms import MessageTransform
 
 if TYPE_CHECKING:
+    from wayflowcore.checkpointing import Checkpointer
     from wayflowcore.contextproviders import ContextProvider
+    from wayflowcore.conversation import Conversation
     from wayflowcore.executors._agentconversation import AgentConversation
     from wayflowcore.flow import Flow
     from wayflowcore.ociagent import OciAgent
@@ -361,6 +363,15 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         self._update_internal_state()
 
     @property
+    def _supports_checkpointing(self) -> bool:
+        from wayflowcore.serialization.context import _get_nested_components
+
+        return all(
+            nested_component._supports_checkpointing
+            for nested_component in _get_nested_components(self, only_conversational=True)
+        )
+
+    @property
     def agent_id(self) -> str:
         return self.id
 
@@ -393,6 +404,8 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
         inputs: Optional[Dict[str, Any]] = None,
         messages: Union[None, str, "Message", List["Message"], "MessageList"] = None,
         conversation_id: Optional[str] = None,
+        checkpointer: Optional["Checkpointer"] = None,
+        checkpoint_id: Optional[str] = None,
     ) -> "AgentConversation":
         """
         Initializes a conversation with the agent.
@@ -406,15 +419,53 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
             Message list to which the agent will participate
         conversation_id:
             Conversation id of the parent conversation.
-
+            It is used for resume, storage, and usage accounting.
+        checkpointer:
+            Optional checkpoint backend used to restore and persist this conversation.
+        checkpoint_id:
+            Optional checkpoint identifier to restore. Requires both ``checkpointer`` and
+            ``conversation_id``.
         Returns
         -------
         Conversation:
             The conversation object of the agent.
         """
+        return self._start_conversation_impl(
+            inputs=inputs,
+            messages=messages,
+            conversation_id=conversation_id,
+            checkpointer=checkpointer,
+            checkpoint_id=checkpoint_id,
+            parent_conversation=None,
+        )
+
+    def _start_conversation_impl(
+        self,
+        inputs: Optional[Dict[str, Any]] = None,
+        messages: Union[None, str, "Message", List["Message"], "MessageList"] = None,
+        conversation_id: Optional[str] = None,
+        checkpointer: Optional["Checkpointer"] = None,
+        checkpoint_id: Optional[str] = None,
+        parent_conversation: Optional["Conversation"] = None,
+    ) -> "AgentConversation":
         from wayflowcore.events.event import ConversationCreatedEvent
         from wayflowcore.events.eventlistener import record_event
         from wayflowcore.executors._agentconversation import AgentConversation
+        from wayflowcore.executors._agentexecutor import AgentConversationExecutionState
+
+        restored_conversation, conversation_instance_id, conversation_thread_id = (
+            self._prepare_conversation_start(
+                inputs=inputs,
+                messages=messages,
+                conversation_id=conversation_id,
+                checkpointer=checkpointer,
+                checkpoint_id=checkpoint_id,
+                expected_conversation_type=AgentConversation,
+                parent_conversation=parent_conversation,
+            )
+        )
+        if restored_conversation is not None:
+            return restored_conversation
 
         if not isinstance(messages, MessageList):
             messages = MessageList.from_messages(messages=messages)
@@ -458,21 +509,21 @@ class Agent(ConversationalComponent, SerializableDataclassMixin, SerializableObj
                 conversational_component=self,
                 inputs=inputs,
                 messages=messages,
-                conversation_id=conversation_id,
+                conversation_id=conversation_instance_id,
                 nesting_level=None,
             )
         )
 
-        from wayflowcore.executors._agentexecutor import AgentConversationExecutionState
-
         return AgentConversation(
             component=self,
             message_list=messages,
-            conversation_id=IdGenerator.get_or_generate_id(conversation_id),
+            id=conversation_instance_id,
+            checkpointer=checkpointer,
             inputs=inputs or {},
             name="agent_conversation",
             state=AgentConversationExecutionState(),
             status=None,
+            conversation_id=conversation_thread_id,
             __metadata_info__={},
         )
 

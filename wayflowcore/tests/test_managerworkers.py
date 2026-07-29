@@ -119,7 +119,7 @@ def test_manager_can_send_message_to_worker_and_worker_can_reply():
         conversation.execute()
 
     # subconversation of worker should contain the message from manager
-    worker1_sub_conv = conversation.subconversations[worker1.name]
+    worker1_sub_conv = conversation.subconversations[worker1.id]
     worker1_first_message = worker1_sub_conv.message_list.messages[0]
     assert worker1_first_message.content == "Hey worker 1" and worker1_first_message.role == "user"
 
@@ -133,6 +133,28 @@ def test_manager_can_send_message_to_worker_and_worker_can_reply():
     # main conversation should contain worker's response as tool result
     last_message = conversation.get_last_message()
     assert last_message.tool_result.content == "Hello manager!" and last_message.role == "assistant"
+
+
+def test_managerworkers_worker_conversation_inherits_parent_thread_identity():
+    manager_llm = DummyModel()
+    worker = Agent(
+        DummyModel(fails_if_not_set=False),
+        name="identity_worker",
+        description="identity worker",
+    )
+    group = ManagerWorkers(group_manager=manager_llm, workers=[worker])
+
+    conversation = group.start_conversation(conversation_id="manager-conversation")
+    conversation.append_user_message("Delegate this task.")
+    manager_llm.set_next_output([_send_message(worker, message="Please help."), "done"])
+
+    conversation.execute()
+
+    worker_conversation = conversation.subconversations[worker.id]
+    assert conversation.id == conversation.conversation_id
+    assert worker_conversation.conversation_id == conversation.conversation_id
+    assert worker_conversation.id != worker.id
+    assert worker_conversation.id != conversation.id
 
 
 @pytest.fixture
@@ -340,7 +362,7 @@ def test_worker_with_server_tool_execution_does_not_raise_errors(remotely_hosted
         conversation.execute()
 
     # Check tool request `multiply` existing in the message list of multiplication_agent
-    subconversation = conversation.state.subconversations[multiplication_agent.name]
+    subconversation = conversation.state.subconversations[multiplication_agent.id]
 
     assert any(
         message.tool_requests is not None for message in subconversation.message_list.messages
@@ -802,7 +824,7 @@ def test_multiple_tool_calls_including_with_nonexistent_tools(vllm_responses_llm
         assert conv.get_last_message().content == "fooza answers to user"
         tool_result_messages = [
             m
-            for m in conv.state.subconversations["bwip_agent"].get_messages()
+            for m in conv.state.subconversations[bwip_agent.id].get_messages()
             if m.tool_result is not None
         ]
         assert (

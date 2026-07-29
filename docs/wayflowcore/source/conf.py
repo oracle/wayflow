@@ -72,6 +72,10 @@ WARNINGS_TO_FILTER_OUT = [
     'Cannot handle as a local function: "wayflowcore.agentspec.components.nodes.ExtendedLlmNode.check_either_prompt_str_or_object_is_used" (use @functools.wraps)',
     "py:class reference target not found: wayflowcore.mcp.mcphelpers.ToolOutuptTypeT",
     "py:class reference target not found: wayflowcore.mcp.mcphelpers.ContextType",
+    (
+        'Cannot resolve forward reference in type annotations of "wayflowcore.agentserver.serverstorageconfig.ServerStorageConfig": '
+        "name 'Datastore' is not defined"
+    ),
 ]
 
 
@@ -256,6 +260,13 @@ nitpick_ignore_regex = [
     ("py:class", r"wayflowcore.executors._events.event.Event"),
     ("py:class", r"(?:wayflowcore\.executors\._executor\.)?ConversationExecutor"),
     ("py:class", r"(?:wayflowcore\.executors\._executionstate\.)?ConversationExecutionState"),
+    ("py:class", r"(?:wayflowcore\.executors\._agentconversation\.)?AgentConversation"),
+    ("py:class", r"(?:wayflowcore\.executors\._flowconversation\.)?FlowConversation"),
+    ("py:class", r"(?:wayflowcore\.executors\._a2aagentconversation\.)?A2AAgentConversation"),
+    (
+        "py:class",
+        r"(?:wayflowcore\.executors\._managerworkersconversation\.)?ManagerWorkersConversation",
+    ),
     ("py:class", r"wayflowcore.executors._agentexecutor.AgentConversationExecutionState"),
     ("py:class", r"wayflowcore.executors._flowexecutor.FlowConversationExecutionState"),
     ("py:class", r"wayflowcore.agentserver.a2a._app.A2AApp"),

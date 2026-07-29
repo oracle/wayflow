@@ -286,17 +286,18 @@ class FlowConversationExecutor(ConversationExecutor):
             k: v for k, v in inputs.items() if k not in all_context_provider_keys
         }
 
-        sub_conversation = flow.start_conversation(
-            inputs_not_from_context_providers,
-            conversation_id=conversation.conversation_id,
+        resolved_sub_conversation_id = (
+            sub_conversation_id or FlowConversationExecutor._SUB_CONVERSATION_KEY
+        )
+        sub_conversation = flow._start_nested_flow_conversation(
+            parent_conversation=conversation,
+            inputs=inputs_not_from_context_providers,
             messages=conversation.message_list,
             nesting_level=conversation.state.nesting_level + 1,
             context_providers_from_parent_flow=all_context_provider_keys,
         )
 
-        key = FlowConversationExecutor.make_key_for_step(
-            step, sub_conversation_id or FlowConversationExecutor._SUB_CONVERSATION_KEY
-        )
+        key = FlowConversationExecutor.make_key_for_step(step, resolved_sub_conversation_id)
         conversation.state.internal_context_key_values[key] = sub_conversation
         sub_conversation._put_internal_context_key_value(
             FlowConversationExecutor._SUPER_CONVERSATION_KEY, conversation
@@ -928,8 +929,11 @@ class FlowConversationExecutor(ConversationExecutor):
     def get_all_sub_conversations(
         state: FlowConversationExecutionState,
     ) -> List["Conversation"]:
+        from wayflowcore.conversation import Conversation
+
         return [
             conv
             for k, conv in state.internal_context_key_values.items()
-            if FlowConversationExecutor._SUB_CONVERSATION_KEY in k
+            if k != FlowConversationExecutor._SUPER_CONVERSATION_KEY
+            and isinstance(conv, Conversation)
         ]

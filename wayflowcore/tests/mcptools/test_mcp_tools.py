@@ -2026,8 +2026,8 @@ def test_oauth_works_on_swarm_when_subagent_uses_mcp_tool(
 
     assert isinstance(status, UserMessageRequestStatus)
 
-    thread = conv.state.agents_and_threads[manager_agent.name][sub_agent.name]
-    sub_conv = conv.state.thread_subconversations[thread.identifier]
+    thread = conv.state.agents_and_threads[manager_agent.id][sub_agent.id]
+    sub_conv = conv.state.thread_subconversations[thread.id]
     last_tool_result_message = sub_conv.get_messages()[-2]
     assert (
         last_tool_result_message.tool_result is not None
@@ -2108,7 +2108,7 @@ def test_oauth_works_on_managerworkers_when_worker_uses_mcp_tool(
         status = conv.execute()
 
     assert isinstance(status, UserMessageRequestStatus)
-    sub_conv = conv.state.subconversations[worker_agent.name]
+    sub_conv = conv.state.subconversations[worker_agent.id]
     last_tool_result_message = sub_conv.get_messages()[-2]
     assert (
         last_tool_result_message.tool_result is not None

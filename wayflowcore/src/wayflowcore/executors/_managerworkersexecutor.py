@@ -41,13 +41,16 @@ assign tasks to the available agents in your group.
 """
 
 
-def _create_manager_agent(group_manager: Union[Agent, LlmModel]) -> Agent:
+def _create_manager_agent(
+    group_manager: Union[Agent, LlmModel], manager_agent_id: Optional[str] = None
+) -> Agent:
     if isinstance(group_manager, LlmModel):
         manager_agent = Agent(
             name="manager_agent",
             description="Agent that can assign tasks to other agents.",
             llm=group_manager,
             custom_instruction=GROUP_MANAGER_CUSTOM_INSTRUCTION,
+            id=manager_agent_id,
         )
     else:
         manager_agent = group_manager
@@ -171,8 +174,9 @@ class ManagerWorkersRunner(ConversationExecutor):
         managerworkers_config = conversation.component
 
         while True:
-            current_agent_name = conversation.state.current_agent_name
-            current_conversation = conversation._get_agent_subconversation(current_agent_name)
+            current_agent_id = conversation.state.current_agent_id
+            current_agent = managerworkers_config._agent_by_id[current_agent_id]
+            current_conversation = conversation._get_agent_subconversation(current_agent)
 
             if current_conversation is None:
                 raise ValueError("Current conversation is None")
@@ -180,11 +184,13 @@ class ManagerWorkersRunner(ConversationExecutor):
             logger.info(
                 "\n%s\nNew execution round. Current agent is %s\n%s\n",
                 "-" * 30,
-                current_agent_name,
+                current_agent.name,
                 "-" * 30,
             )
-            if current_agent_name == managerworkers_config.manager_agent.name:
-                current_agent = managerworkers_config.manager_agent
+            if current_agent_id == managerworkers_config.manager_agent.id:
+
+                if not isinstance(current_agent, Agent):
+                    raise ValueError("Manager agent must be an Agent")
 
                 if isinstance(current_conversation, ManagerWorkersConversation):
                     raise ValueError(
@@ -240,14 +246,14 @@ class ManagerWorkersRunner(ConversationExecutor):
 
             if (
                 isinstance(status, ToolRequestStatus)
-                and current_agent_name == managerworkers_config.manager_agent.name
+                and current_agent_id == managerworkers_config.manager_agent.id
             ):
                 # 1. current agent is the manager agent and is calling tools
                 # These tool(s) will be handled in the next loop by checking the pending tools of the manager
                 continue
             elif (
                 isinstance(status, UserMessageRequestStatus)
-                and current_agent_name == managerworkers_config.manager_agent.name
+                and current_agent_id == managerworkers_config.manager_agent.id
             ):
                 # 2. current agent is the manager agent and is sending a message to the user
                 logger.info(
@@ -259,7 +265,7 @@ class ManagerWorkersRunner(ConversationExecutor):
                 # 3. current agent is a worker and is sending a message to the manager
                 ManagerWorkersRunner._send_message_to_manager(
                     message=_last_message,
-                    manager_agent_name=managerworkers_config.manager_agent.name,
+                    manager_agent=managerworkers_config.manager_agent,
                     managerworkers_conversation=conversation,
                 )
             elif isinstance(
@@ -327,7 +333,7 @@ class ManagerWorkersRunner(ConversationExecutor):
     @staticmethod
     def _send_message_to_manager(
         message: "Message",
-        manager_agent_name: str,
+        manager_agent: Agent,
         managerworkers_conversation: "ManagerWorkersConversation",
     ) -> None:
         manager_subconversation = managerworkers_conversation._get_main_subconversation()
@@ -352,7 +358,7 @@ class ManagerWorkersRunner(ConversationExecutor):
         )
 
         # Change current agent back to manager
-        managerworkers_conversation.state.current_agent_name = manager_agent_name
+        managerworkers_conversation.state.current_agent_id = manager_agent.id
 
     @staticmethod
     def _send_message_to_worker(
@@ -379,14 +385,16 @@ class ManagerWorkersRunner(ConversationExecutor):
             )
             logger.debug("Failure when trying to call new agent: `%s`", error_message)
         else:
+            recipient_agent = managerworkers_config._agent_by_name[recipient_agent_name]
             worker_subconversation = managerworkers_conversation._get_agent_subconversation(
-                recipient_agent_name
+                recipient_agent
             )
 
             if worker_subconversation is None:
                 worker_subconversation = (
                     managerworkers_conversation.state._create_subconversation_for_agent(
-                        managerworkers_config._agent_by_name[recipient_agent_name]
+                        recipient_agent,
+                        parent_conversation=managerworkers_conversation,
                     )
                 )
                 logger.info(
@@ -397,4 +405,4 @@ class ManagerWorkersRunner(ConversationExecutor):
             logger.info("Calling agent %s with request `%s`", recipient_agent_name, message)
 
             # Change current agent for the next iteration
-            managerworkers_conversation.state.current_agent_name = recipient_agent_name
+            managerworkers_conversation.state.current_agent_id = recipient_agent.id

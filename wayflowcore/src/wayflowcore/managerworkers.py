@@ -6,7 +6,7 @@
 
 import logging
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Union, cast
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore.agent import Agent, CallerInputMode
@@ -22,6 +22,8 @@ from wayflowcore.tools import Tool
 from wayflowcore.transforms import MessageTransform
 
 if TYPE_CHECKING:
+    from wayflowcore.checkpointing import Checkpointer
+    from wayflowcore.conversation import Conversation
     from wayflowcore.executors._managerworkersconversation import ManagerWorkersConversation
     from wayflowcore.messagelist import Message
 
@@ -41,6 +43,15 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
     name: str
     description: Optional[str]
     id: str
+
+    @property
+    def _supports_checkpointing(self) -> bool:
+        from wayflowcore.serialization.context import _get_nested_components
+
+        return all(
+            nested_component._supports_checkpointing
+            for nested_component in _get_nested_components(self, only_conversational=True)
+        )
 
     def __init__(
         self,
@@ -128,15 +139,23 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         if len(workers) == 0:
             raise ValueError("Cannot define a group with no worker agent.")
 
+        managerworkers_id = IdGenerator.get_or_generate_id(id)
+
         self.group_manager = group_manager
-        self.manager_agent = _create_manager_agent(self.group_manager)
+        self.manager_agent = _create_manager_agent(
+            self.group_manager, manager_agent_id=f"{managerworkers_id}:manager"
+        )
 
         self.workers = workers
         self.transforms = transforms or []
 
+        agents = self.workers + [self.manager_agent]
         self._agent_by_name: Dict[str, Union["Agent", "ManagerWorkers"]] = _validate_agent_unicity(
-            self.workers + [self.manager_agent]
+            agents
         )
+        self._agent_by_id: Dict[str, Union["Agent", "ManagerWorkers"]] = {
+            agent.id: agent for agent in agents
+        }
 
         # Create send message tools for the group manager
         self._manager_communication_tools = _create_communication_tools()
@@ -153,7 +172,7 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         super().__init__(
             name=IdGenerator.get_or_generate_name(name, prefix="managerworkers_", length=8),
             description=description,
-            id=id,
+            id=managerworkers_id,
             input_descriptors=input_descriptors or [],
             output_descriptors=output_descriptors or [],
             runner=ManagerWorkersRunner,
@@ -221,6 +240,8 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         inputs: Optional[Dict[str, Any]] = None,
         messages: Union[None, str, "Message", List["Message"], "MessageList"] = None,
         conversation_id: Optional[str] = None,
+        checkpointer: Optional["Checkpointer"] = None,
+        checkpoint_id: Optional[str] = None,
         conversation_name: Optional[str] = None,
     ) -> "ManagerWorkersConversation":
         """
@@ -234,13 +255,38 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         messages:
             Message list of the manager agent and the end-user.
         conversation_id:
-            Conversation id of the main conversation.
+            Durable conversation id used for resume, storage, and usage accounting.
+        checkpointer:
+            Optional checkpoint backend used to restore and persist this conversation.
+        checkpoint_id:
+            Optional checkpoint identifier to restore. Requires both ``checkpointer`` and
+            ``conversation_id``.
 
         Returns
         -------
         Conversation:
             The conversation object of the managerworkers.
         """
+        return self._start_conversation_impl(
+            inputs=inputs,
+            messages=messages,
+            conversation_id=conversation_id,
+            checkpointer=checkpointer,
+            checkpoint_id=checkpoint_id,
+            conversation_name=conversation_name,
+            parent_conversation=None,
+        )
+
+    def _start_conversation_impl(
+        self,
+        inputs: Optional[Dict[str, Any]] = None,
+        messages: Union[None, str, "Message", List["Message"], "MessageList"] = None,
+        conversation_id: Optional[str] = None,
+        checkpointer: Optional["Checkpointer"] = None,
+        checkpoint_id: Optional[str] = None,
+        parent_conversation: Optional["Conversation"] = None,
+        conversation_name: Optional[str] = None,
+    ) -> "ManagerWorkersConversation":
         from wayflowcore.agentconversation import AgentConversation
         from wayflowcore.events.event import ConversationCreatedEvent
         from wayflowcore.events.eventlistener import record_event
@@ -249,43 +295,61 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
             ManagerWorkersConversationExecutionState,
         )
 
+        restored_conversation, conversation_instance_id, conversation_thread_id = (
+            self._prepare_conversation_start(
+                inputs=inputs,
+                messages=messages,
+                conversation_id=conversation_id,
+                checkpointer=checkpointer,
+                checkpoint_id=checkpoint_id,
+                expected_conversation_type=ManagerWorkersConversation,
+                parent_conversation=parent_conversation,
+            )
+        )
+        if restored_conversation is not None:
+            return restored_conversation
+
         if not isinstance(messages, MessageList):
             messages = MessageList.from_messages(messages=messages)
-
-        if conversation_id is None:
-            conversation_id = IdGenerator.get_or_generate_id(conversation_id)
 
         record_event(
             ConversationCreatedEvent(
                 conversational_component=self,
                 inputs=inputs or {},
                 messages=messages,
-                conversation_id=conversation_id,
+                conversation_id=conversation_instance_id,
                 nesting_level=None,
             )
         )
 
         subconversations: Dict[str, Union[AgentConversation, ManagerWorkersConversation]] = {}
-        subconversations[self.manager_agent.name] = self.manager_agent.start_conversation(
-            inputs=inputs,
-            messages=messages,
-        )
 
         state = ManagerWorkersConversationExecutionState(
-            current_agent_name=self.manager_agent.name,
+            current_agent_id=self.manager_agent.id,
             subconversations=subconversations,
         )
 
-        return ManagerWorkersConversation(
+        conversation = ManagerWorkersConversation(
             component=self,
             inputs={},
             message_list=messages,
+            id=conversation_instance_id,
             name=conversation_name or "managerworkers_conversation",
             state=state,
             status=None,
-            conversation_id=conversation_id,
+            checkpointer=checkpointer,
+            conversation_id=conversation_thread_id,
             __metadata_info__={},
         )
+        subconversations[self.manager_agent.id] = cast(
+            "Union[AgentConversation, ManagerWorkersConversation]",
+            self.manager_agent._start_conversation_impl(
+                parent_conversation=conversation,
+                inputs=inputs,
+                messages=messages,
+            ),
+        )
+        return conversation
 
     def _referenced_tools_dict_inner(
         self, recursive: bool, visited_set: Set[str]
@@ -311,7 +375,11 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
             _validate_agent_unicity,
         )
 
-        self.manager_agent = _create_manager_agent(self.group_manager)
-        self._agent_by_name = _validate_agent_unicity(self.workers + [self.manager_agent])
+        self.manager_agent = _create_manager_agent(
+            self.group_manager, manager_agent_id=f"{self.id}:manager"
+        )
+        agents = self.workers + [self.manager_agent]
+        self._agent_by_name = _validate_agent_unicity(agents)
+        self._agent_by_id = {agent.id: agent for agent in agents}
         self._manager_communication_tools = _create_communication_tools()
         self._runtime_managerworkers_template = self._compose_runtime_managerworkers_template()

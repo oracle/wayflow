@@ -331,8 +331,7 @@ class _RelationalDatatable(Datatable):
         return result_as_dict
 
     def delete(self, where: Dict[str, Any]) -> None:
-        query = sqlalchemy.delete(self.sqlalchemy_table)
-        query = self._apply_where_clause(query, where)
+        query = self._delete_query(where)
         with self.engine.connect() as connection:
             result = connection.execute(query)
             if result.rowcount == 0:
@@ -340,6 +339,12 @@ class _RelationalDatatable(Datatable):
             else:
                 logger.info("Deleted %i entities", result.rowcount)
             connection.commit()
+
+    def _delete_query(self, where: Dict[str, Any]) -> "sqlalchemy.Delete":
+        # Used by DatastoreCheckpointer.delete() too, so it can compose the DELETE
+        # with a follow-up is_last_turn promotion UPDATE in one transaction.
+        query = sqlalchemy.delete(self.sqlalchemy_table)
+        return self._apply_where_clause(query, where)
 
 
 class RelationalDatastore(Datastore, ABC):

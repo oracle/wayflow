@@ -312,7 +312,9 @@ class FlowBuilder:
             self.add_edge(source_key, end_step_name)
         return self
 
-    def build(self, name: str = DEFAULT_FLOW_NAME, description: str = "") -> Flow:
+    def build(
+        self, name: str = DEFAULT_FLOW_NAME, flow_id: str | None = None, description: str = ""
+    ) -> Flow:
         """
         Build the Flow.
 
@@ -355,19 +357,23 @@ class FlowBuilder:
             control_flow_edges=self.control_flow_connections,
             data_flow_edges=self.data_flow_connections,
             name=name,
+            flow_id=flow_id,
             description=description,
             output_descriptors=self._output_descriptors,
         )
 
     def build_agent_spec(
-        self, name: str = DEFAULT_FLOW_NAME, serialize_as: Literal["JSON", "YAML"] = "JSON"
+        self,
+        name: str = DEFAULT_FLOW_NAME,
+        flow_id: str | None = None,
+        serialize_as: Literal["JSON", "YAML"] = "JSON",
     ) -> str:
         """
         Build the Flow and return its Agent Spec JSON or YAML configuration.
 
         Will raise errors if encountering any while building the Flow.
         """
-        flow = self.build(name)
+        flow = self.build(name, flow_id=flow_id)
         if serialize_as == "JSON":
             return AgentSpecExporter().to_json(flow)
         elif serialize_as == "YAML":
@@ -384,6 +390,7 @@ class FlowBuilder:
         cls,
         steps: list[Step],
         name: str = DEFAULT_FLOW_NAME,
+        flow_id: str | None = None,
         serialize_as: Literal[None] = None,
         data_flow_edges: list[DataFlowEdge] | None = None,
         input_descriptors: list[Property] | None = None,
@@ -396,6 +403,7 @@ class FlowBuilder:
         cls,
         steps: list[Step],
         name: str = DEFAULT_FLOW_NAME,
+        flow_id: str | None = None,
         serialize_as: Literal["JSON", "YAML"] = "JSON",
         data_flow_edges: list[DataFlowEdge] | None = None,
         input_descriptors: list[Property] | None = None,
@@ -407,6 +415,7 @@ class FlowBuilder:
         cls,
         steps: list[Step],
         name: str = DEFAULT_FLOW_NAME,
+        flow_id: str | None = None,
         serialize_as: Literal["JSON", "YAML"] | None = None,
         data_flow_edges: list[DataFlowEdge] | None = None,
         input_descriptors: list[Property] | None = None,
@@ -435,6 +444,7 @@ class FlowBuilder:
         """
         flow = Flow.from_steps(
             name=name,
+            flow_id=flow_id,
             steps=steps,
             data_flow_edges=data_flow_edges,
             input_descriptors=input_descriptors,

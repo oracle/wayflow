@@ -787,7 +787,8 @@ def test_agent_with_datastore_is_supported(datastore_agent_inmemory_server):
     follow_up = _create_response(
         base_url=datastore_agent_inmemory_server,
         input_value="and the biggest city?",
-        model="datastore-assistant",
+        # Resume must use the same served component/model as the checkpoint.
+        model="datastore-swarm",
         previous_response_id=response["id"],
     )
     output = follow_up["output"][0]["content"][0]["text"]

@@ -24,7 +24,6 @@ from typing import (
 
 from wayflowcore._utils.async_helpers import run_async_in_sync
 from wayflowcore.component import DataclassComponent
-from wayflowcore.conversationalcomponent import ConversationalComponent
 from wayflowcore.executors._events.event import Event
 from wayflowcore.executors.executionstatus import (
     ExecutionStatus,
@@ -37,7 +36,9 @@ from wayflowcore.planning import ExecutionPlan
 from wayflowcore.tokenusage import TokenUsage
 
 if TYPE_CHECKING:
+    from wayflowcore.checkpointing import Checkpointer
     from wayflowcore.contextproviders import ContextProvider
+    from wayflowcore.conversationalcomponent import ConversationalComponent
     from wayflowcore.executors._executionstate import ConversationExecutionState
     from wayflowcore.executors.interrupts.executioninterrupt import ExecutionInterrupt
     from wayflowcore.models._requesthelpers import TaggedMessageChunkType
@@ -63,10 +64,19 @@ def _get_active_conversations(return_copy: bool = True) -> List["Conversation"]:
 
 
 def _get_current_conversation_id() -> Optional[str]:
+    """Return the instance id of the currently executing conversation object."""
     active_conversations = _get_active_conversations(return_copy=True)
     if not active_conversations:
         return None
     return active_conversations[-1].id
+
+
+def _get_current_conversation_thread_id() -> Optional[str]:
+    """Return the thread id shared by the current nested conversations."""
+    active_conversations = _get_active_conversations(return_copy=True)
+    if not active_conversations:
+        return None
+    return active_conversations[-1].conversation_id
 
 
 @contextmanager
@@ -85,14 +95,23 @@ def _register_conversation(conversation: "Conversation") -> Generator[None, Any,
 @dataclass
 class Conversation(DataclassComponent):
 
-    component: ConversationalComponent
+    component: "ConversationalComponent"
     state: "ConversationExecutionState"
     inputs: Dict[str, Any]
     message_list: MessageList
     status: Optional[ExecutionStatus]
     token_usage: TokenUsage = field(default_factory=TokenUsage, init=False)
-    conversation_id: str = ""  # deprecated
-
+    conversation_id: str = ""
+    """Conversation thread id used for checkpoint persistence and resume."""
+    checkpointer: Optional["Checkpointer"] = field(
+        default=None,
+        repr=False,
+        compare=False,
+        metadata={"serialize": False},
+    )
+    """Optional checkpointer to save the conversation"""
+    checkpoint_id: Optional[str] = field(default=None, init=False, repr=False, compare=False)
+    """ID of the current checkpoint the conversation is stored with"""
     status_handled: bool = False
     """Whether the current status associated to this conversation was already handled or not
      (messages/tool results were added to the conversation)"""
@@ -100,6 +119,8 @@ class Conversation(DataclassComponent):
     def __post_init__(self) -> None:
         if self.inputs is None:
             self.inputs = {}
+        if not self.conversation_id:
+            self.conversation_id = self.id
 
     @property
     def plan(self) -> Optional[ExecutionPlan]:
@@ -138,11 +159,17 @@ class Conversation(DataclassComponent):
         if self.status_handled is False:
             self._update_conversation_with_status()
 
-        with _register_conversation(self):
-            new_status = await self.component.runner.execute_async(self, execution_interrupts)
+        from wayflowcore.checkpointing.checkpointeventlistener import (
+            get_conversation_checkpoint_execution_context,
+        )
 
-        self.status = new_status
-        self.status_handled = False
+        with get_conversation_checkpoint_execution_context(
+            self,
+            is_outermost_execution=len(_get_active_conversations(return_copy=False)) == 0,
+        ):
+            with _register_conversation(self):
+                self.status = await self.component.runner.execute_async(self, execution_interrupts)
+            self.status_handled = False
         return self.status
 
     @property
@@ -159,8 +186,16 @@ class Conversation(DataclassComponent):
 
     @abstractmethod
     def _get_all_sub_conversations(self) -> List["Conversation"]:
-        """Gathers all sub conversations"""
+        """Return direct child subconversations."""
         raise NotImplementedError()
+
+    def _get_all_sub_conversations_recursive(self) -> List["Conversation"]:
+        """Return all nested child subconversations recursively."""
+        all_sub_conversations: List["Conversation"] = []
+        for child_conversation in self._get_all_sub_conversations():
+            all_sub_conversations.append(child_conversation)
+            all_sub_conversations.extend(child_conversation._get_all_sub_conversations_recursive())
+        return all_sub_conversations
 
     @abstractmethod
     def __repr__(self) -> str:
