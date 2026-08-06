@@ -1234,30 +1234,40 @@ def _resolve_local_json_schema_references(schema: JsonSchemaParam) -> JsonSchema
         pointer = reference[1:]
         if pointer and not pointer.startswith("/"):
             return None
+        # Nested JSON path parts must be resolved in order from the schema root.
         for token in pointer.split("/")[1:] if pointer else []:
             try:
                 # Decode JSON Pointer escapes for literal slashes and tildes in keys.
                 token = token.replace("~1", "/").replace("~0", "~")
-                target = target[token] if isinstance(target, dict) else target[int(token)]
+                # JSON paths can pass through both named object fields and numbered array items.
+                if isinstance(target, dict):
+                    target = target[token]
+                elif isinstance(target, list):
+                    target = target[int(token)]
+                else:
+                    return None
             except (KeyError, IndexError, TypeError, ValueError):
                 return None
         if not isinstance(target, dict):
             return None
         return target
 
-    def resolve_node(node: Any, references: Tuple[str, ...] = ()) -> Any:
+    def resolve_node(node: Any, references: set[str]) -> Any:
         """Recursively inline resolvable local references in a schema node."""
         if not isinstance(node, dict):
             return deepcopy(node)
 
         if "$ref" in node:
             reference = node["$ref"]
+            # Leave references we cannot safely resolve untouched so normal conversion
+            # retains its permissive behavior, usually falling back to AnyProperty.
             if not isinstance(reference, str) or reference in references:
                 return dict(node)
             referenced_schema = resolve_pointer(reference)
             if referenced_schema is None:
                 return dict(node)
-            resolved_reference = resolve_node(referenced_schema, (*references, reference))
+            references = references | {reference}
+            resolved_reference = resolve_node(referenced_schema, references)
             if not isinstance(resolved_reference, dict):
                 return dict(node)
             # JSON Schema permits annotation keywords alongside $ref. Let those
@@ -1266,7 +1276,6 @@ def _resolve_local_json_schema_references(schema: JsonSchemaParam) -> JsonSchema
                 **resolved_reference,
                 **{key: value for key, value in node.items() if key != "$ref"},
             }
-            references = (*references, reference)
 
         resolved = dict(node)
         if "items" in node:
@@ -1286,7 +1295,7 @@ def _resolve_local_json_schema_references(schema: JsonSchemaParam) -> JsonSchema
             resolved["key_type"] = resolve_node(node["key_type"], references)
         return resolved
 
-    return cast(JsonSchemaParam, dict(resolve_node(root_schema)))
+    return cast(JsonSchemaParam, dict(resolve_node(root_schema, set())))
 
 
 def _try_cast_str_value_to_type(value: str, value_type: Property) -> Any:
