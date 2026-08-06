@@ -7,6 +7,11 @@ WayFlow |current_version|
 Improvements
 ^^^^^^^^^^^^
 
+* **Nested JSON Schema descriptor conversion**
+
+  ``Property.from_json_schema()`` now resolves local references when converting nested JSON Schemas
+  and preserves field-level metadata specified beside a reference.
+
 * **Configurable additional object properties**
 
   ``ObjectProperty`` now supports JSON Schema ``additionalProperties`` configuration.
