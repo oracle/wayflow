@@ -81,7 +81,8 @@ setup(
         "PyJWT>=2.13.0,<3.0.0",
         "aiohttp>=3.14.3,<4.0.0",
         "msgpack>=1.2.1,<2.0.0",
-        "pydantic-settings>=2.14.2,<3.0.0",
+        # `mcp` 1.x's FastMCP.Settings emits IncompleteFieldDefinitionWarning with pydantic-settings 2.15.0.
+        "pydantic-settings>=2.14.2,<2.15.0",
         "python-multipart>=0.0.32,<1.0.0",
         "starlette>=0.52.1,<1.0.0",
         "cryptography>=50.0.0,<60.0.0",
