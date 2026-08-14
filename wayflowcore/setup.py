@@ -68,7 +68,7 @@ setup(
         "typing_extensions>=4.12.2",
         "exceptiongroup>=1.0.2",
         "uvicorn>=0.23.1",
-        "fastapi>=0.116.2,<1.0.0",
+        "fastapi>=0.141.1,<1.0.0",
         "litellm>=1.84.0,<2.0; python_version < '3.14'",
         # 4rth party dependencies version bounds, for CVE patching
         "annotated-types>=0.6.0",
@@ -84,7 +84,7 @@ setup(
         # `mcp` 1.x's FastMCP.Settings emits IncompleteFieldDefinitionWarning with pydantic-settings 2.15.0.
         "pydantic-settings>=2.14.2,<2.15.0",
         "python-multipart>=0.0.32,<1.0.0",
-        "starlette>=0.52.1,<1.0.0",
+        "starlette>=1.3.1,<2.0.0",
         "cryptography>=50.0.0,<60.0.0",
         "sniffio>=1.1",
     ],
