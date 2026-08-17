@@ -60,7 +60,7 @@ setup(
         "jinja2>=3.1.6,<4.0.0",
         "jq>=1.8.0,<2.0.0",
         "deprecated>=1.2.18,<2.0.0",
-        "json_repair>=0.63.2,<0.70.0",
+        "json_repair>=0.63.2,<0.70.0",  # Versions <0.60.1 were affected; 0.63.2 is required.
         "PyYAML>=5.4,<7.0.0",
         "pydantic>=2.7.4,<3.0.0",
         "mcp>=1.28.1,<2",
@@ -78,13 +78,13 @@ setup(
         "opentelemetry-api>=1.33.0,<2.0.0",
         "opentelemetry-sdk>=1.33.0,<2.0.0",
         "pydantic_core>=2.33.0",  # warning but no vulnerabilities
-        "PyJWT>=2.13.0,<3.0.0",
-        "aiohttp>=3.14.3,<4.0.0",
+        "PyJWT>=2.13.0,<3.0.0",  # Versions <2.13.0 were affected with CVEs; 2.13.0 is required.
+        "aiohttp>=3.14.3,<4.0.0",  # Versions <3.14.3 included affected releases; 3.14.3 is required.
         # `mcp` 1.x's FastMCP.Settings emits IncompleteFieldDefinitionWarning with pydantic-settings 2.15.0.
         "pydantic-settings>=2.14.2,<2.15.0",
-        "python-multipart>=0.0.32,<1.0.0",
-        "starlette>=1.3.1,<2.0.0",
-        "cryptography>=50.0.0,<60.0.0",
+        "python-multipart>=0.0.32,<1.0.0",  # Known CVE findings are fixed by 0.0.31.
+        "starlette>=1.3.1,<2.0.0",  # Known CVE findings are fixed by 1.3.1.
+        "cryptography>=50.0.0,<60.0.0",  # Known CVE findings are fixed by 50.0.0.
         "sniffio>=1.1",
     ],
     test_suite="tests",
