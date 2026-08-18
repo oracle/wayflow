@@ -44,6 +44,7 @@ class VllmModel(OpenAICompatibleModel):
         id: Optional[str] = None,
         name: Optional[str] = None,
         description: Optional[str] = None,
+        parallel_tool_calls: bool = True,
     ) -> None:
         """
         Model powered by a model hosted with VLLM server.
@@ -127,6 +128,7 @@ class VllmModel(OpenAICompatibleModel):
             generation_config=generation_config,
             supports_structured_generation=supports_structured_generation,
             supports_tool_calling=supports_tool_calling,
+            parallel_tool_calls=parallel_tool_calls,
             api_type=api_type,
             retry_policy=retry_policy,
             __metadata_info__=__metadata_info__,
@@ -148,6 +150,7 @@ class VllmModel(OpenAICompatibleModel):
             "generation_config": (
                 self.generation_config.to_dict() if self.generation_config is not None else None
             ),
+            **({"parallel_tool_calls": False} if not self.parallel_tool_calls else {}),
         }
 
     @property

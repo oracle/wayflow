@@ -155,6 +155,7 @@ class OCIGenAIModel(LlmModel):
         auth_profile: Optional[str] = "DEFAULT",
         api_type: OciAPIType = OciAPIType.OCI,
         conversation_store_id: Optional[str] = None,
+        parallel_tool_calls: bool = True,
     ) -> None:
         """
         Model powered by OCIGenAI.
@@ -293,6 +294,7 @@ class OCIGenAIModel(LlmModel):
             generation_config=generation_config,
             supports_structured_generation=True,
             supports_tool_calling=True,
+            parallel_tool_calls=parallel_tool_calls,
             __metadata_info__=__metadata_info__,
         )
 
@@ -614,6 +616,7 @@ class OCIGenAIModel(LlmModel):
             "serving_mode": self.serving_mode.value,
             "compartment_id": self.compartment_id,
             "provider": self.provider.value,
+            **({"parallel_tool_calls": False} if not self.parallel_tool_calls else {}),
         }
 
     @property

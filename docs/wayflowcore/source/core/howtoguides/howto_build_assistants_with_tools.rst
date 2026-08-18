@@ -266,6 +266,50 @@ The only difference is that the file path is provided as a conversation message 
     :start-after: # .. start-##_Creating_and_running_an_agent_with_a_client_tool
     :end-before: # .. end-##_Creating_and_running_an_agent_with_a_client_tool
 
+
+Parallel tool calling
+=====================
+
+When an LLM returns several tool requests in one response, WayFlow can execute
+the requests concurrently. Parallel tool calling is enabled by default and is
+configured on the LLM with the ``parallel_tool_calls`` flag:
+
+.. code-block:: python
+
+    llm = OpenAIModel(
+        model_id="gpt-4o",
+        generation_config=LlmGenerationConfig(temperature=0),
+        parallel_tool_calls=True,
+    )
+
+The flag controls WayFlow's tool-execution behavior; it does not make a model
+emit multiple tool requests. The model must support and choose to return a
+batch of tool requests. If parallel tool calling is disabled, requests in a
+batch are executed sequentially.
+
+WayFlow executes a batch in parallel only when all of its requests are
+server-side tools. Batches containing a ``ClientTool`` are executed
+sequentially, because a client tool yields control to the client and may have
+side effects that must remain ordered. This also means that tool requests
+should not depend on another request in the same batch. If a server-side tool
+uses shared mutable state, a shared database connection, or has ordering or
+side-effect requirements, document those limitations in the tool description
+and disable parallel tool calling when necessary:
+
+.. code-block:: python
+
+    llm = OpenAIModel(
+        model_id="gpt-4o",
+        generation_config=LlmGenerationConfig(temperature=0),
+        parallel_tool_calls=False,
+    )
+
+Tool descriptions should make dependencies and side effects clear to the LLM.
+For example, describe whether a tool is read-only, whether it mutates shared
+state, and whether it must be called after another tool. When parallel tool
+calling is enabled, only independent tool requests should be emitted in the
+same batch.
+
 Agent Spec Exporting/Loading
 ============================
 

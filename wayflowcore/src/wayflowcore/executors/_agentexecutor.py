@@ -4,6 +4,7 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
+import asyncio
 import logging
 import os
 import warnings
@@ -52,6 +53,7 @@ from wayflowcore.ociagent import OciAgent
 from wayflowcore.planning import ExecutionPlan
 from wayflowcore.property import JsonSchemaParam, Property, StringProperty, _validate_strict_outputs
 from wayflowcore.tools import ClientTool, Tool, ToolRequest, ToolResult
+from wayflowcore.tools.servertools import ServerTool
 from wayflowcore.tools.tools import _descriptors_to_json_schema_map, _sanitize_tool_name
 from wayflowcore.tracing.span import AgentExecutionSpan
 
@@ -1058,6 +1060,77 @@ class AgentConversationExecutor(ConversationExecutor):
         return None, should_yield
 
     @staticmethod
+    def _get_parallel_server_tool_requests(
+        config: Agent, state: AgentConversationExecutionState
+    ) -> List[ToolRequest]:
+        """Return queued requests that can safely be executed concurrently."""
+        if not config.llm.parallel_tool_calls or len(state.tool_call_queue) < 2:
+            return []
+
+        tools_by_name = {tool.name: tool for tool in (state.current_retrieved_tools or [])}
+        queued_requests = list(state.tool_call_queue)
+        queued_tools = [tools_by_name.get(tool_request.name) for tool_request in queued_requests]
+        if not all(
+            isinstance(tool, ServerTool) and not tool.requires_confirmation
+            for tool in queued_tools
+        ):
+            return []
+        return queued_requests
+
+    @staticmethod
+    async def _process_parallel_tool_calls(
+        agent_config: Agent,
+        agent_state: AgentConversationExecutionState,
+        conversation: "AgentConversation",
+        tool_requests: List[ToolRequest],
+    ) -> Optional[ExecutionStatus]:
+        """Execute an all-server-tool batch concurrently."""
+        # Remove the batch before starting it so a failure cannot cause a
+        # request to be executed twice if the conversation is resumed.
+        agent_state.tool_call_queue.clear()
+
+        results = await asyncio.gather(
+            *(
+                AgentConversationExecutor._execute_next_subcall(
+                    config=agent_config,
+                    conversation=conversation,
+                    state=agent_state,
+                    tool_request=tool_request,
+                    messages=conversation.message_list,
+                )
+                for tool_request in tool_requests
+            ),
+            return_exceptions=True,
+        )
+
+        raised_exceptions = [result for result in results if isinstance(result, Exception)]
+        if raised_exceptions:
+            raise raised_exceptions[0]
+
+        yielding_results = [
+            result
+            for result in results
+            if isinstance(result, ExecutionStatus) and result._requires_yielding
+        ]
+        if yielding_results:
+            # Server tools that are interrupted (for example by an AuthInterrupt) do not
+            # append a tool result message. Restore those requests so that resuming the
+            # conversation retries them. Requests which already have a result must stay
+            # removed from the queue, otherwise they would be executed twice.
+            completed_tool_request_ids = {
+                message.tool_result.tool_request_id
+                for message in conversation.message_list.messages
+                if message.tool_result is not None
+            }
+            agent_state.tool_call_queue.extend(
+                tool_request
+                for tool_request in tool_requests
+                if tool_request.tool_request_id not in completed_tool_request_ids
+            )
+            return yielding_results[0]
+        return None
+
+    @staticmethod
     async def _execute_agent(
         conversation: "AgentConversation",
         execution_interrupts: Optional[Sequence[ExecutionInterrupt]] = None,
@@ -1095,7 +1168,24 @@ class AgentConversationExecutor(ConversationExecutor):
                 agent_state.current_tool_request = None
 
             elif len(agent_state.tool_call_queue) > 0:
-                agent_state._get_current_tool_request()
+                parallel_tool_requests = (
+                    AgentConversationExecutor._get_parallel_server_tool_requests(
+                        config=agent_config, state=agent_state
+                    )
+                )
+                if parallel_tool_requests:
+                    execution_status = (
+                        await AgentConversationExecutor._process_parallel_tool_calls(
+                            agent_config=agent_config,
+                            agent_state=agent_state,
+                            conversation=conversation,
+                            tool_requests=parallel_tool_requests,
+                        )
+                    )
+                    if execution_status is not None:
+                        return execution_status
+                else:
+                    agent_state._get_current_tool_request()
             elif agent_state.curr_iter >= agent_config.max_iterations:
                 if len(agent_config.output_descriptors) > 0:
                     default_outputs = _fill_submit_result_defaults(
