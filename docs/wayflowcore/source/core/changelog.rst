@@ -4,15 +4,17 @@ Changelog
 WayFlow |current_version|
 -------------------------
 
+New features
+^^^^^^^^^^^^
+
+Improvements
+^^^^^^^^^^^^
+
 Bug fixes
 ^^^^^^^^^
 
-* **Graceful iteration-limit responses after tool execution**
-
-  Agents that exhaust their iteration limit after a tool result now append a clear
-  assistant response instead of yielding the tool-result message as a user-facing answer.
-  This prevents ManagerWorkers and Swarm worker replies from failing and preserves the
-  response across Flow, OpenAI Responses, and A2A boundaries.
+WayFlow 26.3.0
+--------------
 
 Improvements
 ^^^^^^^^^^^^
@@ -48,6 +50,16 @@ Improvements
   :ref:`OCIGenAIEmbeddingModel <ocigenaiembeddingmodel>` now supports both on-demand
   and dedicated OCI GenAI serving modes. Dedicated mode can be selected explicitly
   or inferred on a best-effort basis from a dedicated GenAI endpoint OCID.
+
+Bug fixes
+^^^^^^^^^
+
+* **Graceful iteration-limit responses after tool execution**
+
+  Agents that exhaust their iteration limit after a tool result now append a clear
+  assistant response instead of yielding the tool-result message as a user-facing answer.
+  This prevents ManagerWorkers and Swarm worker replies from failing and preserves the
+  response across Flow, OpenAI Responses, and A2A boundaries.
 
 WayFlow 26.1.2
 --------------
