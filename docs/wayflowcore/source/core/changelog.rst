@@ -4,6 +4,18 @@ Changelog
 WayFlow |current_version|
 -------------------------
 
+New features
+^^^^^^^^^^^^
+
+Improvements
+^^^^^^^^^^^^
+
+Bug fixes
+^^^^^^^^^
+
+WayFlow 26.3.0
+--------------
+
 Improvements
 ^^^^^^^^^^^^
 
