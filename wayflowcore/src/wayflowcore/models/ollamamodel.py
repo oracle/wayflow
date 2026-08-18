@@ -47,6 +47,7 @@ class OllamaModel(OpenAICompatibleModel):
         name: Optional[str] = None,
         description: Optional[str] = None,
         retry_policy: Optional[RetryPolicy] = None,
+        parallel_tool_calls: bool = True,
     ) -> None:
         """
         Model powered by a locally hosted Ollama server.
@@ -119,6 +120,7 @@ class OllamaModel(OpenAICompatibleModel):
             ca_file=ca_file,
             generation_config=generation_config,
             supports_tool_calling=supports_tool_calling,
+            parallel_tool_calls=parallel_tool_calls,
             supports_structured_generation=supports_structured_generation,
             __metadata_info__=__metadata_info__,
             id=id,
@@ -155,6 +157,7 @@ class OllamaModel(OpenAICompatibleModel):
             "generation_config": (
                 self.generation_config.to_dict() if self.generation_config is not None else None
             ),
+            **({"parallel_tool_calls": False} if not self.parallel_tool_calls else {}),
         }
 
     @property

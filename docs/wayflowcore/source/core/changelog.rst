@@ -7,6 +7,13 @@ WayFlow |current_version|
 Improvements
 ^^^^^^^^^^^^
 
+* **Parallel tool calling**
+
+  Added the ``parallel_tool_calls`` LLM setting. Independent server-side tool
+  calls in one response can now execute concurrently, while client-side and
+  confirmation-requiring tools remain sequential. The documentation includes
+  guidance for tools with side effects or shared state.
+
 * **Configurable additional object properties**
 
   ``ObjectProperty`` now supports JSON Schema ``additionalProperties`` configuration.

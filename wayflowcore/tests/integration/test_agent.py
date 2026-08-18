@@ -16,16 +16,19 @@ from _pytest.logging import LogCaptureFixture
 
 from wayflowcore import Conversation
 from wayflowcore.agent import Agent, CallerInputMode
+from wayflowcore.auth import AuthChallengeRequest
 from wayflowcore.contextproviders import ContextProvider, ToolContextProvider
 from wayflowcore.contextproviders.constantcontextprovider import ConstantContextProvider
 from wayflowcore.controlconnection import ControlFlowEdge
 from wayflowcore.dataconnection import DataFlowEdge
+from wayflowcore.exceptions import AuthInterrupt
 from wayflowcore.executors._agentexecutor import (
     _SUBMIT_TOOL_NAME,
     _TALK_TO_USER_INPUT_PARAM,
     _TALK_TO_USER_TOOL_NAME,
 )
 from wayflowcore.executors.executionstatus import (
+    AuthChallengeRequestStatus,
     FinishedStatus,
     ToolExecutionConfirmationStatus,
     ToolRequestStatus,
@@ -118,6 +121,85 @@ def create_basic_agent(llm: LlmModel, **kwargs) -> Agent:
         custom_instruction="You are a helpful dashboard developer agent. Your goal is to help the user design data analysis dashboards",
         **kwargs,
     )
+
+
+def test_parallel_server_tool_calls_are_executed_concurrently() -> None:
+    active_calls = 0
+    max_active_calls = 0
+
+    @tool
+    async def parallel_tool(value: Annotated[int, "value to return"]) -> str:
+        """Return a value after a short asynchronous operation."""
+        nonlocal active_calls, max_active_calls
+        active_calls += 1
+        max_active_calls = max(max_active_calls, active_calls)
+        await asyncio.sleep(0.01)
+        active_calls -= 1
+        return str(value)
+
+    llm = DummyModel()
+    agent = Agent(
+        llm=llm,
+        tools=[parallel_tool],
+        custom_instruction="Use the available tools.",
+        can_finish_conversation=False,
+    )
+    conversation = agent.start_conversation(messages="run both tools")
+
+    with patch_llm(
+        llm,
+        outputs=[
+            [
+                ToolRequest(name="parallel_tool", args={"value": 1}),
+                ToolRequest(name="parallel_tool", args={"value": 2}),
+            ],
+            "done",
+        ],
+        patch_internal=True,
+    ):
+        conversation.execute()
+
+    assert max_active_calls == 2
+
+
+def test_parallel_server_tool_calls_can_be_disabled() -> None:
+    active_calls = 0
+    max_active_calls = 0
+
+    @tool
+    async def sequential_tool(value: Annotated[int, "value to return"]) -> str:
+        """Return a value after a short asynchronous operation."""
+        nonlocal active_calls, max_active_calls
+        active_calls += 1
+        max_active_calls = max(max_active_calls, active_calls)
+        await asyncio.sleep(0.01)
+        active_calls -= 1
+        return str(value)
+
+    llm = DummyModel()
+    llm.parallel_tool_calls = False
+    agent = Agent(
+        llm=llm,
+        tools=[sequential_tool],
+        custom_instruction="Use the available tools.",
+        can_finish_conversation=False,
+    )
+    conversation = agent.start_conversation(messages="run both tools")
+
+    with patch_llm(
+        llm,
+        outputs=[
+            [
+                ToolRequest(name="sequential_tool", args={"value": 1}),
+                ToolRequest(name="sequential_tool", args={"value": 2}),
+            ],
+            "done",
+        ],
+        patch_internal=True,
+    ):
+        conversation.execute()
+
+    assert max_active_calls == 1
 
 
 def _make_tool_request_message(
@@ -2504,6 +2586,74 @@ def test_agent_handles_parallel_tool_calls_with_canonicalized_native_template():
 
     assert conversation.get_last_message().content == "done"
     _check_each_tool_request_is_followed_by_single_matching_tool_result(conversation.get_messages())
+
+
+def test_auth_interrupt_during_parallel_tool_calls_is_resumable():
+    llm = DummyModel()
+    auth_available = False
+    auth_tool_calls = 0
+    successful_tool_calls = 0
+
+    @tool
+    def auth_tool() -> str:
+        """A tool that requires authentication on its first call."""
+        nonlocal auth_tool_calls
+        auth_tool_calls += 1
+        if not auth_available:
+            return AuthInterrupt(
+                AuthChallengeRequestStatus(
+                    challenge=AuthChallengeRequest(
+                        resource_uri="https://example.com",
+                        issuer=[],
+                        authorization_url="https://example.com/authorize",
+                    ),
+                    client_transport_id="test-transport",
+                )
+            )  # type: ignore[return-value]
+        return "authenticated"
+
+    @tool
+    def successful_tool() -> str:
+        """A tool that completes while the other tool is interrupted."""
+        nonlocal successful_tool_calls
+        successful_tool_calls += 1
+        return "successful"
+
+    agent = Agent(llm=llm, tools=[auth_tool, successful_tool], max_iterations=5)
+    conversation = agent.start_conversation(messages="Call both tools")
+
+    with patch_llm(
+        llm,
+        outputs=[
+            [
+                ToolRequest(name="auth_tool", args={}, tool_request_id="auth-call"),
+                ToolRequest(name="successful_tool", args={}, tool_request_id="success-call"),
+            ]
+        ],
+        patch_internal=True,
+    ):
+        status = conversation.execute()
+
+    assert isinstance(status, AuthChallengeRequestStatus)
+    assert [request.tool_request_id for request in conversation.state.tool_call_queue] == [
+        "auth-call"
+    ]
+    assert auth_tool_calls == 1
+    assert successful_tool_calls == 1
+
+    auth_available = True
+    with patch_llm(llm, outputs=["done"], patch_internal=True):
+        conversation.execute()
+
+    tool_result_ids = [
+        message.tool_result.tool_request_id
+        for message in conversation.get_messages()
+        if message.tool_result is not None
+    ]
+    assert tool_result_ids.count("auth-call") == 1
+    assert tool_result_ids.count("success-call") == 1
+    assert auth_tool_calls == 2
+    assert successful_tool_calls == 1
 
 
 def test_exception_during_parallel_tool_calls_with_agent(remotely_hosted_llm):

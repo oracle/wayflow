@@ -29,6 +29,7 @@ class OpenAIModel(OpenAICompatibleModel):
         id: Optional[str] = None,
         name: Optional[str] = None,
         description: Optional[str] = None,
+        parallel_tool_calls: bool = True,
     ) -> None:
         """
         Model powered by OpenAI.
@@ -91,6 +92,7 @@ class OpenAIModel(OpenAICompatibleModel):
             proxy=proxy,
             api_key=api_key if api_key is not None else os.environ[OPEN_API_KEY],
             generation_config=generation_config,
+            parallel_tool_calls=parallel_tool_calls,
             supports_structured_generation=True,
             supports_tool_calling=True,
             api_type=api_type,
@@ -113,4 +115,5 @@ class OpenAIModel(OpenAICompatibleModel):
             "generation_config": (
                 self.generation_config.to_dict() if self.generation_config is not None else None
             ),
+            **({"parallel_tool_calls": False} if not self.parallel_tool_calls else {}),
         }

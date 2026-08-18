@@ -115,6 +115,7 @@ class LlmModel(Component, SerializableObject, ABC):
         id: Optional[str] = None,
         name: Optional[str] = None,
         description: Optional[str] = None,
+        parallel_tool_calls: bool = True,
     ):
         """
         Base class for LLM models.
@@ -137,6 +138,10 @@ class LlmModel(Component, SerializableObject, ABC):
             Whether the model supports tool calling or not. When set to `None`,
             the model will be prompted with a tool and it will check it can use
             the tool.
+        parallel_tool_calls:
+            Whether independent server-side tool calls returned in the same LLM
+            response should be executed concurrently. Client-side tools and
+            tools requiring confirmation are always handled sequentially.
         id:
             ID of the component.
         name:
@@ -178,6 +183,7 @@ class LlmModel(Component, SerializableObject, ABC):
             if supports_tool_calling is not None
             else _fetch_tool_calling_support(self)
         )
+        self.parallel_tool_calls = parallel_tool_calls
 
     @property
     def default_chat_template(self) -> "PromptTemplate":

@@ -129,6 +129,7 @@ class GeminiModel(LlmModel):
         name: Optional[str] = None,
         description: Optional[str] = None,
         retry_policy: Optional[RetryPolicy] = None,
+        parallel_tool_calls: bool = True,
     ) -> None:
         self.auth = auth
         self.proxy = proxy
@@ -143,6 +144,7 @@ class GeminiModel(LlmModel):
             generation_config=generation_config,
             supports_structured_generation=supports_structured_generation,
             supports_tool_calling=supports_tool_calling,
+            parallel_tool_calls=parallel_tool_calls,
             __metadata_info__=__metadata_info__,
             id=id,
             name=name,
@@ -289,6 +291,7 @@ class GeminiModel(LlmModel):
             ),
             "supports_structured_generation": self.supports_structured_generation,
             "supports_tool_calling": self.supports_tool_calling,
+            **({"parallel_tool_calls": False} if not self.parallel_tool_calls else {}),
             "auth": self._serialize_auth_config(self.auth),
             "generation_config": (
                 self.generation_config.to_dict() if self.generation_config is not None else None
