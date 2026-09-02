@@ -1,16 +1,21 @@
 deprecated==1.2.18
 jinja2==3.1.6
 jq==1.8.0
-json_repair==0.61.0
+json_repair==0.63.2
 numpy==1.26.4
 pandas==2.2.3
 PyYAML==6.0.3
 pydantic==2.12.5
 httpx==0.28.1
 mcp==1.28.1
-pyagentspec==26.2.0.dev7 # Main branch of pyagentspec
+pyagentspec==26.3.0 # Coordinated 26.3.0 release
 opentelemetry-api==1.36.0
 opentelemetry-sdk==1.36.0
 litellm==1.84.0; python_version < "3.14"
-fastapi==0.131.0
+fastapi==0.141.1
 anyio==4.11.0
+fasta2a==0.6.0
+sqlalchemy==2.0.48
+typing_extensions==4.15.0
+uvicorn==0.41.0
+exceptiongroup==1.3.1
