@@ -7,12 +7,18 @@
 import json
 from textwrap import dedent
 from typing import Annotated, Optional, Tuple
+from unittest.mock import patch
 
+import anyio
 import pytest
 
 from wayflowcore._utils._templating_helpers import render_template
 from wayflowcore.agent import Agent, CallerInputMode
-from wayflowcore.executors._agentexecutor import _TALK_TO_USER_TOOL_NAME
+from wayflowcore.executors._agentexecutor import (
+    _TALK_TO_USER_TOOL_NAME,
+    ITERATION_LIMIT_REACHED_MESSAGE,
+    AgentConversationExecutor,
+)
 from wayflowcore.executors._swarmconversation import SwarmConversation
 from wayflowcore.executors._swarmexecutor import _HANDOFF_TOOL_NAME, _SEND_MESSAGE_TOOL_NAME
 from wayflowcore.executors.executionstatus import (
@@ -81,6 +87,34 @@ def _get_fooza_agent(llm, raise_exception_tool=False, raise_exceptions=False):
         name="fooza_agent",
         description="An specialized AI Assistant that can answer any question/request related to the fooza operation.",
     )
+
+
+def test_swarm_worker_at_iteration_limit_returns_fallback_message() -> None:
+    llm = DummyModel()
+    manager = Agent(llm=llm, name="manager", description="manager")
+    worker = Agent(llm=llm, name="worker", description="worker", max_iterations=1)
+    swarm = Swarm(first_agent=manager, relationships=[(manager, worker)])
+    conversation = swarm.start_conversation(messages="delegate")
+
+    with patch_llm(
+        llm,
+        outputs=[
+            [
+                ToolRequest(
+                    _SEND_MESSAGE_TOOL_NAME,
+                    {"recipient": worker.name, "message": "do work"},
+                    tool_request_id="delegate-to-worker",
+                )
+            ],
+            [ToolRequest("missing_tool", {}, tool_request_id="worker-tool-call")],
+            "final answer",
+        ],
+    ):
+        status = conversation.execute()
+
+    assert isinstance(status, UserMessageRequestStatus)
+    assert conversation.get_messages()[-2].tool_result is not None
+    assert conversation.get_messages()[-2].tool_result.content == ITERATION_LIMIT_REACHED_MESSAGE
 
 
 def _get_bwip_agent(llm):
@@ -468,6 +502,42 @@ def _handoff_message(recipient_agent: Agent, thoughts: Optional[str] = None) -> 
         ),
         message_type=MessageType.AGENT,
     )
+
+
+@pytest.mark.anyio
+async def test_swarm_can_execute_conversations_concurrently():
+    """Runtime swarm tools must not leak from one conversation into another."""
+    llm = DummyModel()
+    first_agent = Agent(llm, name="first_agent", description="first agent")
+    second_agent = Agent(llm, name="second_agent", description="second agent")
+    swarm = Swarm(first_agent=first_agent, relationships=[(first_agent, second_agent)])
+
+    first_execution_started = anyio.Event()
+    second_execution_started = anyio.Event()
+    execution_count = 0
+
+    async def block_agent_execution(*args, **kwargs):
+        nonlocal execution_count
+        execution_count += 1
+        if execution_count == 1:
+            first_execution_started.set()
+        else:
+            second_execution_started.set()
+        await anyio.sleep_forever()
+
+    async def execute_conversation() -> None:
+        await swarm.start_conversation().execute_async()
+
+    with patch.object(AgentConversationExecutor, "execute_async", block_agent_execution):
+        async with anyio.create_task_group() as task_group:
+            task_group.start_soon(execute_conversation)
+            await first_execution_started.wait()
+
+            task_group.start_soon(execute_conversation)
+            await second_execution_started.wait()
+            task_group.cancel_scope.cancel()
+
+    assert first_agent.tools == []
 
 
 def test_swarm_warns_agent_on_sending_message_to_caller_instead_of_using_talk_to_user_tool():

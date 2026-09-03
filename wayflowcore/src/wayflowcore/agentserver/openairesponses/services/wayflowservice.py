@@ -264,12 +264,15 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
                 # close the send side so the receiver side's async for terminates
                 await send_stream.aclose()
 
-        async with anyio.create_task_group() as tg:
-            tg.start_soon(runner, state)
+        try:
+            async with anyio.create_task_group() as tg:
+                tg.start_soon(runner, state)
 
-            async for ev in receive_stream:
-                # These events come from the synchronous callback
-                yield ev
+                async for ev in receive_stream:
+                    # These events come from the synchronous callback
+                    yield ev
+        finally:
+            await receive_stream.aclose()
 
         if raised_exception:
             if "not a multimodal model" in str(raised_exception):

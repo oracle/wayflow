@@ -883,7 +883,12 @@ class _GenericOciApiFormatter(_OciApiFormatter):
         tool_deltas = []
         token_usage: Optional[TokenUsage] = None
         for raw_chunk in iterator:
-            chunk = json.loads(raw_chunk.data)
+            raw_data = raw_chunk.data.strip()
+            # OCI's SSE stream may terminate with the OpenAI-compatible
+            # sentinel instead of a JSON event.
+            if not raw_data or raw_data == "[DONE]":
+                continue
+            chunk = json.loads(raw_data)
             text_delta, tool_requests = "", None
 
             if "usage" in chunk and chunk["usage"] is not None:

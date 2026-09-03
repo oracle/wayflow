@@ -78,6 +78,10 @@ EXIT_CONVERSATION_TOOL_MESSAGE = "Conversation has been ended by the agent."
 EXIT_CONVERSATION_CONFIRMATION_MESSAGE = "You attempted to end the conversation. If the user indeed asked to exit, please call this tool again and do not reply anything else. You are a helpful assistant; do not annoy the user; do not ask them to confirm."
 _TOOL_REJECTION_REASON = "Tool Request for tool {tool} denied due to reason: {reason}"
 _SUMMARY_OUTPUT_NAME = "summary"
+ITERATION_LIMIT_REACHED_MESSAGE = (
+    "Info: I reached the maximum number of iterations before producing a final response. "
+    "Please try again with a higher iteration limit or a more focused request."
+)
 
 
 def _is_running_in_notebook() -> bool:
@@ -1162,6 +1166,13 @@ class AgentConversationExecutor(ConversationExecutor):
             last_message = conversation.get_last_message()
             if last_message is None:
                 raise ValueError("Something went wrong, should not happen")
+            if last_message.message_type != MessageType.AGENT:
+                last_message = Message(
+                    content=ITERATION_LIMIT_REACHED_MESSAGE,
+                    message_type=MessageType.AGENT,
+                    sender=agent_config.agent_id,
+                )
+                conversation.append_message(last_message)
             return UserMessageRequestStatus(
                 message=last_message,
                 _conversation_id=conversation.id,

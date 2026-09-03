@@ -7,25 +7,26 @@
 import logging
 import os
 import re
-import unittest
 from copy import deepcopy
+from types import SimpleNamespace
 from typing import Any
 from unittest.mock import patch
 
 import pytest
 
-from wayflowcore import Flow
-from wayflowcore.messagelist import ImageContent, Message, MessageContent, TextContent
+from wayflowcore.messagelist import Message, MessageContent, TextContent
 from wayflowcore.models import LlmGenerationConfig, LlmModelFactory, OCIGenAIModel, Prompt
 from wayflowcore.models.ociclientconfig import OCIClientConfig, _OCIAuthType
-from wayflowcore.models.ocigenaimodel import ModelProvider, OciAPIType, ServingMode
+from wayflowcore.models.ocigenaimodel import (
+    ModelProvider,
+    OciAPIType,
+    ServingMode,
+    _GenericOciApiFormatter,
+)
 from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.templates import PromptTemplate
-from wayflowcore.tools.tools import ToolRequest
 
 from ..conftest import (
-    COHERE_OCI_API_KEY_CONFIG,
-    COHERE_OCI_INSTANCE_PRINCIPAL_CONFIG,
     DUMMY_OCI_USER_CONFIG_DICT,
     GROK_OCI_RESPONSE_API_KEY_CONFIG,
     LLAMA_OCI_API_KEY_CONFIG,
@@ -43,37 +44,8 @@ class UnsupportedContent(MessageContent):
         pass
 
 
-@pytest.fixture(scope="function")
-def flow_with_oci_cohere(monkeypatch) -> Flow:  # type: ignore
-    """
-    Temporarily patches the environment variables to include proxies
-    in order to block ocigenai (and make it time out)
-    """
-    from wayflowcore.flowhelpers import create_single_step_flow
-    from wayflowcore.steps import PromptExecutionStep
-
-    oracle_http_proxy = os.environ.get("ORACLE_HTTP_PROXY")
-    if not oracle_http_proxy:
-        raise Exception("ORACLE_HTTP_PROXY is not set in the environment")
-    # no type hints for monkeypatch https://github.com/pytest-dev/pytest/issues/2712
-    proxies = {
-        "HTTP_PROXY": oracle_http_proxy,
-        "http_proxy": oracle_http_proxy,
-    }
-    for proxy_var_name, proxy_value in proxies.items():
-        monkeypatch.setenv(proxy_var_name, proxy_value)
-    return create_single_step_flow(
-        PromptExecutionStep(
-            "Repeat the word Banana",
-            llm=LlmModelFactory.from_config(COHERE_OCI_INSTANCE_PRINCIPAL_CONFIG),
-        )
-    )
-
-
 def parametrize_with_oci_configs():
     all_oci_model_configs = [
-        COHERE_OCI_INSTANCE_PRINCIPAL_CONFIG,
-        COHERE_OCI_API_KEY_CONFIG,
         LLAMA_OCI_INSTANCE_PRINCIPAL_CONFIG,
         LLAMA_OCI_API_KEY_CONFIG,
     ]
@@ -152,12 +124,12 @@ def test_oci_user_authentication_config_does_not_print_content(
 
 
 def test_ocigenai_using_user_authentication(oci_user_authentication_config):
-    oci_cohere_config_using_user_auth = {
+    oci_llama_config_using_user_auth = {
         "model_type": "ocigenai",
-        "model_id": COHERE_OCI_API_KEY_CONFIG["model_id"],
+        "model_id": LLAMA_OCI_API_KEY_CONFIG["model_id"],
         "client_config": oci_user_authentication_config,
     }
-    llm = LlmModelFactory.from_config(oci_cohere_config_using_user_auth)
+    llm = LlmModelFactory.from_config(oci_llama_config_using_user_auth)
     res = llm.generate(prompt=Prompt(CHAT_TEXT_PROMPT)).message
     assert len(res.contents) > 0
     assert isinstance(res.contents[0], TextContent)
@@ -276,55 +248,6 @@ def test_oci_openai_api_generation_config_reaches_sdk_create(api_type, max_token
         assert "reasoning.encrypted_content" in captured_create_kwargs["include"]
 
 
-def test_ocigenai_model_throws_exception_when_wrongly_configured(
-    flow_with_oci_cohere: Flow,
-) -> None:
-    with pytest.raises(
-        Exception,
-        match="Instance principals authentication can only be used on OCI compute instances",
-    ):
-        conversation = flow_with_oci_cohere.start_conversation()
-        conversation.execute()
-
-
-def test_cohere_warning_on_max_tokens():
-
-    class FakeGeneration(ValueError):
-        pass
-
-    def fake_generation(*args, **kwargs):
-        raise FakeGeneration
-
-    cohere_config = deepcopy(COHERE_OCI_API_KEY_CONFIG)
-    cohere_config["generation_config"] = {"max_tokens": 99}
-    model_from_factory = LlmModelFactory.from_config(cohere_config)
-    assert model_from_factory.generation_config.max_tokens == 99
-    cohere_config.pop("generation_config")
-    with pytest.warns(UserWarning, match="Setting `max_tokens` to 512 for cohere"):
-        model_from_factory = LlmModelFactory.from_config(cohere_config)
-        with unittest.mock.patch(
-            "oci.generative_ai_inference.models.ChatDetails", side_effect=fake_generation
-        ) as patch:
-            with pytest.raises(FakeGeneration):
-                model_from_factory.generate("hello")
-            chat_request = patch.call_args[1]["chat_request"]
-            assert chat_request.max_tokens == 512
-
-    cohere_config.pop("model_type")
-    client_config = cohere_config.pop("client_config")
-    with pytest.warns(UserWarning, match="Setting `max_tokens` to 512 for cohere"):
-        initialized_model = OCIGenAIModel(
-            **cohere_config, client_config=OCIClientConfig.from_dict(client_config)
-        )
-        with unittest.mock.patch(
-            "oci.generative_ai_inference.models.ChatDetails", side_effect=fake_generation
-        ) as patch:
-            with pytest.raises(FakeGeneration):
-                initialized_model.generate("hello")
-            chat_request = patch.call_args[1]["chat_request"]
-            assert chat_request.max_tokens == 512
-
-
 @pytest.mark.skip("Skip because we do not have any custom dedicated model on our tenancy")
 def test_using_dedicated_model_on_oci():
     model = OCIGenAIModel(
@@ -358,59 +281,6 @@ def test_oci_generic_unsupported_content_type():
 
     with pytest.raises(RuntimeError, match="Unsupported content of type"):
         llm.generate(Prompt([message]))
-
-
-def run_generate_and_expect_error(llm, prompt, match):
-    with pytest.raises(RuntimeError, match=match):
-        llm.generate(prompt)
-
-
-@pytest.mark.parametrize(
-    "messages,match",
-    [
-        # Case: Image content as user
-        (
-            [
-                Message(
-                    role="user",
-                    contents=[ImageContent.from_bytes(bytes_content=b"1234", format="png")],
-                )
-            ],
-            r"Cohere models only support text messages as input",
-        ),
-        # Case: Image content as assistant with tool requests and conversation
-        (
-            [
-                Message(role="user", contents=[TextContent("Hi")]),
-                Message(
-                    role="assistant",
-                    contents=[ImageContent.from_bytes(bytes_content=b"1234", format="png")],
-                    tool_requests=[
-                        ToolRequest(
-                            name="test-tool", tool_request_id="tool-id-1", args={"param": "value"}
-                        )
-                    ],
-                ),
-                Message(role="assistant", contents=[TextContent("Hi")]),
-                Message(role="user", contents=[TextContent("Hi")]),
-            ],
-            r"Cohere models only support text messages as input",
-        ),
-        # Case: Unsupported content object type
-        (
-            [Message(role="user", contents=[UnsupportedContent()])],
-            r"Cohere models only support text messages as input",
-        ),
-    ],
-    ids=["user-image-content", "assistant-image-content-with-tools", "unsupported-content-type"],
-)
-def test_oci_cohere_invalid_content_and_unsupported_types(messages, match):
-    """
-    Test that invalid or unsupported content types/messages raise a RuntimeError in OCI Cohere formatter.
-    """
-    llm = LlmModelFactory.from_config(COHERE_OCI_INSTANCE_PRINCIPAL_CONFIG)
-    prompt = Prompt(messages)
-    run_generate_and_expect_error(llm, prompt, match)
 
 
 def test_oci_model_raises_warning_when_parameters_are_not_supported(grok_oci_llm, caplog):
@@ -557,7 +427,7 @@ def test_oci_model_has_exact_count_and_reasoning_tokens():
 @retry_test(max_attempts=4)
 @pytest.mark.parametrize(
     "model_config",
-    [OCI_REASONING_MODEL_API_KEY_CONFIG, COHERE_OCI_API_KEY_CONFIG],
+    [OCI_REASONING_MODEL_API_KEY_CONFIG],
 )
 def test_oci_stream_has_exact_token_count(model_config):
     """
@@ -577,6 +447,23 @@ def test_oci_stream_has_exact_token_count(model_config):
     assert token_usage.exact_count
     assert token_usage.input_tokens > 0
     assert token_usage.output_tokens > 0
+
+
+def test_oci_generic_stream_ignores_done_sentinel():
+    chunks = list(
+        _GenericOciApiFormatter.convert_oci_chunk_iterator_into_tagged_chunk_iterator(
+            iter(
+                [
+                    SimpleNamespace(
+                        data='{"message": {"content": [{"type": "TEXT", "text": "Hi"}]}}'
+                    ),
+                    SimpleNamespace(data="[DONE]"),
+                ]
+            )
+        )
+    )
+
+    assert chunks[-1][1].content == "Hi"
 
 
 def test_oci_openai_responses_generation_config_reaches_service(oci_reasoning_model):

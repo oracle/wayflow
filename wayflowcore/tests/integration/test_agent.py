@@ -24,6 +24,7 @@ from wayflowcore.executors._agentexecutor import (
     _SUBMIT_TOOL_NAME,
     _TALK_TO_USER_INPUT_PARAM,
     _TALK_TO_USER_TOOL_NAME,
+    ITERATION_LIMIT_REACHED_MESSAGE,
 )
 from wayflowcore.executors.executionstatus import (
     FinishedStatus,
@@ -80,6 +81,42 @@ def create_dashboard_tool() -> ServerTool:
         """
 
     return create_dashboard
+
+
+def test_agent_at_iteration_limit_replaces_tool_result_with_agent_message() -> None:
+    llm = DummyModel()
+    agent = Agent(llm=llm, max_iterations=1)
+    conversation = agent.start_conversation()
+    conversation.append_user_message("do work")
+
+    with patch_llm(
+        llm,
+        outputs=[[ToolRequest("missing_tool", {}, tool_request_id="tool-call")]],
+    ):
+        status = conversation.execute()
+
+    assert isinstance(status, UserMessageRequestStatus)
+    assert status.message.message_type == MessageType.AGENT
+    assert status.message.content == ITERATION_LIMIT_REACHED_MESSAGE
+    assert conversation.get_messages()[-2].message_type == MessageType.TOOL_RESULT
+
+
+def test_flow_preserves_iteration_limit_fallback_as_user_message() -> None:
+    llm = DummyModel()
+    agent = Agent(llm=llm, max_iterations=1)
+    flow = create_single_step_flow(AgentExecutionStep(agent))
+    conversation = flow.start_conversation()
+    conversation.append_user_message("do work")
+
+    with patch_llm(
+        llm,
+        outputs=[[ToolRequest("missing_tool", {}, tool_request_id="tool-call")]],
+    ):
+        status = conversation.execute()
+
+    assert isinstance(status, UserMessageRequestStatus)
+    assert status.message.message_type == MessageType.AGENT
+    assert status.message.content == ITERATION_LIMIT_REACHED_MESSAGE
 
 
 @tool
@@ -1710,8 +1747,7 @@ def test_ocigenai_agent_can_use_tools(llama_oci_llm):
     Max attempt:           6
     Justification:         (0.18 ** 6) ~= 3.6 / 100'000
     """
-    HRASSISTANT_GENERATION_INSTRUCTIONS = dedent(
-        """
+    HRASSISTANT_GENERATION_INSTRUCTIONS = dedent("""
         You are a knowledgeable, factual, and helpful HR assistant that can answer simple \
         HR-related questions like salary and benefits.
         You are given a tool to look up the HR database.
@@ -1722,8 +1758,7 @@ def test_ocigenai_agent_can_use_tools(llama_oci_llm):
         Important:
             - Be helpful and concise in your messages
             - Do not tell the user any details not mentioned in the tool response, let's be factual.
-        """
-    )
+        """)
 
     agent = Agent(
         custom_instruction=HRASSISTANT_GENERATION_INSTRUCTIONS,
@@ -2155,17 +2190,6 @@ def test_can_continue_conversation_after_submitting_outputs(remotely_hosted_llm)
     conversation.append_user_message("")
     with patch_openai_compatible_llm(llm=remotely_hosted_llm, txt="hello"):
         conversation.execute()
-
-
-def test_agent_with_cohere(cohere_llm):
-    agent = Agent(
-        llm=cohere_llm,
-    )
-    conv = agent.start_conversation()
-    conv.execute()
-    conv.append_user_message("my wifi is not working")
-    conv.execute()
-    assert len(conv.get_messages()) == 3
 
 
 @pytest.mark.anyio

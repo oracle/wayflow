@@ -9,7 +9,7 @@ import re
 import time
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Awaitable, Callable, Dict, Generator, List, Tuple, cast
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import anyio
 import httpx
@@ -47,7 +47,11 @@ from wayflowcore.mcp import (
     enable_mcp_without_auth,
 )
 from wayflowcore.mcp._auth import headless_auth_flow_handler
-from wayflowcore.mcp._session_persistence import AsyncRuntime, get_mcp_async_runtime
+from wayflowcore.mcp._session_persistence import (
+    AsyncRuntime,
+    get_mcp_async_runtime,
+    shutdown_mcp_async_runtime,
+)
 from wayflowcore.mcp.mcphelpers import (
     _classify_mcp_tool_call_for_retry,
     _reset_mcp_contextvar,
@@ -126,6 +130,22 @@ def test_authless_mcp_enabled_marks_transport_for_session_creation(
 
     with pytest.warns(SecurityWarning, match="without authentication"):
         assert runtime.get_or_create_session(toolbox.client_transport) is session
+
+
+def test_mcp_runtime_reinitialization_closes_new_memory_streams() -> None:
+    """A runtime restarted after fixture teardown must clean up its new streams."""
+    runtime = get_mcp_async_runtime()
+    shutdown_mcp_async_runtime()
+
+    runtime = get_mcp_async_runtime()
+    send_stream = Mock()
+    receive_stream = Mock()
+    runtime._memory_streams.append((send_stream, receive_stream))
+
+    shutdown_mcp_async_runtime()
+
+    send_stream.close.assert_called_once_with()
+    receive_stream.close.assert_called_once_with()
 
 
 def test_enable_mcp_without_auth_warns_for_unscoped_opt_in() -> None:

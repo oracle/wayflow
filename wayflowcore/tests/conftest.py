@@ -167,8 +167,8 @@ def dummy_oci_client_config_with_user_authentication():
         DUMMY_OCI_USER_CONFIG_DICT["region"],
     )
     return OCIClientConfigWithUserAuthentication(
-        service_endpoint=COHERE_OCI_API_KEY_CONFIG["client_config"]["service_endpoint"],
-        compartment_id=COHERE_OCI_API_KEY_CONFIG["client_config"]["compartment_id"],
+        service_endpoint=LLAMA_OCI_API_KEY_CONFIG["client_config"]["service_endpoint"],
+        compartment_id=LLAMA_OCI_API_KEY_CONFIG["client_config"]["compartment_id"],
         user_config=user_config,
     )
 
@@ -194,8 +194,8 @@ def oci_user_authentication_config():
     )
 
     return OCIClientConfigWithUserAuthentication(
-        service_endpoint=COHERE_OCI_API_KEY_CONFIG["client_config"]["service_endpoint"],
-        compartment_id=COHERE_OCI_API_KEY_CONFIG["client_config"]["compartment_id"],
+        service_endpoint=LLAMA_OCI_API_KEY_CONFIG["client_config"]["service_endpoint"],
+        compartment_id=LLAMA_OCI_API_KEY_CONFIG["client_config"]["compartment_id"],
         user_config=oci_user_auth_config,
     )
 
@@ -600,13 +600,6 @@ def gpt_reasoning_llm():
     if not "OPENAI_TESTS" in os.environ:
         pytest.skip("Requires an OPENAI API key")
     return LlmModelFactory.from_config(OPENAI_REASONING_CONFIG)
-
-
-@pytest.fixture
-def cohere_llm():
-    if not ("OCI_GENAI_API_KEY_CONFIG" in os.environ and "OCI_GENAI_API_KEY_PEM" in os.environ):
-        pytest.skip("OCI GENAI models not configured")
-    return LlmModelFactory.from_config(COHERE_OCI_API_KEY_CONFIG)
 
 
 @pytest.fixture

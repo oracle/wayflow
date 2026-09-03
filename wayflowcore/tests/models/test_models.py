@@ -45,7 +45,6 @@ from wayflowcore.templates import REACT_CHAT_TEMPLATE, PromptTemplate
 from wayflowcore.tools import Tool, ToolRequest, ToolResult, tool
 
 from ..conftest import (
-    COHERE_OCI_API_KEY_CONFIG,
     GEMMA_CONFIG,
     GROK_OCI_API_KEY_CONFIG,
     GROK_OCI_CHAT_COMPLETIONS_API_KEY_CONFIG,
@@ -550,7 +549,6 @@ def find_all_available_models(
         if not with_stop_parameter and not with_temperature_parameter:
             available_models.append(("openai_responses", OPENAI_RESPONSES_CONFIG))
     if "OCI_GENAI_API_KEY_CONFIG" in os.environ and "OCI_GENAI_API_KEY_PEM" in os.environ:
-        available_models.append(("cohere_oci", COHERE_OCI_API_KEY_CONFIG))  # cohere oci
         available_models.append(("llama_oci", LLAMA_OCI_API_KEY_CONFIG))  # llama oci
         if not with_stop_parameter:
             available_models.append(("grok_oci", GROK_OCI_API_KEY_CONFIG))  # grok oci
@@ -2061,7 +2059,7 @@ def test_native_structured_generation_fills_explicit_defaults(monkeypatch):
 @retry_test(max_attempts=3)
 @pytest.mark.parametrize(
     "llm_fixture_name",
-    ["remotely_hosted_llm", "llama_oci_llm", "grok_oci_llm", "cohere_llm", "gpt_llm"],
+    ["remotely_hosted_llm", "llama_oci_llm", "grok_oci_llm", "gpt_llm"],
 )
 def test_structured_generation_with_enum(request, llm_fixture_name):
     """
@@ -2088,14 +2086,6 @@ def test_structured_generation_with_enum(request, llm_fixture_name):
     Average failure time:  5.69 seconds per failed attempt
     Max attempt:           4
     Justification:         (0.09 ** 4) ~= 6.8 / 100'000
-
-    cohere_llm
-    Failure rate:          0 out of 20
-    Observed on:           2025-09-18
-    Average success time:  1.62 seconds per successful attempt
-    Average failure time:  No time measurement
-    Max attempt:           3
-    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
 
     gpt_llm
     Failure rate:          0 out of 20
@@ -2146,9 +2136,6 @@ def test_hosted_llm_can_return_logprobs_if_supported(llm_config):
     elif llm_config in [GROK_OCI_RESPONSE_API_KEY_CONFIG, GROK_OCI_CHAT_COMPLETIONS_API_KEY_CONFIG]:
         # grok returns empty logprobs
         context = pytest.raises(AssertionError)
-    elif llm_config == COHERE_OCI_API_KEY_CONFIG:
-        # cohere returns empty logprobs
-        context = pytest.raises(ValueError, match="Logprobs are not supported for cohere models")
     else:
         context = nullcontext()
 

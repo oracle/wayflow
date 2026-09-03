@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from typing import Any, List, Tuple
 
 import pytest
+from pydantic import BaseModel, Field
 
 from wayflowcore.exceptions import StructuredOutputValidationError
 from wayflowcore.property import (
@@ -160,6 +161,68 @@ def test_list_of_types_can_be_decoded_in_union_property():
         name="union_property", any_of=[NullProperty(), IntegerProperty()]
     )
     assert Property.from_json_schema(json_schema) == expected_property
+
+
+def test_from_json_schema_resolves_pydantic_nested_model_references():
+    class Scope(BaseModel):
+        project: str
+        environment: str
+
+    class SearchRequest(BaseModel):
+        scope: Scope = Field(description="Limit the search to this scope")
+
+    property_ = Property.from_json_schema(SearchRequest.model_json_schema())
+
+    assert isinstance(property_, ObjectProperty)
+    scope = property_.properties["scope"]
+    assert isinstance(scope, ObjectProperty)
+    assert scope.description == "Limit the search to this scope"
+    assert set(scope.properties) == {"project", "environment"}
+    assert all(isinstance(value, StringProperty) for value in scope.properties.values())
+
+
+def test_from_json_schema_supports_definitions_keyword():
+    """Schemas from older JSON Schema drafts use ``definitions`` instead of ``$defs``."""
+    schema = {
+        "type": "object",
+        "definitions": {"State": {"type": "string"}},
+        "properties": {
+            "state": {"$ref": "#/definitions/State", "description": "The current state"}
+        },
+    }
+
+    property_ = Property.from_json_schema(schema)
+
+    assert property_ == ObjectProperty(
+        properties={"state": StringProperty(description="The current state")}
+    )
+
+
+@pytest.mark.parametrize(
+    ("schema", "expected_property"),
+    [
+        ({"$ref": "#/missing"}, AnyProperty()),
+        (
+            {"$ref": "https://example.com/schema.json", "description": "External schema"},
+            AnyProperty(description="External schema"),
+        ),
+        ({"$ref": 42}, AnyProperty()),
+    ],
+)
+def test_from_json_schema_preserves_fallback_for_unresolved_references(schema, expected_property):
+    assert Property.from_json_schema(schema) == expected_property
+
+
+def test_from_json_schema_preserves_fallback_for_recursive_references():
+    schema = {
+        "$defs": {"Node": {"type": "object", "properties": {"child": {"$ref": "#/$defs/Node"}}}},
+        "$ref": "#/$defs/Node",
+    }
+
+    property_ = Property.from_json_schema(schema)
+
+    assert isinstance(property_, ObjectProperty)
+    assert property_.properties == {"child": AnyProperty()}
 
 
 def test_union_raises_when_no_types():

@@ -6,11 +6,17 @@
 
 import json
 from typing import Annotated, Any, Optional, Tuple
+from unittest.mock import patch
 
+import anyio
 import pytest
 
 from wayflowcore._utils._templating_helpers import render_template
 from wayflowcore.agent import DEFAULT_INITIAL_MESSAGE, Agent, CallerInputMode
+from wayflowcore.executors._agentexecutor import (
+    ITERATION_LIMIT_REACHED_MESSAGE,
+    AgentConversationExecutor,
+)
 from wayflowcore.executors._agenticpattern_helpers import _SEND_MESSAGE_TOOL_NAME
 from wayflowcore.executors.executionstatus import (
     FinishedStatus,
@@ -59,6 +65,41 @@ def _send_message(
         ),
         message_type=MessageType.AGENT,
     )
+
+
+@pytest.mark.anyio
+async def test_managerworkers_can_execute_conversations_concurrently():
+    """Runtime manager tools must not leak from one conversation into another."""
+    llm = DummyModel()
+    worker = Agent(llm, name="worker", description="worker")
+    managerworkers = ManagerWorkers(group_manager=llm, workers=[worker])
+
+    first_execution_started = anyio.Event()
+    second_execution_started = anyio.Event()
+    execution_count = 0
+
+    async def block_agent_execution(*args, **kwargs):
+        nonlocal execution_count
+        execution_count += 1
+        if execution_count == 1:
+            first_execution_started.set()
+        else:
+            second_execution_started.set()
+        await anyio.sleep_forever()
+
+    async def execute_conversation() -> None:
+        await managerworkers.start_conversation().execute_async()
+
+    with patch.object(AgentConversationExecutor, "execute_async", block_agent_execution):
+        async with anyio.create_task_group() as task_group:
+            task_group.start_soon(execute_conversation)
+            await first_execution_started.wait()
+
+            task_group.start_soon(execute_conversation)
+            await second_execution_started.wait()
+            task_group.cancel_scope.cancel()
+
+    assert managerworkers.manager_agent.tools == []
 
 
 def test_managerworkers_raises_on_same_name_for_manager_and_worker(simple_math_agents_example):
@@ -345,6 +386,41 @@ def test_worker_with_server_tool_execution_does_not_raise_errors(remotely_hosted
     assert any(
         message.tool_requests is not None for message in subconversation.message_list.messages
     )
+
+
+def test_worker_ending_on_tool_result_returns_control_to_manager() -> None:
+    """A worker that reaches its iteration limit after a tool result must not crash the group."""
+    llm = DummyModel()
+    worker = Agent(
+        llm=llm,
+        name="worker",
+        description="worker",
+        max_iterations=1,
+    )
+    group = ManagerWorkers(group_manager=llm, workers=[worker])
+    conversation = group.start_conversation()
+    conversation.append_user_message("delegate work")
+
+    with patch_llm(
+        llm,
+        outputs=[
+            [
+                ToolRequest(
+                    _SEND_MESSAGE_TOOL_NAME,
+                    {"recipient": worker.name, "message": "do work"},
+                    tool_request_id="delegate-to-worker",
+                )
+            ],
+            [ToolRequest("missing_tool", {}, tool_request_id="worker-tool-call")],
+            "final answer",
+        ],
+    ):
+        status = conversation.execute()
+
+    assert isinstance(status, UserMessageRequestStatus)
+    assert status.message.content == "final answer"
+    assert conversation.get_messages()[-2].tool_result is not None
+    assert conversation.get_messages()[-2].tool_result.content == ITERATION_LIMIT_REACHED_MESSAGE
 
 
 def test_manager_with_server_tool_execution_does_not_raise_errors():

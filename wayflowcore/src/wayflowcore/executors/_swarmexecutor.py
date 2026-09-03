@@ -113,7 +113,7 @@ class SwarmRunner(ConversationExecutor):
         conversation: Conversation,
         execution_interrupts: Optional[Sequence[ExecutionInterrupt]] = None,
     ) -> ExecutionStatus:
-        from wayflowcore.conversationalcomponent import _MutatedConversationalComponent
+        from wayflowcore.conversationalcomponent import _copy_with_runtime_attributes
         from wayflowcore.executors._swarmconversation import SwarmConversation
 
         if not isinstance(conversation, SwarmConversation):
@@ -192,7 +192,7 @@ class SwarmRunner(ConversationExecutor):
                     "handoff": swarm_config.handoff.value,  # type: ignore
                 }
             )
-            with _MutatedConversationalComponent(
+            agent_sub_conversation.component = _copy_with_runtime_attributes(
                 current_agent,
                 {
                     "tools": mutated_agent_tools,
@@ -210,10 +210,10 @@ class SwarmRunner(ConversationExecutor):
                     # ^Change the agent id to agent name -> message.sender = agent_id = agent_name -> easier for llm to know which agent sending the message
                     # Note: this is a workaround and should be fixed in the future
                 },
-            ):
-                status = await agent_sub_conversation.execute_async(
-                    execution_interrupts=execution_interrupts,
-                )
+            )
+            status = await agent_sub_conversation.execute_async(
+                execution_interrupts=execution_interrupts,
+            )
 
             _last_message = agent_sub_conversation.get_last_message()
             if (

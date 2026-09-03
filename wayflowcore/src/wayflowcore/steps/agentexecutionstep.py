@@ -3,13 +3,12 @@
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
-import contextlib
 import logging
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Union
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore.agent import Agent, CallerInputMode
-from wayflowcore.conversationalcomponent import _mutate
+from wayflowcore.conversationalcomponent import _copy_with_runtime_attributes
 from wayflowcore.executors.executionstatus import (
     FinishedStatus,
     ToolExecutionConfirmationStatus,
@@ -321,16 +320,12 @@ class AgentExecutionStep(Step):
             mutated_agent_parameters["caller_input_mode"] = self.caller_input_mode
 
         if isinstance(self.agent, (Agent, Swarm, ManagerWorkers)):
-            context_manager = _mutate(
+            agent_sub_conversation.component = _copy_with_runtime_attributes(
                 component=self.agent,
                 attributes=mutated_agent_parameters,
             )
-        else:
-            # ignoring the type because mypy doesn't recognize nullcontext as a proper context manager to typing fails
-            context_manager = contextlib.nullcontext()  # type: ignore
 
-        with context_manager:
-            status = await agent_sub_conversation.execute_async()
+        status = await agent_sub_conversation.execute_async()
 
         logger.debug(f"Agent of AgentExecutionStep returned status: {status}")
 
