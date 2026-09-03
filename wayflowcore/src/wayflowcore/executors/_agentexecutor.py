@@ -1076,6 +1076,7 @@ class AgentConversationExecutor(ConversationExecutor):
         messages = conversation.message_list
         agent_state.curr_iter = 0
         should_yield = False
+        iteration_limit_reached = False
 
         while not should_yield:
 
@@ -1115,6 +1116,7 @@ class AgentConversationExecutor(ConversationExecutor):
                     return FinishedStatus(
                         output_values=default_outputs, _conversation_id=conversation.id
                     )
+                iteration_limit_reached = True
                 break
             else:
                 try:
@@ -1164,15 +1166,18 @@ class AgentConversationExecutor(ConversationExecutor):
 
         if agent_config.caller_input_mode == CallerInputMode.ALWAYS:
             last_message = conversation.get_last_message()
-            if last_message is None:
-                raise ValueError("Something went wrong, should not happen")
-            if last_message.message_type != MessageType.AGENT:
+            if iteration_limit_reached:
                 last_message = Message(
                     content=ITERATION_LIMIT_REACHED_MESSAGE,
                     message_type=MessageType.AGENT,
                     sender=agent_config.agent_id,
                 )
                 conversation.append_message(last_message)
+            elif last_message is None or last_message.message_type != MessageType.AGENT:
+                raise ValueError(
+                    "Internal error: Agent yielded without an agent message and without reaching "
+                    "its iteration limit."
+                )
             return UserMessageRequestStatus(
                 message=last_message,
                 _conversation_id=conversation.id,
