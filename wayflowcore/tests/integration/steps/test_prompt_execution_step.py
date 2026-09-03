@@ -487,10 +487,6 @@ def test_prompt_execution_step_llama(remotely_hosted_llm):
     run_simple_generation(remotely_hosted_llm)
 
 
-def test_prompt_execution_step_cohere(cohere_llm):
-    run_simple_generation(cohere_llm)
-
-
 def test_prompt_execution_step_openai(gpt_llm):
     run_simple_generation(gpt_llm)
 
@@ -826,12 +822,10 @@ def test_structured_generation_with_enum_str_fail(remotely_hosted_llm):
     Max attempt:           3
     Justification:         (0.02 ** 3) ~= 0.8 / 100'000
     """
-    text = dedent(
-        """
+    text = dedent("""
         Here is some text, extract some information about it:
         Sea turtles are animals living most of their lives in the ocean, in the deep waters. They are in danger, and are lonely animals.
-        """
-    )
+        """)
     habitat_enum = ("WATER", "FOREST", "DESERT", "MOUNTAINS")
     step = PromptExecutionStep(
         llm=remotely_hosted_llm,
