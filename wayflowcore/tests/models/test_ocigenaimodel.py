@@ -8,6 +8,7 @@ import logging
 import os
 import re
 from copy import deepcopy
+from types import SimpleNamespace
 from typing import Any
 from unittest.mock import patch
 
@@ -16,7 +17,12 @@ import pytest
 from wayflowcore.messagelist import Message, MessageContent, TextContent
 from wayflowcore.models import LlmGenerationConfig, LlmModelFactory, OCIGenAIModel, Prompt
 from wayflowcore.models.ociclientconfig import OCIClientConfig, _OCIAuthType
-from wayflowcore.models.ocigenaimodel import ModelProvider, OciAPIType, ServingMode
+from wayflowcore.models.ocigenaimodel import (
+    ModelProvider,
+    OciAPIType,
+    ServingMode,
+    _GenericOciApiFormatter,
+)
 from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.templates import PromptTemplate
 
@@ -441,6 +447,23 @@ def test_oci_stream_has_exact_token_count(model_config):
     assert token_usage.exact_count
     assert token_usage.input_tokens > 0
     assert token_usage.output_tokens > 0
+
+
+def test_oci_generic_stream_ignores_done_sentinel():
+    chunks = list(
+        _GenericOciApiFormatter.convert_oci_chunk_iterator_into_tagged_chunk_iterator(
+            iter(
+                [
+                    SimpleNamespace(
+                        data='{"message": {"content": [{"type": "TEXT", "text": "Hi"}]}}'
+                    ),
+                    SimpleNamespace(data="[DONE]"),
+                ]
+            )
+        )
+    )
+
+    assert chunks[-1][1].content == "Hi"
 
 
 def test_oci_openai_responses_generation_config_reaches_service(oci_reasoning_model):

@@ -181,6 +181,10 @@ class AsyncRuntime(metaclass=Singleton):
             logger.debug("Starting BlockingPortal background loop")
             self._portal_cm = from_thread.start_blocking_portal()  # type: ignore
             self._portal = self._exit_stack.enter_context(self._portal_cm)  # type: ignore
+            # ``shutdown()`` marks the reusable singleton as closed. Clear that
+            # state when a later MCP fixture/session starts a new portal so its
+            # memory streams are closed during the next shutdown.
+            self._closed = False
 
             # Ensure resource cleanup runs before portal closes
             self._exit_stack.callback(self._close)

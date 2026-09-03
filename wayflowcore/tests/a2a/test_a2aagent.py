@@ -10,10 +10,18 @@ import httpx
 import pytest
 
 from wayflowcore.a2a.a2aagent import A2AAgent, A2AConnectionConfig, A2ASessionParameters
+from wayflowcore.agent import Agent
 from wayflowcore.executors._a2aagentconversation import A2AAgentConversation
-from wayflowcore.executors._a2aagentexecutor import DEFAULT_RESPONSE
+from wayflowcore.executors._a2aagentexecutor import (
+    DEFAULT_RESPONSE,
+    _convert_wayflow_messages_to_a2a_messages,
+)
+from wayflowcore.executors._agentexecutor import ITERATION_LIMIT_REACHED_MESSAGE
 from wayflowcore.messagelist import Message
+from wayflowcore.tools import ToolRequest
 
+from ..testhelpers.dummy import DummyModel
+from ..testhelpers.patching import patch_llm
 from ..testhelpers.testhelpers import retry_test
 
 ####### Fixtures #######
@@ -101,6 +109,27 @@ def test_a2aagent_no_message_conversation(a2a_agent):
     conversation = a2a_agent.start_conversation()
     status = conversation.execute()
     assert status.message.contents[0].content == DEFAULT_RESPONSE
+
+
+def test_a2a_serializes_iteration_limit_fallback_message() -> None:
+    llm = DummyModel()
+    agent = Agent(llm=llm, max_iterations=1)
+    conversation = agent.start_conversation()
+    conversation.append_user_message("do work")
+
+    with patch_llm(
+        llm,
+        outputs=[[ToolRequest("missing_tool", {}, tool_request_id="tool-call")]],
+    ):
+        status = conversation.execute()
+
+    messages = _convert_wayflow_messages_to_a2a_messages(
+        [status.message],
+        message_id=0,
+        context_id="context",
+    )
+
+    assert messages[0]["parts"][0]["text"] == ITERATION_LIMIT_REACHED_MESSAGE
 
 
 @retry_test(max_attempts=4)

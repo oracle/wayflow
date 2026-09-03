@@ -24,6 +24,7 @@ from wayflowcore.executors._agentexecutor import (
     _SUBMIT_TOOL_NAME,
     _TALK_TO_USER_INPUT_PARAM,
     _TALK_TO_USER_TOOL_NAME,
+    ITERATION_LIMIT_REACHED_MESSAGE,
 )
 from wayflowcore.executors.executionstatus import (
     FinishedStatus,
@@ -80,6 +81,42 @@ def create_dashboard_tool() -> ServerTool:
         """
 
     return create_dashboard
+
+
+def test_agent_at_iteration_limit_replaces_tool_result_with_agent_message() -> None:
+    llm = DummyModel()
+    agent = Agent(llm=llm, max_iterations=1)
+    conversation = agent.start_conversation()
+    conversation.append_user_message("do work")
+
+    with patch_llm(
+        llm,
+        outputs=[[ToolRequest("missing_tool", {}, tool_request_id="tool-call")]],
+    ):
+        status = conversation.execute()
+
+    assert isinstance(status, UserMessageRequestStatus)
+    assert status.message.message_type == MessageType.AGENT
+    assert status.message.content == ITERATION_LIMIT_REACHED_MESSAGE
+    assert conversation.get_messages()[-2].message_type == MessageType.TOOL_RESULT
+
+
+def test_flow_preserves_iteration_limit_fallback_as_user_message() -> None:
+    llm = DummyModel()
+    agent = Agent(llm=llm, max_iterations=1)
+    flow = create_single_step_flow(AgentExecutionStep(agent))
+    conversation = flow.start_conversation()
+    conversation.append_user_message("do work")
+
+    with patch_llm(
+        llm,
+        outputs=[[ToolRequest("missing_tool", {}, tool_request_id="tool-call")]],
+    ):
+        status = conversation.execute()
+
+    assert isinstance(status, UserMessageRequestStatus)
+    assert status.message.message_type == MessageType.AGENT
+    assert status.message.content == ITERATION_LIMIT_REACHED_MESSAGE
 
 
 @tool

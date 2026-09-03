@@ -12,19 +12,31 @@ import anyio
 import httpx
 import pytest
 
+from wayflowcore.agent import Agent
+from wayflowcore.agentserver.openairesponses.models.openairesponsespydanticmodels import (
+    CreateResponse,
+)
 from wayflowcore.agentserver.openairesponses.services._wayflowconversion import (
     _create_output_text_stream_events,
+    _create_response_args_from_wayflow_status,
     _TextStreamingListener,
+)
+from wayflowcore.agentserver.openairesponses.services.wayflowservice import (
+    WayFlowOpenAIResponsesService,
 )
 from wayflowcore.events.event import (
     ConversationMessageStreamEndedEvent,
     ConversationMessageStreamStartedEvent,
 )
+from wayflowcore.executors._agentexecutor import ITERATION_LIMIT_REACHED_MESSAGE
+from wayflowcore.executors.executionstatus import UserMessageRequestStatus
 from wayflowcore.messagelist import Message, MessageType
 from wayflowcore.models import OpenAIAPIType, OpenAICompatibleModel, StreamChunkType
 from wayflowcore.models.llmmodel import LlmCompletion, Prompt
 from wayflowcore.tools import ToolRequest, ToolResult
 
+from ..testhelpers.dummy import DummyModel
+from ..testhelpers.patching import patch_llm
 from ..testhelpers.testhelpers import retry_test
 from .conftest import _get_api_key_headers, get_all_server_fixtures_name
 
@@ -83,6 +95,55 @@ def _openai_stream_content(client, messages, model="hr-assistant"):
         except:
             pass
     return content
+
+
+def test_openai_responses_serializes_iteration_limit_fallback_message() -> None:
+    llm = DummyModel()
+    agent = Agent(llm=llm, max_iterations=1)
+    conversation = agent.start_conversation()
+    conversation.append_user_message("do work")
+
+    with patch_llm(
+        llm,
+        outputs=[[ToolRequest("missing_tool", {}, tool_request_id="tool-call")]],
+    ):
+        status = conversation.execute()
+
+    outputs, error = _create_response_args_from_wayflow_status(status)
+
+    assert isinstance(status, UserMessageRequestStatus)
+    assert error is None
+    assert outputs[0].content[0].text == ITERATION_LIMIT_REACHED_MESSAGE
+
+
+@pytest.mark.anyio
+async def test_streaming_response_closes_receive_stream(monkeypatch: pytest.MonkeyPatch) -> None:
+    llm = DummyModel()
+    agent = Agent(llm=llm, name="test-agent")
+    with pytest.warns(UserWarning, match="InMemoryDatastore"):
+        service = WayFlowOpenAIResponsesService(agents={agent.id: agent})
+
+    created_receive_streams = []
+    original_create_stream = anyio.create_memory_object_stream
+
+    def create_memory_object_stream(*args, **kwargs):
+        send_stream, receive_stream = original_create_stream(*args, **kwargs)
+        created_receive_streams.append(receive_stream)
+        return send_stream, receive_stream
+
+    monkeypatch.setattr(anyio, "create_memory_object_stream", create_memory_object_stream)
+
+    with patch_llm(llm, outputs=["Done"]):
+        events = [
+            event
+            async for event in service.create_response(
+                CreateResponse(model=agent.id, input="Say done", store=False)
+            )
+        ]
+
+    assert events
+    assert len(created_receive_streams) == 1
+    assert created_receive_streams[0]._closed
 
 
 # TEST GET /models

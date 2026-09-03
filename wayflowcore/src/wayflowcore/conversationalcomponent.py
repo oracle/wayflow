@@ -6,8 +6,20 @@
 
 import logging
 from abc import ABC, abstractmethod
+from copy import copy
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, Generic, List, Optional, Set, Type, TypeVar, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    Generic,
+    List,
+    Optional,
+    Set,
+    Type,
+    TypeVar,
+    Union,
+)
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore.componentwithio import ComponentWithInputsOutputs
@@ -151,3 +163,21 @@ def _mutate(
     Selects the appropriate mutator class based on the component type.
     """
     return _MutatedConversationalComponent(component, attributes)
+
+
+def _copy_with_runtime_attributes(
+    component: ConversationalComponentTypeT, attributes: Dict[str, Any]
+) -> ConversationalComponentTypeT:
+    """Create an execution-local component configuration.
+
+    Runtime settings such as agent tools and output descriptors must not be
+    temporarily written to a reusable component because an execution can await
+    while those settings are active. A shallow copy is sufficient: attributes
+    replaced below are execution-local and ``_update_internal_state`` rebuilds
+    the derived caches on the copy.
+    """
+    runtime_component = copy(component)
+    for attr, value in attributes.items():
+        setattr(runtime_component, attr, value)
+    runtime_component._update_internal_state()
+    return runtime_component

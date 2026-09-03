@@ -4,6 +4,16 @@ Changelog
 WayFlow |current_version|
 -------------------------
 
+Bug fixes
+^^^^^^^^^
+
+* **Graceful iteration-limit responses after tool execution**
+
+  Agents that exhaust their iteration limit after a tool result now append a clear
+  assistant response instead of yielding the tool-result message as a user-facing answer.
+  This prevents ManagerWorkers and Swarm worker replies from failing and preserves the
+  response across Flow, OpenAI Responses, and A2A boundaries.
+
 Improvements
 ^^^^^^^^^^^^
 

@@ -5,12 +5,14 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.from unittest.mock import patch
 from unittest.mock import patch
 
+import anyio
 import pytest
 from pytest import fixture
 
 from wayflowcore import Message, MessageType
 from wayflowcore.agent import Agent
 from wayflowcore.conversationalcomponent import _MutatedConversationalComponent
+from wayflowcore.executors._agentexecutor import AgentConversationExecutor
 from wayflowcore.executors.executionstatus import (
     FinishedStatus,
     ToolExecutionConfirmationStatus,
@@ -59,6 +61,56 @@ zinimo_result_description = IntegerProperty(
     description="result of the zinimo operation of the two provided integers",
     default_value=0,
 )
+
+
+@pytest.mark.anyio
+async def test_agent_execution_step_does_not_leak_runtime_configuration():
+    """A shared agent must retain each step's runtime output schema."""
+    agent = Agent(DummyModel(), name="shared_agent", description="shared agent")
+    first_step = AgentExecutionStep(
+        agent=agent,
+        caller_input_mode=CallerInputMode.NEVER,
+        output_descriptors=[StringProperty(name="first_output")],
+        name="first_step",
+    )
+    second_step = AgentExecutionStep(
+        agent=agent,
+        caller_input_mode=CallerInputMode.NEVER,
+        output_descriptors=[StringProperty(name="second_output")],
+        name="second_step",
+    )
+    first_conversation = Flow.from_steps([first_step]).start_conversation()
+    second_conversation = Flow.from_steps([second_step]).start_conversation()
+
+    first_execution_started = anyio.Event()
+    second_execution_started = anyio.Event()
+    first_execution_verified = anyio.Event()
+    execution_count = 0
+
+    async def block_agent_execution(subconversation, *args, **kwargs):
+        nonlocal execution_count
+        execution_count += 1
+        if execution_count == 1:
+            first_execution_started.set()
+            await second_execution_started.wait()
+            assert [output.name for output in subconversation.component.output_descriptors] == [
+                "first_output"
+            ]
+            first_execution_verified.set()
+        else:
+            second_execution_started.set()
+        await anyio.sleep_forever()
+
+    with patch.object(AgentConversationExecutor, "execute_async", block_agent_execution):
+        async with anyio.create_task_group() as task_group:
+            task_group.start_soon(first_conversation.execute_async)
+            await first_execution_started.wait()
+
+            task_group.start_soon(second_conversation.execute_async)
+            await first_execution_verified.wait()
+            task_group.cancel_scope.cancel()
+
+    assert agent.output_descriptors == []
 
 
 @pytest.mark.parametrize(
