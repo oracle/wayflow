@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Union
 
 from wayflowcore._metadata import MetadataType
+from wayflowcore.a2a.a2aagent import A2AAgent
 from wayflowcore.agent import Agent, CallerInputMode
 from wayflowcore.conversationalcomponent import ConversationalComponent
 from wayflowcore.idgeneration import IdGenerator
@@ -31,7 +32,7 @@ logger = logging.getLogger(__name__)
 @dataclass(init=False)
 class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, SerializableObject):
     group_manager: Union[LlmModel, Agent]
-    workers: List[Union[Agent, "ManagerWorkers"]]
+    workers: List[Union[Agent, "ManagerWorkers", A2AAgent]]
     caller_input_mode: CallerInputMode
     transforms: List[MessageTransform]
     managerworkers_template: "PromptTemplate"
@@ -45,7 +46,7 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
     def __init__(
         self,
         group_manager: Union[LlmModel, Agent],
-        workers: List[Union[Agent, "ManagerWorkers"]],
+        workers: List[Union[Agent, "ManagerWorkers", A2AAgent]],
         caller_input_mode: CallerInputMode = CallerInputMode.ALWAYS,
         transforms: Optional[List[MessageTransform]] = None,
         managerworkers_template: Optional["PromptTemplate"] = None,
@@ -134,8 +135,8 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         self.workers = workers
         self.transforms = transforms or []
 
-        self._agent_by_name: Dict[str, Union["Agent", "ManagerWorkers"]] = _validate_agent_unicity(
-            self.workers + [self.manager_agent]
+        self._agent_by_name: Dict[str, Union["Agent", "ManagerWorkers", "A2AAgent"]] = (
+            _validate_agent_unicity(self.workers, self.manager_agent)
         )
 
         # Create send message tools for the group manager
@@ -244,6 +245,7 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
         from wayflowcore.agentconversation import AgentConversation
         from wayflowcore.events.event import ConversationCreatedEvent
         from wayflowcore.events.eventlistener import record_event
+        from wayflowcore.executors._a2aagentconversation import A2AAgentConversation
         from wayflowcore.executors._managerworkersconversation import (
             ManagerWorkersConversation,
             ManagerWorkersConversationExecutionState,
@@ -265,7 +267,9 @@ class ManagerWorkers(ConversationalComponent, SerializableDataclassMixin, Serial
             )
         )
 
-        subconversations: Dict[str, Union[AgentConversation, ManagerWorkersConversation]] = {}
+        subconversations: Dict[
+            str, Union[AgentConversation, ManagerWorkersConversation, A2AAgentConversation]
+        ] = {}
         subconversations[self.manager_agent.name] = self.manager_agent.start_conversation(
             inputs=inputs,
             messages=messages,
