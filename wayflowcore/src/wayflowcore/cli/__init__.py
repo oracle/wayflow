@@ -7,6 +7,7 @@
 import argparse
 from typing import Optional, Sequence
 
+from .codeserver import add_parser as add_codeserver_parser
 from .serve import add_parser as add_serve_parser
 
 __all__ = ["main"]
@@ -20,6 +21,7 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     add_serve_parser(subparsers)
+    add_codeserver_parser(subparsers)
     return parser
 
 
