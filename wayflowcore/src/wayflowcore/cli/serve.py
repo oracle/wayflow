@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import importlib
 import sys
+import textwrap
 import warnings
 from dataclasses import fields
 from pathlib import Path
@@ -110,7 +111,24 @@ def _configure_parser(parser: argparse.ArgumentParser) -> None:
     )
     parser.add_argument(
         "--tool-registry",
-        help="Optional path to a Python module exposing a `tool_registry` dictionary for agent server tools.",
+        help=textwrap.dedent(
+            """
+        Optional path to a Python module exposing a `tool_registry` dictionary for agent server tools.
+
+        Example:
+
+        .. code-block:: python
+
+            from wayflowcore.tools import tool
+
+            @tool(description_mode="only_docstring")
+            def get_weather(city: str) -> str:
+                \"\"\"Gets the current weather\"\"\"
+                return "sunny"
+
+            tool_registry = {get_weather.name: get_weather}
+        """
+        ),
     )
     parser.add_argument(
         "--server-storage",
@@ -120,12 +138,40 @@ def _configure_parser(parser: argparse.ArgumentParser) -> None:
     )
     parser.add_argument(
         "--server-storage-config",
-        help="Optional YAML file overriding ServerStorageConfig defaults.",
+        help=textwrap.dedent(
+            """\
+        Optional YAML file overriding the default server storage config. See :ref:`ServerStorageConfig <serverstorageconfig>`
+        to see all available parameters.
+
+        Example:
+
+        .. code-block:: yaml
+
+           table_name: my_conversations  # only override the default table name
+
+        """
+        ),
     )
     parser.add_argument(
         "--datastore-connection-config",
-        help="YAML file containing the type of connection to use and its configuration.\n"
-        "For example: `type: TlsPostgresDatabaseConnectionConfig\nuser: my_user\npassword: my_password\nurl:localhost:7777`",
+        help=textwrap.dedent(
+            """\
+        YAML file containing the type of connection to use and its configuration. Two connection types are supported:
+        :ref:`OracleDatabaseConnectionConfig <oracledatabaseconnectionconfig>` and
+        :ref:`TlsPostgresDatabaseConnectionConfig <postgresdatabasetlsconnectionconfig>`. All supported parameters
+        can be found in their API documentation.
+
+        Example:
+
+        .. code-block:: yaml
+
+           type: TlsPostgresDatabaseConnectionConfig
+           user: my_user
+           password: my_password
+           url: localhost:7777
+
+        """
+        ),
     )
     parser.add_argument(
         "--setup-datastore",
@@ -138,7 +184,7 @@ def _configure_parser(parser: argparse.ArgumentParser) -> None:
         type=str,
         default=None,
         help="Optional api key to add an authentication layer to the server. This API_KEY will be required on requests as a bearer token in the headers: "
-        "{'authorization': 'Bearer SOME_FAKE_SECRET'}",
+        "``{'authorization': 'Bearer YOUR_CHOSEN_API_KEY'}``",
     )
     parser.set_defaults(handler=_run_serve)
 
