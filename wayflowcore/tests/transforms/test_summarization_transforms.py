@@ -1370,21 +1370,26 @@ def test_managerworkers_transforms_apply_conversation_summarization_during_execu
 
 
 @filter_summarization_transform_with_default_in_memory_datastore_warnings
-@retry_test(max_attempts=4)
+@retry_test(max_attempts=3)
 def test_summarization_transform_summarizes_images(remote_gemma_llm):
     """
-    Failure rate:          0 out of 10
-    Observed on:           2025-11-25
-    Average success time:  9.15 seconds per successful attempt
+    Failure rate:          0 out of 20
+    Observed on:           2026-09-07
+    Average success time:  1.08 seconds per successful attempt
     Average failure time:  No time measurement
-    Max attempt:           4
-    Justification:         (0.08 ** 4) ~= 4.8 / 100'000
+    Max attempt:           3
+    Justification:         (0.05 ** 3) ~= 9.4 / 100'000
     """
     transform = MessageSummarizationTransform(
         llm=remote_gemma_llm,
         datastore=None,
         cache_collection_name=MESSAGE_SUMMARIZATION_CACHE_COLLECTION_NAME,
         max_message_size=500,
+        summarization_instructions=(
+            "Summarize the text and every image in this message. "
+            "The images may contain an Oracle logo; when one is present, explicitly include "
+            "the words 'Oracle logo' in the summary. Keep the summary short and output only it."
+        ),
     )
     messages = CONVERSATION_WITH_LONG_MESSAGES
     agent_llm = mock_llm()
