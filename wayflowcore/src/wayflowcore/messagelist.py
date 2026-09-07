@@ -40,6 +40,7 @@ from wayflowcore.serialization.serializer import (
     SerializableDataclassMixin,
     SerializableObject,
     autodeserialize_any_from_dict,
+    serialize_any_to_dict_or_stringify,
 )
 from wayflowcore.tools.tools import ExtraContentT, ToolRequest, ToolResult
 
@@ -456,7 +457,11 @@ class Message(SerializableDataclass):
             "__metadata_info__": self.__metadata_info__,
             "tool_requests": (
                 [
-                    {"name": t.name, "args": t.args, "tool_request_id": t.tool_request_id}
+                    {
+                        "name": t.name,
+                        "args": serialize_any_to_dict_or_stringify(t.args, serialization_context),
+                        "tool_request_id": t.tool_request_id,
+                    }
                     for t in self.tool_requests
                 ]
                 if self.tool_requests is not None
@@ -465,12 +470,16 @@ class Message(SerializableDataclass):
             "tool_result": (
                 {
                     "tool_request_id": self.tool_result.tool_request_id,
-                    "content": self.tool_result.content,
+                    "content": serialize_any_to_dict_or_stringify(
+                        self.tool_result.content, serialization_context
+                    ),
                 }
                 if self.tool_result is not None
                 else None
             ),
-            "_extra_content": self._extra_content,
+            "_extra_content": serialize_any_to_dict_or_stringify(
+                self._extra_content, serialization_context
+            ),
         }
 
     @property
@@ -523,7 +532,9 @@ class Message(SerializableDataclass):
             tool_requests=(
                 [
                     ToolRequest(
-                        name=t["name"], args=t["args"], tool_request_id=t["tool_request_id"]
+                        name=t["name"],
+                        args=autodeserialize_any_from_dict(t["args"], deserialization_context),
+                        tool_request_id=t["tool_request_id"],
                     )
                     for t in input_dict["tool_requests"]
                 ]
@@ -532,7 +543,9 @@ class Message(SerializableDataclass):
             ),
             tool_result=(
                 ToolResult(
-                    content=input_dict["tool_result"]["content"],
+                    content=autodeserialize_any_from_dict(
+                        input_dict["tool_result"]["content"], deserialization_context
+                    ),
                     tool_request_id=input_dict["tool_result"]["tool_request_id"],
                 )
                 if input_dict.get("tool_result", None) is not None
@@ -544,7 +557,9 @@ class Message(SerializableDataclass):
                 MessageType(input_dict["message_type"]) if "message_type" in input_dict else None
             ),
             # We get with default None here for backward compatibility
-            _extra_content=input_dict.get("_extra_content", None),
+            _extra_content=autodeserialize_any_from_dict(
+                input_dict.get("_extra_content", None), deserialization_context
+            ),
             __metadata_info__=input_dict["__metadata_info__"],
         )
 

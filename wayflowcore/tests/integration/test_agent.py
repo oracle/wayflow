@@ -101,6 +101,29 @@ def test_agent_at_iteration_limit_replaces_tool_result_with_agent_message() -> N
     assert conversation.get_messages()[-2].message_type == MessageType.TOOL_RESULT
 
 
+def test_agent_at_zero_iteration_limit_without_messages_returns_fallback_message() -> None:
+    agent = Agent(llm=DummyModel(), max_iterations=0)
+
+    status = agent.start_conversation().execute()
+
+    assert isinstance(status, UserMessageRequestStatus)
+    assert status.message.message_type == MessageType.AGENT
+    assert status.message.content == ITERATION_LIMIT_REACHED_MESSAGE
+
+
+def test_agent_rejects_non_agent_model_message_without_iteration_limit() -> None:
+    llm = DummyModel()
+    agent = Agent(llm=llm, max_iterations=2)
+    conversation = agent.start_conversation()
+    conversation.append_user_message("do work")
+
+    with patch_llm(
+        llm,
+        outputs=[Message(content="invalid model response", message_type=MessageType.USER)],
+    ), pytest.raises(ValueError, match="without reaching its iteration limit"):
+        conversation.execute()
+
+
 def test_flow_preserves_iteration_limit_fallback_as_user_message() -> None:
     llm = DummyModel()
     agent = Agent(llm=llm, max_iterations=1)

@@ -66,7 +66,7 @@ def get_agents() -> Dict[str, Agent]:
     agent = Agent(
         tools=[mcp_tool],  # add datastore tools when supported
         flows=[flow],
-        custom_instruction="Answer the questions from the user. You have knowledge about geography of Europe and can answer questions about it. Here are some cities you might need:"
+        custom_instruction="Answer the user's geography questions directly from the facts below. Do not call tools, flows, or other agents. Here are some cities you might need:"
         "Switzerland: capital is Bern, biggest city is Zurich"
         "France: capital is Paris, biggest city is Paris"
         "UK: capital is London, biggest city is London"

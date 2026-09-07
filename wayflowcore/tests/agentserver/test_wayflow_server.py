@@ -11,6 +11,7 @@ from typing import Any, Dict, Union
 import anyio
 import httpx
 import pytest
+from fastapi import HTTPException
 
 from wayflowcore.agent import Agent
 from wayflowcore.agentserver.openairesponses.models.openairesponsespydanticmodels import (
@@ -114,6 +115,27 @@ def test_openai_responses_serializes_iteration_limit_fallback_message() -> None:
     assert isinstance(status, UserMessageRequestStatus)
     assert error is None
     assert outputs[0].content[0].text == ITERATION_LIMIT_REACHED_MESSAGE
+
+
+def test_load_state_returns_controlled_error_for_unsafe_yaml(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    agent = Agent(llm=DummyModel(), name="test-agent")
+    with pytest.warns(UserWarning, match="InMemoryDatastore"):
+        service = WayFlowOpenAIResponsesService(agents={agent.id: agent})
+    monkeypatch.setattr(
+        service,
+        "_lookup_conversation",
+        lambda **_: "content: !!python/object/apply:builtins.ConnectionError []\n",
+    )
+
+    with pytest.raises(HTTPException) as error:
+        service._load_state(
+            previous_response_id="response-id", conversation_id=None, agent_id=agent.id
+        )
+
+    assert error.value.status_code == 500
+    assert "Conversation state is corrupted" in str(error.value.detail)
 
 
 @pytest.mark.anyio

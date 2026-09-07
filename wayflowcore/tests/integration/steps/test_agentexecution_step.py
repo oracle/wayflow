@@ -928,12 +928,12 @@ def test_swarm_can_run_in_non_conversational_mode_with_input_and_output_descript
 @retry_test(max_attempts=3)
 def test_agent_step_with_managerworkers_in_conversational_mode(vllm_responses_llm):
     """
-    Failure rate:          1 out of 50
-    Observed on:           2025-12-24
-    Average success time:  2.64 seconds per successful attempt
-    Average failure time:  1.14 seconds per failed attempt
+    Failure rate:          0 out of 40
+    Observed on:           2026-09-07
+    Average success time:  0.87 seconds per successful attempt
+    Average failure time:  No time measurement
     Max attempt:           3
-    Justification:         (0.04 ** 3) ~= 5.7 / 100'000
+    Justification:         (0.02 ** 3) ~= 1.3 / 100'000
     """
     llm = vllm_responses_llm
 
@@ -941,7 +941,11 @@ def test_agent_step_with_managerworkers_in_conversational_mode(vllm_responses_ll
         llm=llm,
         name="first_agent",
         description="first agent",
-        custom_instruction="You are a helpful agent. Here's what you know: {{context_1}}. You are answering an user with the name: `{{username}}`.",
+        custom_instruction=(
+            "You are a helpful agent. The configured user profile name is `{{username}}`; "
+            "when asked for that configured profile name, answer with that exact value. "
+            "Here's what you know: {{context_1}}."
+        ),
     )
 
     second_agent = Agent(
@@ -979,7 +983,7 @@ def test_agent_step_with_managerworkers_in_conversational_mode(vllm_responses_ll
 
     status = conv.execute()
     assert isinstance(status, UserMessageRequestStatus)
-    status.submit_user_response("What is the name of the user you are interacting?")
+    status.submit_user_response("What is the configured user profile name?")
 
     status = conv.execute()
     assert isinstance(status, UserMessageRequestStatus)

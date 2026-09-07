@@ -90,6 +90,37 @@ def test_serialize_and_autodeserialize_message_list() -> None:
     assert message_list == deserialized_message_list
 
 
+def test_message_serialization_stringifies_exception_tool_results() -> None:
+    message = Message(
+        tool_result=ToolResult(
+            tool_request_id="tc1", content=ConnectionError("could not connect to tool")
+        )
+    )
+
+    serialized_message = serialize(message)
+    deserialized_message = autodeserialize(serialized_message)
+
+    assert "python/object/apply" not in serialized_message
+    assert isinstance(deserialized_message, Message)
+    assert deserialized_message.tool_result is not None
+    assert deserialized_message.tool_result.content == "could not connect to tool"
+
+
+def test_message_serialization_stringifies_exceptions_in_tool_arguments_and_extra_content() -> None:
+    message = Message(
+        tool_requests=[
+            ToolRequest("tool", {"failure": ConnectionError("tool unavailable")}, "tc1")
+        ],
+        _extra_content={"failure": ConnectionError("provider unavailable")},
+    )
+
+    deserialized_message = autodeserialize(serialize(message))
+
+    assert deserialized_message.tool_requests is not None
+    assert deserialized_message.tool_requests[0].args == {"failure": "tool unavailable"}
+    assert deserialized_message._extra_content == {"failure": "provider unavailable"}
+
+
 def test_message_list_copy_with_non_copyable_tool_result_output() -> None:
     non_copyable = httpx.HTTPStatusError("", request=None, response=None)
     message_list = MessageList(

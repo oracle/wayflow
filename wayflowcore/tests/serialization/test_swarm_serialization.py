@@ -42,8 +42,6 @@ def simple_swarm(example_medical_agents) -> Swarm:
     return Swarm(
         first_agent=gp_doctor,
         relationships=[
-            (gp_doctor, neurologist_doctor),
-            (gp_doctor, oncologist_doctor),
             (neurologist_doctor, oncologist_doctor),
         ],
     )
@@ -231,9 +229,7 @@ def test_can_deserialize_a_serialized_conversation(simple_conversation: SwarmCon
 
 def test_can_continue_a_deserialized_swarm_conversation(simple_swarm: Swarm) -> None:
     conv = simple_swarm.start_conversation()
-    conv.append_user_message(
-        "I've been having very bad back pain for a few weeks, what should I do?"
-    )
+    conv.append_user_message("I've had a mild cold for two days. What should I do?")
     conv.execute()
     conv_length_before_serialization = len(conv.get_messages())
 

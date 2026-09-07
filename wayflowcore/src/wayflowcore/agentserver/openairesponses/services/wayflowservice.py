@@ -11,6 +11,7 @@ import time
 from typing import Any, AsyncIterable, Dict, List, Optional, Union, cast
 
 import anyio
+import yaml
 from anyio.streams.memory import MemoryObjectReceiveStream, MemoryObjectSendStream
 from fastapi import HTTPException
 from fastapi import status as http_status_code
@@ -404,7 +405,7 @@ class WayFlowOpenAIResponsesService(OpenAIResponsesService):
                 tool_registry=self.tool_registries[agent_id],
                 component=self.agents[agent_id],
             )
-        except (TypeError, ValueError) as e:
+        except (TypeError, ValueError, yaml.YAMLError) as e:
             raise HTTPException(
                 status_code=http_status_code.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Conversation state is corrupted, it cannot be de-serialized: {e}",
