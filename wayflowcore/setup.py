@@ -53,14 +53,14 @@ setup(
     python_requires=">=3.10,<3.15",
     install_requires=[
         # 3rd party dependencies (imported in code)
-        "pyagentspec>=26.2.0.dev7",
+        "pyagentspec>=26.3.0",
         "httpx>0.28.0,<1.0.0",  # warning but no vulnerabilities
         "numpy>=1.24.3,<3.0.0",
         "pandas>=2.0.3,<3.0.0",
         "jinja2>=3.1.6,<4.0.0",
         "jq>=1.8.0,<2.0.0",
         "deprecated>=1.2.18,<2.0.0",
-        "json_repair>=0.61.0,<0.70.0",
+        "json_repair>=0.60.1,<0.70.0",  # Versions <0.60.1 were affected; 0.60.1 is the fixed version.
         "PyYAML>=5.4,<7.0.0",
         "pydantic>=2.7.4,<3.0.0",
         "mcp>=1.28.1,<2",
@@ -78,8 +78,13 @@ setup(
         "opentelemetry-api>=1.33.0,<2.0.0",
         "opentelemetry-sdk>=1.33.0,<2.0.0",
         "pydantic_core>=2.33.0",  # warning but no vulnerabilities
-        "PyJWT>=2.12.0",
-        "python-multipart>=0.0.27",
+        "PyJWT>=2.13.0,<3.0.0",  # Versions <2.13.0 were affected with CVEs; 2.13.0 is required.
+        "aiohttp>=3.14.3,<4.0.0",  # Versions <3.14.3 included affected releases; 3.14.3 is required.
+        # `mcp` 1.x's FastMCP.Settings emits IncompleteFieldDefinitionWarning with pydantic-settings 2.15.0.
+        "pydantic-settings>=2.14.2,<2.15.0",
+        "python-multipart>=0.0.31,<1.0.0",  # Known CVE findings are fixed by 0.0.31.
+        "starlette>=1.3.1,<2.0.0",  # Known CVE findings are fixed by 1.3.1.
+        "cryptography>=50.0.0,<60.0.0",  # Known CVE findings are fixed by 50.0.0.
         "sniffio>=1.1",
     ],
     test_suite="tests",
