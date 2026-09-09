@@ -70,13 +70,13 @@ setup(
         "uvicorn>=0.23.1",
         "fastapi>=0.116.2,<1.0.0",
         "litellm>=1.84.0,<2.0; python_version < '3.14'",
+        "opentelemetry-sdk>=1.33.0,<2.0.0",
+        "opentelemetry-api>=1.33.0,<2.0.0",
         # 4rth party dependencies version bounds, for CVE patching
         "annotated-types>=0.6.0",
         "certifi>=2025.4.26",
         "httpcore>=1.0.9",
         "idna>=3.7",
-        "opentelemetry-api>=1.33.0,<2.0.0",
-        "opentelemetry-sdk>=1.33.0,<2.0.0",
         "pydantic_core>=2.33.0",  # warning but no vulnerabilities
         "PyJWT>=2.13.0,<3.0.0",  # Versions <2.13.0 were affected with CVEs; 2.13.0 is required.
         "aiohttp>=3.14.3,<4.0.0",  # Versions <3.14.3 included affected releases; 3.14.3 is required.
