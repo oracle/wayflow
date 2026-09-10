@@ -1,16 +1,17 @@
 deprecated==1.2.18
 jinja2==3.1.6
-jq==1.8.0
+jq==1.12.0
 json_repair==0.63.2
-numpy==1.26.4
+numpy==2.2.6; python_version < "3.14"
+numpy==2.4.2; python_version == "3.14"
 pandas==2.2.3
 PyYAML==6.0.3
 pydantic==2.12.5
 httpx==0.28.1
 mcp==1.28.1
 pyagentspec==26.3.0 # Coordinated 26.3.0 release
-opentelemetry-api==1.36.0
-opentelemetry-sdk==1.36.0
+opentelemetry-api==1.44.0
+opentelemetry-sdk==1.44.0
 litellm==1.84.0; python_version < "3.14"
 fastapi==0.141.1
 anyio==4.11.0
