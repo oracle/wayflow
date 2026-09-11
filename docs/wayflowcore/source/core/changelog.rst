@@ -13,6 +13,13 @@ Improvements
 Bug fixes
 ^^^^^^^^^
 
+* **RemoteTool with several typed outputs**
+
+  A ``RemoteTool`` declaring several ``output_descriptors`` returned the raw response body as a
+  string and failed with ``Expected multiple outputs in a dictionary``. The JSON response (or the
+  value selected by ``output_jq_query``) is now mapped onto the declared outputs, and a single
+  typed non-string output is parsed from the JSON response instead of being returned as text.
+
 WayFlow 26.3.0
 --------------
 
