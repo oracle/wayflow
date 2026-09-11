@@ -908,6 +908,14 @@ class DictProperty(Property):
         return dict()
 
     def _type_to_json_schema(self, openai_compatible: bool = False) -> JsonSchemaParam:
+        if openai_compatible:
+            # OpenAI strict structured outputs require every object to set
+            # additionalProperties to false, which is incompatible with an arbitrary map.
+            raise ValueError(
+                "DictProperty is not supported by OpenAI strict structured output. "
+                "Use an ObjectProperty with fixed fields or a ListProperty of key/value objects instead."
+            )
+
         # does not support non string keys
         if not isinstance(self.key_type, (StringProperty, AnyProperty)):
             raise ValueError(
