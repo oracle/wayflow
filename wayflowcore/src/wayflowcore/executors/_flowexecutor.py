@@ -467,7 +467,10 @@ class FlowConversationExecutor(ConversationExecutor):
             value = _try_cast_str_value_to_type(value, value_descriptor)
         if value is not None and not value_descriptor.is_value_of_expected_type(value):
             # we cast, data edges should have checked types
-            return _cast_value_into(value, value_descriptor)
+            value = _cast_value_into(value, value_descriptor)
+        if value is not None:
+            # 3. Nested properties omitted from object values take their declared defaults
+            value = value_descriptor._fill_nested_values_with_explicit_defaults(value)
         return value
 
     @staticmethod

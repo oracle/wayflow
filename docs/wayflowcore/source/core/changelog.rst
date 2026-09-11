@@ -13,6 +13,13 @@ Improvements
 Bug fixes
 ^^^^^^^^^
 
+* **Optional nested object properties with defaults**
+
+  ``ObjectProperty`` values that omit a nested property having a ``default_value`` were rejected
+  (``TypeError: The input passed ... is not of the expected type``) when starting a ``Flow`` or
+  passing values between steps. Such values are now accepted, and the omitted nested properties
+  take their declared defaults before the steps receive the value.
+
 WayFlow 26.3.0
 --------------
 
