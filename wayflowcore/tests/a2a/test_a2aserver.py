@@ -397,11 +397,19 @@ def test_server_returns_error_when_sending_completed_task(a2a_server):
     """
     base_url = a2a_server
 
-    # Create a completed task
+    # Create a completed task: the first message triggers the flow's
+    # InputMessageStep, which must return "input-required" rather than
+    # immediately consuming the trigger message as the user's answer, so a
+    # second message is needed to actually complete the task.
     resp1 = send_text_message(base_url, text="John", blocking=True)
-    assert resp1.json()["result"]["status"]["state"] == "completed"
+    assert resp1.json()["result"]["status"]["state"] == "input-required"
 
     task_id = resp1.json()["result"]["id"]
+    context_id = resp1.json()["result"]["contextId"]
+    send_text_message(base_url, text="John", task_id=task_id, context_id=context_id)
+    resp1b = wait_for_task(base_url, task_id=task_id)
+    assert resp1b.json()["result"]["status"]["state"] == "completed"
+
     resp2 = send_text_message(base_url, text="Johb", task_id=task_id)
     task_error = resp2.json()["error"]
     assert task_error == {
