@@ -13,6 +13,15 @@ Improvements
 Bug fixes
 ^^^^^^^^^
 
+* **Clear errors when an MCP server does not answer**
+
+  When an MCP server accepted the connection but never answered, the request timeout surfaced
+  as an opaque ``ExceptionGroup`` (or was masked by a secondary ``AttributeError`` while
+  inspecting the MCP error). Timeouts are now reported as a ``TimeoutError`` that names the
+  remedy, and MCP error messages are read defensively. The ``read_timeout_seconds`` of the client
+  transport ``session_parameters`` is now converted to and from Agent Spec instead of being
+  dropped, so Agent Spec configurations can shorten the default 60 seconds timeout.
+
 WayFlow 26.3.0
 --------------
 

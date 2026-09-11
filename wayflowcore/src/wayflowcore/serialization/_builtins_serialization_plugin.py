@@ -85,6 +85,7 @@ from pyagentspec.managerworkers import ManagerWorkers as AgentSpecManagerWorkers
 from pyagentspec.mcp import MCPToolBox as AgentSpecMCPToolBox
 from pyagentspec.mcp import MCPToolSpec as AgentSpecMCPToolSpec
 from pyagentspec.mcp.clienttransport import ClientTransport as AgentSpecClientTransport
+from pyagentspec.mcp.clienttransport import SessionParameters as AgentSpecSessionParameters
 from pyagentspec.mcp.clienttransport import SSEmTLSTransport as AgentSpecSSEmTLSTransport
 from pyagentspec.mcp.clienttransport import SSETransport as AgentSpecSSETransport
 from pyagentspec.mcp.clienttransport import StdioTransport as AgentSpecStdioTransport
@@ -389,7 +390,9 @@ from wayflowcore.models.ociclientconfig import (
 from wayflowcore.models.ociclientconfig import (
     OCIClientConfigWithUserAuthentication as RuntimeOCIClientConfigWithUserAuthentication,
 )
-from wayflowcore.models.openaicompatiblemodel import EMPTY_API_KEY
+from wayflowcore.models.openaicompatiblemodel import (
+    EMPTY_API_KEY,
+)
 from wayflowcore.models.openaicompatiblemodel import (
     OpenAICompatibleModel as RuntimeOpenAICompatibleModel,
 )
@@ -2093,14 +2096,12 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
         runtime_clienttransport: RuntimeClientTransport,
         referenced_objects: Optional[Dict[str, Any]] = None,
     ) -> AgentSpecClientTransport:
-        if (
-            hasattr(runtime_clienttransport, "session_parameters")
-            and runtime_clienttransport.session_parameters != RuntimeSessionParameters()
-        ):
-            warn(
-                "Client transport `session_parameters` parameter is not supported yet for serialization.",
-                UserWarning,
-            )
+        runtime_session_parameters = getattr(
+            runtime_clienttransport, "session_parameters", RuntimeSessionParameters()
+        )
+        agentspec_session_parameters = AgentSpecSessionParameters(
+            read_timeout_seconds=runtime_session_parameters.read_timeout_seconds
+        )
         if hasattr(runtime_clienttransport, "auth") and runtime_clienttransport.auth:
             warn(
                 "Client transport `auth` parameter is not supported yet for serialization.",
@@ -2114,6 +2115,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                 env=runtime_clienttransport.env,
                 cwd=runtime_clienttransport.cwd,
                 id=runtime_clienttransport.id,
+                session_parameters=agentspec_session_parameters,
             )
             if has_default_value_for_attribute(
                 runtime_clienttransport, "encoding"
@@ -2150,6 +2152,7 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
                     else None
                 ),
                 id=runtime_clienttransport.id,
+                session_parameters=agentspec_session_parameters,
                 **mtls_kwargs,
             )
 
