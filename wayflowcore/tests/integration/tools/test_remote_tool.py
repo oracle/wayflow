@@ -14,6 +14,7 @@ import pytest
 
 from wayflowcore.agent import Agent
 from wayflowcore.executors.executionstatus import ToolExecutionConfirmationStatus
+from wayflowcore.property import AnyProperty, FloatProperty, IntegerProperty, StringProperty
 from wayflowcore.tools import RemoteTool
 
 from ...testhelpers.testhelpers import retry_test
@@ -221,3 +222,84 @@ def test_remote_tool_warns_with_json_body():
             json_body="{{param1}}",
             method="GET",
         )
+
+
+@patch.object(
+    httpx.AsyncClient, "request", return_value=MockResponse.from_object({"sum": 9, "product": 18})
+)
+def test_remote_tool_with_multiple_outputs_maps_json_response_keys(patched_request):
+    # The endpoint returns the JSON object expected by the declared outputs; the tool used to
+    # return the raw body as a string and fail the multiple-outputs check.
+    tool = RemoteTool(
+        name="sum_multiply_tool",
+        description="sums and multiplies two numbers",
+        url="https://example.com/compute",
+        method="POST",
+        data={"a": "{{a}}", "b": "{{b}}"},
+        output_descriptors=[FloatProperty(name="sum"), FloatProperty(name="product")],
+    )
+    assert tool.run(a=3, b=6) == {"sum": 9, "product": 18}
+
+
+@patch.object(
+    httpx.AsyncClient,
+    "request",
+    return_value=MockResponse.from_object({"result": {"sum": 9, "product": 18}, "status": "ok"}),
+)
+def test_remote_tool_with_multiple_outputs_applies_jq_query_first(patched_request):
+    tool = RemoteTool(
+        name="sum_multiply_tool",
+        description="sums and multiplies two numbers",
+        url="https://example.com/compute",
+        method="GET",
+        output_jq_query=".result",
+        output_descriptors=[FloatProperty(name="sum"), FloatProperty(name="product")],
+    )
+    assert tool.run() == {"sum": 9, "product": 18}
+
+
+@patch.object(
+    httpx.AsyncClient, "request", return_value=MockResponse.from_object({"sum": 9, "other": 1})
+)
+def test_remote_tool_with_multiple_outputs_uses_default_for_missing_key(patched_request):
+    tool = RemoteTool(
+        name="sum_multiply_tool",
+        description="sums and multiplies two numbers",
+        url="https://example.com/compute",
+        method="GET",
+        output_descriptors=[
+            FloatProperty(name="sum"),
+            FloatProperty(name="product", default_value=0.0),
+        ],
+    )
+    # jq yields null for a missing key, which is replaced by the output default
+    assert tool.run() == {"sum": 9, "product": 0.0}
+
+
+@patch.object(httpx.AsyncClient, "request", return_value=MockResponse.from_object(42))
+def test_remote_tool_with_single_typed_output_parses_json_response(patched_request):
+    tool = RemoteTool(
+        name="count_tool",
+        description="counts things",
+        url="https://example.com/count",
+        method="GET",
+        output_descriptors=[IntegerProperty(name="count")],
+    )
+    assert tool.run() == 42
+
+
+@pytest.mark.parametrize(
+    "output_descriptor", [StringProperty(name="body"), AnyProperty(name="body")]
+)
+@patch.object(
+    httpx.AsyncClient, "request", return_value=MockResponse.from_object({"full": "response"})
+)
+def test_remote_tool_with_single_text_output_keeps_raw_response(patched_request, output_descriptor):
+    tool = RemoteTool(
+        name="get_example_tool",
+        description="does a GET request to the example domain",
+        url="https://example.com/endpoint",
+        method="GET",
+        output_descriptors=[output_descriptor],
+    )
+    assert tool.run() == '{"full": "response"}'

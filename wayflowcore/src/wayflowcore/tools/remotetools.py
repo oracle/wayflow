@@ -4,13 +4,14 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
+import json
 import logging
 import warnings
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 from wayflowcore._metadata import MetadataType
-from wayflowcore.property import Property
+from wayflowcore.property import AnyProperty, Property, StringProperty
 from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.serialization.serializer import SerializableDataclassMixin, SerializableObject
 
@@ -22,6 +23,47 @@ if TYPE_CHECKING:
 
 
 logger = logging.getLogger(__name__)
+
+_JQ_SELECTION_OUTPUT = "step_output"
+
+
+def _resolve_remote_tool_outputs(
+    output_descriptors: Optional[List[Property]],
+    output_jq_query: Optional[str],
+    http_response_output: str,
+) -> Tuple[Union[str, List[str]], Optional[Dict[Union[str, Property], str]], bool]:
+    """Decide how the API response is mapped onto the declared outputs of a remote tool.
+
+    Returns the ``ApiCallStep`` output(s) exposed by the tool, the ``output_values_json``
+    mapping to configure on the step and whether the raw response must be stored.
+
+    - Without declared outputs, or with a single string (or untyped) output, the raw response
+      body is returned, optionally reduced with ``output_jq_query``.
+    - With several declared outputs, the JSON response (or the value selected by
+      ``output_jq_query``) must be an object whose keys are the output names: each output
+      is extracted from it, so the tool returns the dictionary expected for multiple outputs.
+    - With a single typed non-string output, the JSON response (or the jq selection) is parsed
+      instead of being returned as text.
+
+    The declared descriptors are used as the step output descriptors so that the extracted
+    values keep the declared types.
+    """
+    declared_outputs = output_descriptors or []
+    if len(declared_outputs) > 1:
+        base_query = output_jq_query or "."
+        output_values_json: Dict[Union[str, Property], str] = {
+            descriptor: f"{base_query} | .{json.dumps(descriptor.name)}"
+            for descriptor in declared_outputs
+        }
+        return [descriptor.name for descriptor in declared_outputs], output_values_json, False
+    if len(declared_outputs) == 1 and not isinstance(
+        declared_outputs[0], (StringProperty, AnyProperty)
+    ):
+        descriptor = declared_outputs[0]
+        return descriptor.name, {descriptor: output_jq_query or "."}, False
+    if output_jq_query is not None:
+        return _JQ_SELECTION_OUTPUT, {_JQ_SELECTION_OUTPUT: output_jq_query}, False
+    return http_response_output, None, True
 
 
 @dataclass
@@ -265,7 +307,9 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
     ) -> None:
         from wayflowcore.steps import ApiCallStep
 
-        step_output = ApiCallStep.HTTP_RESPONSE if output_jq_query is None else "step_output"
+        step_output, output_values_json, store_response = _resolve_remote_tool_outputs(
+            output_descriptors, output_jq_query, ApiCallStep.HTTP_RESPONSE
+        )
         if json_body:
             warnings.warn(
                 "Usage of `json_body` parameter in RemoteTool is Deprecated, it will be removed in version 26.2.0, Please use the `data` parameter instead.",
@@ -291,8 +335,8 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
             allow_credentials=allow_credentials,
             allow_fragments=allow_fragments,
             default_ports=default_ports,
-            store_response=True if output_jq_query is None else False,
-            output_values_json={step_output: output_jq_query} if output_jq_query else None,
+            store_response=store_response,
+            output_values_json=output_values_json,
         )
         name = name or tool_name
         description = description or tool_description
