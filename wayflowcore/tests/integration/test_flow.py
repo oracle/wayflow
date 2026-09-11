@@ -12,7 +12,15 @@ from wayflowcore import Flow
 from wayflowcore.controlconnection import ControlFlowEdge
 from wayflowcore.dataconnection import DataFlowEdge
 from wayflowcore.executors.executionstatus import FinishedStatus, UserMessageRequestStatus
-from wayflowcore.property import AnyProperty, DictProperty, StringProperty
+from wayflowcore.property import (
+    AnyProperty,
+    BooleanProperty,
+    DictProperty,
+    IntegerProperty,
+    ListProperty,
+    ObjectProperty,
+    StringProperty,
+)
 from wayflowcore.steps import (
     BranchingStep,
     InputMessageStep,
@@ -492,3 +500,83 @@ def test_node_does_not_have_outgoing_edges():
                 ControlFlowEdge(source_step=step_1, destination_step=step_2),
             ],
         )
+
+
+def test_flow_input_omitting_nested_properties_with_defaults_is_accepted_and_normalized():
+    # The nested `priority` and `notifications` properties have defaults, so an input omitting
+    # them is valid; the steps receive the value with the defaults filled in
+    request_property = ObjectProperty(
+        name="request",
+        properties={
+            "customer_id": StringProperty(),
+            "profile": ObjectProperty(
+                properties={"name": StringProperty(), "age": IntegerProperty()}
+            ),
+            "tags": ListProperty(item_type=StringProperty()),
+            "priority": StringProperty(default_value="normal"),
+            "notifications": BooleanProperty(default_value=True),
+        },
+        additional_properties=False,
+    )
+    received_requests = []
+
+    def normalize(request):
+        received_requests.append(request)
+        return request
+
+    normalize_tool = ServerTool(
+        name="normalize",
+        description="Normalizes a request",
+        input_descriptors=[request_property],
+        output_descriptors=[request_property],
+        func=normalize,
+    )
+    flow = Flow.from_steps([ToolExecutionStep(normalize_tool, name="normalize_step")])
+
+    conversation = flow.start_conversation(
+        inputs={
+            "request": {
+                "customer_id": "C-1042",
+                "profile": {"name": "Ada", "age": 36},
+                "tags": ["priority", "verified"],
+            }
+        }
+    )
+    status = conversation.execute()
+
+    expected_request = {
+        "customer_id": "C-1042",
+        "profile": {"name": "Ada", "age": 36},
+        "tags": ["priority", "verified"],
+        "priority": "normal",
+        "notifications": True,
+    }
+    assert isinstance(status, FinishedStatus)
+    assert received_requests == [expected_request]
+    assert status.output_values["request"] == expected_request
+
+
+def test_flow_input_omitting_required_nested_property_is_rejected():
+    request_property = ObjectProperty(
+        name="request",
+        properties={
+            "customer_id": StringProperty(),
+            "priority": StringProperty(default_value="normal"),
+        },
+    )
+    flow = Flow.from_steps(
+        [
+            ToolExecutionStep(
+                ServerTool(
+                    name="normalize",
+                    description="Normalizes a request",
+                    input_descriptors=[request_property],
+                    output_descriptors=[request_property],
+                    func=lambda request: request,
+                ),
+                name="normalize_step",
+            )
+        ]
+    )
+    with pytest.raises(TypeError, match="is not of the expected type"):
+        flow.start_conversation(inputs={"request": {"priority": "high"}})

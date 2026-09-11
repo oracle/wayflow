@@ -570,3 +570,64 @@ def test_enum_default_case_mismatch_warns():
 def test_enum_default_exact_match_does_not_warn():
     prop = StringProperty(default_value="ALL", enum=("ALL", "NONE"))
     assert prop.default_value == "ALL"
+
+
+def _request_property() -> ObjectProperty:
+    return ObjectProperty(
+        name="request",
+        properties={
+            "customer_id": StringProperty(),
+            "profile": ObjectProperty(
+                properties={"name": StringProperty(), "age": IntegerProperty()}
+            ),
+            "tags": ListProperty(item_type=StringProperty()),
+            "priority": StringProperty(default_value="normal"),
+            "notifications": BooleanProperty(default_value=True),
+        },
+        additional_properties=False,
+    )
+
+
+def test_object_property_accepts_value_omitting_nested_properties_with_defaults():
+    # Nested properties with a default are optional: a value without them is still valid
+    value = {"customer_id": "C-1042", "profile": {"name": "Ada", "age": 36}, "tags": ["verified"]}
+    assert _request_property().is_value_of_expected_type(value) is True
+
+
+def test_object_property_rejects_value_omitting_nested_properties_without_defaults():
+    value = {"customer_id": "C-1042", "tags": ["verified"]}
+    assert _request_property().is_value_of_expected_type(value) is False
+
+
+def test_object_property_accepts_object_omitting_attributes_with_defaults():
+    @dataclass
+    class Request:
+        customer_id: str
+        profile: Any
+        tags: List[str]
+
+    value = Request(customer_id="C-1042", profile={"name": "Ada", "age": 36}, tags=[])
+    assert _request_property().is_value_of_expected_type(value) is True
+
+
+def test_casting_object_value_fills_nested_defaults():
+    from wayflowcore.property import _cast_value_into
+
+    casted_value = _cast_value_into(
+        {"customer_id": 1042, "profile": {"name": "Ada", "age": 36}, "tags": ["verified"]},
+        _request_property(),
+    )
+    assert casted_value == {
+        "customer_id": "1042",
+        "profile": {"name": "Ada", "age": 36},
+        "tags": ["verified"],
+        "priority": "normal",
+        "notifications": True,
+    }
+
+
+def test_casting_object_value_missing_required_nested_property_raises():
+    from wayflowcore.property import _cast_value_into
+
+    with pytest.raises(KeyError, match="customer_id"):
+        _cast_value_into({"profile": {"name": "Ada", "age": 36}, "tags": []}, _request_property())

@@ -22,6 +22,12 @@ Bug fixes
   Tool-call normalization now applies ``additionalProperties`` only to undeclared object fields,
   preventing declared values from being replaced with booleans.
 
+* **Optional nested object properties with defaults**
+
+  ``ObjectProperty`` values that omit nested properties having a ``default_value`` are now accepted
+  as ``Flow`` inputs, between steps and in ``Agent`` tool calls. The omitted properties, including
+  nested ones, take their defaults before the step or tool receives the value.
+
 WayFlow 26.3.0
 --------------
 
