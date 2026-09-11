@@ -6,6 +6,8 @@
 
 import logging
 import re
+import socket
+import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Awaitable, Callable, Dict, Generator, List, Tuple, cast
@@ -15,8 +17,10 @@ import anyio
 import httpx
 import pytest
 from anyio import to_thread
+from exceptiongroup import ExceptionGroup
 from mcp import ClientSession
 from mcp import types as mcp_types
+from mcp.shared.exceptions import McpError
 
 from wayflowcore import Agent, Flow
 from wayflowcore.auth import AuthChallengeResult
@@ -49,11 +53,14 @@ from wayflowcore.mcp import (
 from wayflowcore.mcp._auth import headless_auth_flow_handler
 from wayflowcore.mcp._session_persistence import (
     AsyncRuntime,
+    _translate_mcp_connection_error,
     get_mcp_async_runtime,
     shutdown_mcp_async_runtime,
 )
+from wayflowcore.mcp.clienttransport import SessionParameters
 from wayflowcore.mcp.mcphelpers import (
     _classify_mcp_tool_call_for_retry,
+    _is_missing_mcp_tool_error,
     _reset_mcp_contextvar,
     get_server_tools_from_mcp_server,
     mcp_streaming_tool,
@@ -2134,3 +2141,93 @@ def test_oauth_works_on_managerworkers_when_worker_uses_mcp_tool(
         last_tool_result_message.tool_result is not None
         and "random_string_" in last_tool_result_message.tool_result.content
     )
+
+
+def _mcp_timeout_error() -> McpError:
+    return McpError(
+        mcp_types.ErrorData(
+            code=httpx.codes.REQUEST_TIMEOUT,
+            message="Timed out while waiting for response to ClientRequest. Waited 60.0 seconds.",
+        )
+    )
+
+
+def test_missing_mcp_tool_error_detection_tolerates_string_error_payload() -> None:
+    # Some code paths attach a plain string to `McpError.error`; detection must not raise
+    # `AttributeError: 'str' object has no attribute 'message'` and mask the original error
+    error = McpError(mcp_types.ErrorData(code=-32602, message="placeholder"))
+    error.error = "Tool 'lookup' not found"  # type: ignore[assignment]
+
+    assert _is_missing_mcp_tool_error(error) is True
+    assert _classify_mcp_tool_call_for_retry(error, RetryPolicy(max_attempts=1)) == (None, None)
+
+    timeout_error = _mcp_timeout_error()
+    timeout_error.error = "Timed out while waiting for response"  # type: ignore[assignment]
+    assert _is_missing_mcp_tool_error(timeout_error) is False
+    assert _classify_mcp_tool_call_for_retry(timeout_error, RetryPolicy(max_attempts=1)) is None
+
+
+def test_mcp_request_timeout_is_translated_to_a_clear_timeout_error() -> None:
+    # The MCP SDK raises McpError(REQUEST_TIMEOUT) inside anyio task groups when the server
+    # does not answer; the user must get a TimeoutError naming the remedy, not an ExceptionGroup
+    grouped_error = ExceptionGroup(
+        "unhandled errors in a TaskGroup",
+        [ExceptionGroup("unhandled errors in a TaskGroup", [_mcp_timeout_error()])],
+    )
+
+    for error in (_mcp_timeout_error(), grouped_error, TimeoutError(), httpx.ReadTimeout("slow")):
+        translated = _translate_mcp_connection_error(error)
+        assert isinstance(translated, TimeoutError), error
+        assert "did not answer in time" in str(translated)
+        assert "read_timeout_seconds" in str(translated)
+    assert "Waited 60.0 seconds" in str(_translate_mcp_connection_error(grouped_error))
+
+
+@pytest.fixture
+def unresponsive_server_url():
+    # Accepts TCP connections but never answers, like a hung MCP server
+    server = socket.socket()
+    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    server.bind(("127.0.0.1", 0))
+    server.listen(8)
+    accepted: List[socket.socket] = []
+
+    def accept_forever() -> None:
+        while True:
+            try:
+                connection, _ = server.accept()
+            except OSError:
+                return
+            accepted.append(connection)
+
+    thread = threading.Thread(target=accept_forever, daemon=True)
+    thread.start()
+    try:
+        yield f"http://127.0.0.1:{server.getsockname()[1]}/mcp"
+    finally:
+        shutdown_mcp_async_runtime()
+        server.close()
+        for connection in accepted:
+            connection.close()
+
+
+def test_mcp_tool_call_against_unresponsive_server_raises_timeout_error(
+    with_mcp_enabled, unresponsive_server_url
+) -> None:
+    transport = StreamableHTTPTransport(
+        url=unresponsive_server_url,
+        timeout=1,
+        session_parameters=SessionParameters(read_timeout_seconds=1),
+    )
+    tool = MCPTool(
+        name="search",
+        description="Searches documents",
+        input_descriptors=[StringProperty(name="query")],
+        client_transport=transport,
+        _validate_server_exists=False,
+    )
+
+    start = time.monotonic()
+    with pytest.raises(TimeoutError, match="did not answer in time"):
+        tool.run(query="hello")
+    assert time.monotonic() - start < 30

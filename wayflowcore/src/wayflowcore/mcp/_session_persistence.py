@@ -28,6 +28,7 @@ from anyio import from_thread, to_thread
 from anyio.streams import memory
 from exceptiongroup import ExceptionGroup
 from mcp import ClientSession
+from mcp.shared.exceptions import McpError
 from typing_extensions import TypeAlias
 
 from wayflowcore._utils.singleton import Singleton
@@ -78,6 +79,31 @@ class ConnectionCompletedStatus:
     has been fully completed."""
 
 
+def _get_mcp_error_message(exc: BaseException) -> str:
+    """Return the message of an MCP error, whatever shape the SDK gives to its ``error`` attribute.
+
+    ``McpError.error`` is an ``ErrorData`` in the MCP SDK, but some code paths and SDK versions
+    attach a plain string instead; accessing ``.message`` on it would mask the original error.
+    """
+    error = getattr(exc, "error", None)
+    message = getattr(error, "message", None)
+    if message is None:
+        message = error if isinstance(error, str) else str(exc)
+    return str(message)
+
+
+def _is_mcp_timeout_error(exc: BaseException) -> bool:
+    """Whether the exception means the MCP server did not answer within the read timeout."""
+    if isinstance(exc, (TimeoutError, httpx.TimeoutException)):
+        return True
+    if not isinstance(exc, McpError):
+        return False
+    error_code = getattr(getattr(exc, "error", None), "code", None)
+    if error_code == httpx.codes.REQUEST_TIMEOUT:
+        return True
+    return "timed out" in _get_mcp_error_message(exc).lower()
+
+
 def _translate_mcp_connection_error(exc: BaseException) -> Optional[BaseException]:
     """
     If `exc` (or any sub-exception in an ExceptionGroup) looks like an MCP connection/auth
@@ -92,6 +118,12 @@ def _translate_mcp_connection_error(exc: BaseException) -> Optional[BaseExceptio
     elif isinstance(exc, httpx.ConnectError):
         return ConnectionError(
             "Could not connect to the remote MCP server. Make sure it is running and reachable."
+        )
+    elif _is_mcp_timeout_error(exc):
+        return TimeoutError(
+            "The MCP server did not answer in time. Make sure it is running and responsive, "
+            "or increase `read_timeout_seconds` in the client transport `session_parameters`. "
+            f"Full error: {_get_mcp_error_message(exc)}"
         )
     elif isinstance(exc, httpx.HTTPStatusError):
         status = exc.response.status_code if exc.response is not None else None
@@ -376,6 +408,7 @@ class AsyncRuntime(metaclass=Singleton):
             _raise_if_translatable_mcp_error(exc)
             raise exc
         elif isinstance(status, BaseException):
+            _raise_if_translatable_mcp_error(status)
             raise status
         else:
             raise ValueError(f"Unrecognized status: {type(status)}")
