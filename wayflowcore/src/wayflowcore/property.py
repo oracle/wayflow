@@ -1064,11 +1064,17 @@ class ObjectProperty(Property):
     def _check_dict_has_correct_entry(
         value: Dict[str, Any], name: str, property_: Property
     ) -> bool:
-        return name in value and property_.is_value_of_expected_type(value[name])
+        if name not in value:
+            # A nested property with a default value is optional (it is not required
+            # in the JSON schema), so a value omitting it is still valid
+            return property_.has_default
+        return property_.is_value_of_expected_type(value[name])
 
     @staticmethod
     def _check_object_has_correct_attribute(value: Any, name: str, value_type: Property) -> bool:
-        return hasattr(value, name) and value_type.is_value_of_expected_type(getattr(value, name))
+        if not hasattr(value, name):
+            return value_type.has_default
+        return value_type.is_value_of_expected_type(getattr(value, name))
 
     @property
     def _type_default_value(self) -> Any:
@@ -1492,6 +1498,13 @@ def _property_can_be_casted_into_property(from_type: Property, to_type: Property
     )
 
 
+def _get_default_value_of_missing_entry(name: str, property_: Property) -> Any:
+    """Return the default of a nested property missing from an object value, or fail."""
+    if property_.has_default:
+        return property_.default_value
+    raise KeyError(f"Missing required property `{name}` in object value")
+
+
 def _cast_value_into(value: Any, target_type: Property) -> Any:
     casted_value = _try_cast_value_into(value, target_type)
     if target_type.enum is None:
@@ -1548,11 +1561,19 @@ def _try_cast_value_into(value: Any, target_type: Property) -> Any:
                 "Cannot convert non dict object types: %s to %s", value, str(target_type)
             )
             return {
-                prop_name: _cast_value_into(getattr(value, prop_name), property_)
+                prop_name: (
+                    _cast_value_into(getattr(value, prop_name), property_)
+                    if hasattr(value, prop_name)
+                    else _get_default_value_of_missing_entry(prop_name, property_)
+                )
                 for prop_name, property_ in target_type.properties.items()
             }
         return {
-            prop_name: _cast_value_into(value[prop_name], property_)
+            prop_name: (
+                _cast_value_into(value[prop_name], property_)
+                if prop_name in value
+                else _get_default_value_of_missing_entry(prop_name, property_)
+            )
             for prop_name, property_ in target_type.properties.items()
         }
     elif isinstance(target_type, UnionProperty):
