@@ -23,7 +23,7 @@ from typing import (
 )
 
 import anyio
-import httpx
+import httpx2
 from anyio import from_thread, to_thread
 from anyio.streams import memory
 from exceptiongroup import ExceptionGroup
@@ -89,16 +89,16 @@ def _translate_mcp_connection_error(exc: BaseException) -> Optional[BaseExceptio
             if translated is not None:
                 return translated
         return None
-    elif isinstance(exc, httpx.ConnectError):
+    elif isinstance(exc, httpx2.ConnectError):
         return ConnectionError(
             "Could not connect to the remote MCP server. Make sure it is running and reachable."
         )
-    elif isinstance(exc, httpx.HTTPStatusError):
+    elif isinstance(exc, httpx2.HTTPStatusError):
         status = exc.response.status_code if exc.response is not None else None
         request = exc.request
 
         if status == 401:
-            return httpx.HTTPStatusError(
+            return httpx2.HTTPStatusError(
                 (
                     "Encountered Authorization error when connecting to the MCP server. "
                     "Make sure you are using the proper Authorization Config for the server. "
@@ -108,7 +108,7 @@ def _translate_mcp_connection_error(exc: BaseException) -> Optional[BaseExceptio
                 response=exc.response,
             )
         elif status == 404:
-            return httpx.HTTPStatusError(
+            return httpx2.HTTPStatusError(
                 (
                     "Successfully reached the MCP server but failed to find the endpoint for the given transport. "
                     "Make sure you are using the right url and transport. "
@@ -118,7 +118,7 @@ def _translate_mcp_connection_error(exc: BaseException) -> Optional[BaseExceptio
                 response=exc.response,
             )
         elif status == 405:
-            return httpx.HTTPStatusError(
+            return httpx2.HTTPStatusError(
                 (
                     "Successfully reached the MCP server but failed when establishing the connection. "
                     "Make sure you are using the right transport. "

@@ -19,7 +19,7 @@ llm = VllmModel(
 # .. end-##_Define_the_llm
 (llm,) = _update_globals(["llm_small"])  # docs-skiprow # type: ignore
 # .. start-##_Define_the_tools
-import httpx
+import httpx2
 from wayflowcore.tools.toolhelpers import DescriptionMode, tool
 
 @tool(description_mode=DescriptionMode.ONLY_DOCSTRING)
@@ -28,7 +28,7 @@ def get_wikipedia_page_content(topic: str) -> str:
     url = "https://en.wikipedia.org/w/api.php"
     headers = {"User-Agent": "MyApp/1.0 (https://example.com; myemail@example.com)"}
 
-    response = httpx.get(
+    response = httpx2.get(
         url, params={"action": "query", "format": "json", "list": "search", "srsearch": topic}, headers=headers,
     )
     # extract page id
@@ -39,7 +39,7 @@ def get_wikipedia_page_content(topic: str) -> str:
 
     page_id = search_results[0]["pageid"]
 
-    response = httpx.get(
+    response = httpx2.get(
         url,
         params={
             "action": "query",

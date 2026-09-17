@@ -213,7 +213,7 @@ class OpenAICompatibleModel(LlmModel):
     async def _post(
         request_params: Dict[str, Any],
         proxy: Optional[str],
-        verify: bool | str | ssl.SSLContext,
+        verify: bool | ssl.SSLContext,
         retry_policy: Optional[RetryPolicy],
     ) -> Dict[str, Any]:
         logger.debug(f"Request to remote endpoint: {_sanitize_request_parameters(request_params)}")
@@ -230,7 +230,7 @@ class OpenAICompatibleModel(LlmModel):
     async def _post_stream(
         request_params: Dict[str, Any],
         proxy: Optional[str],
-        verify: bool | str | ssl.SSLContext,
+        verify: bool | ssl.SSLContext,
         retry_policy: Optional[RetryPolicy],
         api_processor: _APIProcessor,
     ) -> AsyncIterator[Dict[str, Any]]:

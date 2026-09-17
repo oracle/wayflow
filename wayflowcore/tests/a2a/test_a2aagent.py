@@ -6,7 +6,7 @@
 
 import warnings
 
-import httpx
+import httpx2
 import pytest
 
 from wayflowcore.a2a.a2aagent import A2AAgent, A2AConnectionConfig, A2ASessionParameters
@@ -311,8 +311,8 @@ def test_a2aagent_causes_timeout_with_custom_connection_config(a2a_server):
     a2a_agent = A2AAgent(agent_url=a2a_server, connection_config=config)
     conversation = a2a_agent.start_conversation()
     conversation.append_user_message("What is 3*3? Just output the answer.")
-    # This timeout is raised by httpx, hence using `httpx.ConnectTimeout`
-    with pytest.raises(httpx.ConnectTimeout):
+    # This timeout is raised by httpx2, hence using `httpx2.ConnectTimeout`
+    with pytest.raises(httpx2.ConnectTimeout):
         status = conversation.execute()
 
 

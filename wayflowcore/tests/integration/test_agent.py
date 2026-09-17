@@ -1770,7 +1770,8 @@ def test_ocigenai_agent_can_use_tools(llama_oci_llm):
     Max attempt:           6
     Justification:         (0.18 ** 6) ~= 3.6 / 100'000
     """
-    HRASSISTANT_GENERATION_INSTRUCTIONS = dedent("""
+    HRASSISTANT_GENERATION_INSTRUCTIONS = dedent(
+        """
         You are a knowledgeable, factual, and helpful HR assistant that can answer simple \
         HR-related questions like salary and benefits.
         You are given a tool to look up the HR database.
@@ -1781,7 +1782,8 @@ def test_ocigenai_agent_can_use_tools(llama_oci_llm):
         Important:
             - Be helpful and concise in your messages
             - Do not tell the user any details not mentioned in the tool response, let's be factual.
-        """)
+        """
+    )
 
     agent = Agent(
         custom_instruction=HRASSISTANT_GENERATION_INSTRUCTIONS,
