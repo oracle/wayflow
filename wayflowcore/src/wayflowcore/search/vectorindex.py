@@ -253,6 +253,9 @@ class BaseInMemoryVectorIndex(VectorIndex):
 
         # Use argpartition for O(n) average complexity instead of O(n log n) sort
         # Only partially sorts to find the k best elements
+        # NumPy's stubs use different shape tuples for arange, argpartition, and
+        # argsort, although all of these results are valid index arrays.
+        indices: npt.NDArray[Any]
         if k >= self.num_vectors:
             # Return all vectors
             indices = np.arange(self.num_vectors)

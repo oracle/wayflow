@@ -10,7 +10,7 @@ import ssl
 import warnings
 from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass, field
-from typing import TYPE_CHECKING, Any, Callable, ClassVar, Dict, List, Literal, Optional
+from typing import TYPE_CHECKING, Any, Callable, ClassVar, Dict, List, Literal, Optional, cast
 
 import httpx2
 from mcp.client.sse import sse_client
@@ -353,10 +353,15 @@ class SSETransport(RemoteBaseTransport, ClientTransportWithAuth, SerializableObj
             headers=self._merged_headers,
             timeout=self.timeout,
             sse_read_timeout=self.sse_read_timeout,
-            auth=self._get_auth_provider(),
-            httpx_client_factory=_Httpx2ClientFactory(
-                follow_redirects=self.follow_redirects,
-                retry_policy=self.retry_policy,
+            # MCP 1.x is typed against httpx, while this compatibility adapter
+            # intentionally supplies httpx2 objects at runtime.
+            auth=cast(Any, self._get_auth_provider()),
+            httpx_client_factory=cast(
+                Any,
+                _Httpx2ClientFactory(
+                    follow_redirects=self.follow_redirects,
+                    retry_policy=self.retry_policy,
+                ),
             ),
         )
 
@@ -425,14 +430,19 @@ class SSEmTLSTransport(HTTPmTLSBaseTransport, ClientTransportWithAuth, Serializa
             headers=self._merged_headers,
             timeout=self.timeout,
             sse_read_timeout=self.sse_read_timeout,
-            auth=self._get_auth_provider(),
-            httpx_client_factory=_Httpx2ClientFactory(
-                key_file=self.key_file,
-                cert_file=self.cert_file,
-                ssl_ca_cert=self.ssl_ca_cert,
-                check_hostname=self.check_hostname,
-                follow_redirects=self.follow_redirects,
-                retry_policy=self.retry_policy,
+            # MCP 1.x is typed against httpx, while this compatibility adapter
+            # intentionally supplies httpx2 objects at runtime.
+            auth=cast(Any, self._get_auth_provider()),
+            httpx_client_factory=cast(
+                Any,
+                _Httpx2ClientFactory(
+                    key_file=self.key_file,
+                    cert_file=self.cert_file,
+                    ssl_ca_cert=self.ssl_ca_cert,
+                    check_hostname=self.check_hostname,
+                    follow_redirects=self.follow_redirects,
+                    retry_policy=self.retry_policy,
+                ),
             ),
         )
 
@@ -460,10 +470,15 @@ class StreamableHTTPTransport(RemoteBaseTransport, ClientTransportWithAuth, Seri
             headers=self._merged_headers,
             timeout=datetime.timedelta(seconds=self.timeout),
             sse_read_timeout=datetime.timedelta(seconds=self.sse_read_timeout),
-            auth=self._get_auth_provider(),
-            httpx_client_factory=_Httpx2ClientFactory(
-                follow_redirects=self.follow_redirects,
-                retry_policy=self.retry_policy,
+            # MCP 1.x is typed against httpx, while this compatibility adapter
+            # intentionally supplies httpx2 objects at runtime.
+            auth=cast(Any, self._get_auth_provider()),
+            httpx_client_factory=cast(
+                Any,
+                _Httpx2ClientFactory(
+                    follow_redirects=self.follow_redirects,
+                    retry_policy=self.retry_policy,
+                ),
             ),
         )
 
@@ -513,14 +528,19 @@ class StreamableHTTPmTLSTransport(
             headers=self._merged_headers,
             timeout=datetime.timedelta(seconds=self.timeout),
             sse_read_timeout=datetime.timedelta(seconds=self.sse_read_timeout),
-            auth=self._get_auth_provider(),
-            httpx_client_factory=_Httpx2ClientFactory(
-                key_file=self.key_file,
-                cert_file=self.cert_file,
-                ssl_ca_cert=self.ssl_ca_cert,
-                check_hostname=self.check_hostname,
-                follow_redirects=self.follow_redirects,
-                retry_policy=self.retry_policy,
+            # MCP 1.x is typed against httpx, while this compatibility adapter
+            # intentionally supplies httpx2 objects at runtime.
+            auth=cast(Any, self._get_auth_provider()),
+            httpx_client_factory=cast(
+                Any,
+                _Httpx2ClientFactory(
+                    key_file=self.key_file,
+                    cert_file=self.cert_file,
+                    ssl_ca_cert=self.ssl_ca_cert,
+                    check_hostname=self.check_hostname,
+                    follow_redirects=self.follow_redirects,
+                    retry_policy=self.retry_policy,
+                ),
             ),
         )
 
