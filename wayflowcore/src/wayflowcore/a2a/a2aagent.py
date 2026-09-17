@@ -204,7 +204,7 @@ class A2AAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
 
         from wayflowcore.executors._a2aagentconversation import A2AAgentConversation
         from wayflowcore.executors._a2aagentexecutor import A2AAgentExecutor
-        from wayflowcore.mcp.clienttransport import _HttpxClientFactory
+        from wayflowcore.mcp.clienttransport import _Httpx2ClientFactory
 
         # Validate agent_url
         try:
@@ -224,7 +224,7 @@ class A2AAgent(ConversationalComponent, SerializableDataclassMixin, Serializable
         self.session_parameters = session_parameters
 
         # Initialize HTTP client factory with validated configuration
-        self._http_factory = _HttpxClientFactory(
+        self._http_factory = _Httpx2ClientFactory(
             verify=connection_config.verify,
             key_file=connection_config.key_file,
             cert_file=connection_config.cert_file,

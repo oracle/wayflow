@@ -13,7 +13,7 @@ from typing import Any, Dict
 from unittest import mock
 from unittest.mock import AsyncMock, Mock, patch
 
-import httpx
+import httpx2
 import pytest
 
 from wayflowcore import Agent, Message, Tool
@@ -333,7 +333,7 @@ def test_model_cannot_recover_from_non_recoverable_error(
     remotely_hosted_llm.retry_policy = retry_policy
     with pytest.raises(Exception, match="API request failed with status code"):
         with patch(
-            "httpx.AsyncClient.post",
+            "httpx2.AsyncClient.post",
             side_effect=_generate,
         ):
             remotely_hosted_llm.generate("Hello")
@@ -364,7 +364,7 @@ def test_model_can_recover_from_status(retry_policy, expected_number_calls, remo
     succeeds_after_x_failures = 5
 
     with patch(
-        "httpx.AsyncClient.post",
+        "httpx2.AsyncClient.post",
         side_effect=_get_fake_request_that_succeeds_after_x_trials(succeeds_after_x_failures),
     ) as mock:
         with (
@@ -379,10 +379,10 @@ def test_model_can_recover_from_status(retry_policy, expected_number_calls, remo
 def test_model_network_error_retries_and_fails(remotely_hosted_llm):
     retry_policy = RetryPolicy(max_attempts=3, initial_retry_delay=0.01, max_retry_delay=0.01)
     remotely_hosted_llm.retry_policy = retry_policy
-    import httpx
+    import httpx2
 
     with patch(
-        "httpx.AsyncClient.post", side_effect=httpx.ConnectError("Fake connection error")
+        "httpx2.AsyncClient.post", side_effect=httpx2.ConnectError("Fake connection error")
     ) as mock:
         with pytest.raises(
             Exception, match="API request failed after retries due to network error"
@@ -403,7 +403,7 @@ def test_model_json_decode_error_propagates(remotely_hosted_llm):
     async def _generate(*args, **kwargs):
         return FakeResponse()
 
-    with patch("httpx.AsyncClient.post", side_effect=_generate):
+    with patch("httpx2.AsyncClient.post", side_effect=_generate):
         with pytest.raises(ValueError, match="No JSON"):
             remotely_hosted_llm.generate("Hello")
 
@@ -413,9 +413,9 @@ def test_model_streaming_network_error_retries_and_fails(remotely_hosted_llm):
     remotely_hosted_llm.retry_policy = retry_policy
 
     def always_fail(*args, **kwargs):
-        raise httpx.ConnectError("fake streaming connection error", request=None)
+        raise httpx2.ConnectError("fake streaming connection error", request=None)
 
-    with patch("httpx.AsyncClient.stream", side_effect=always_fail) as mock_post:
+    with patch("httpx2.AsyncClient.stream", side_effect=always_fail) as mock_post:
         with pytest.raises(
             Exception, match="API streaming request failed after retries due to network error"
         ):
@@ -427,7 +427,7 @@ def test_model_streaming_network_error_retries_and_fails(remotely_hosted_llm):
 
 def test_model_streaming_cannot_recover_from_nonrecoverable_status(remotely_hosted_llm):
     fake_post = _get_fake_streaming_request_that_succeeds_after_x_trials(100, 400)
-    with patch("httpx.AsyncClient.stream", new=Mock(side_effect=fake_post)):
+    with patch("httpx2.AsyncClient.stream", new=Mock(side_effect=fake_post)):
         with pytest.raises(Exception, match="API streaming request failed with status code"):
             iterator = remotely_hosted_llm.stream_generate("hello")
             for x in iterator:
@@ -437,7 +437,7 @@ def test_model_streaming_cannot_recover_from_nonrecoverable_status(remotely_host
 def test_model_streaming_can_try_again_from_recoverable_status(remotely_hosted_llm):
     remotely_hosted_llm.retry_policy = RetryPolicy(max_attempts=2)
     fake_post = _get_fake_streaming_request_that_succeeds_after_x_trials(10)
-    with patch("httpx.AsyncClient.stream", new=Mock(side_effect=fake_post)):
+    with patch("httpx2.AsyncClient.stream", new=Mock(side_effect=fake_post)):
         with pytest.raises(Exception, match="API streaming request failed after maximum retries"):
             iterator = remotely_hosted_llm.stream_generate("hello")
             for x in iterator:
@@ -447,7 +447,7 @@ def test_model_streaming_can_try_again_from_recoverable_status(remotely_hosted_l
 def test_model_streaming_can_recover_from_recoverable_status(remotely_hosted_llm):
     remotely_hosted_llm.retry_policy = RetryPolicy(max_attempts=3)
     fake_post = _get_fake_streaming_request_that_succeeds_after_x_trials(2)
-    with patch("httpx.AsyncClient.stream", new=fake_post):
+    with patch("httpx2.AsyncClient.stream", new=fake_post):
         iterator = remotely_hosted_llm.stream_generate("hello")
         for x in iterator:
             pass
@@ -650,8 +650,8 @@ class ForcedStreamingResponse:
             yield chunk
 
 
-@patch("httpx.AsyncClient.post", return_value=ForcedStreamingResponse())
-def test_non_streaming_works_when_backend_forces_streaming_response(mocked_httpx_post):
+@patch("httpx2.AsyncClient.post", return_value=ForcedStreamingResponse())
+def test_non_streaming_works_when_backend_forces_streaming_response(mocked_httpx2_post):
     llm = OpenAICompatibleModel(
         model_id="meta-llama/Meta-Llama-3.1-8B-Instruct",
         base_url=f"{llama_api_url}/v1/chat/completions",
@@ -1067,11 +1067,11 @@ def test_openai_model_does_not_raise_on_receiving_incomplete_tool_calls_from_rem
         ],
     }
 
-    mock_httpx_response = httpx.Response(status_code=200, json=mocked_response)
+    mock_httpx2_response = httpx2.Response(status_code=200, json=mocked_response)
 
-    async_mock = AsyncMock(return_value=mock_httpx_response)
+    async_mock = AsyncMock(return_value=mock_httpx2_response)
 
-    with patch("httpx.AsyncClient.post", async_mock):
+    with patch("httpx2.AsyncClient.post", async_mock):
         completion = remotely_hosted_llm.generate("what is the weather in Zurich?")
         tool_call = completion.message.tool_requests[0]
 

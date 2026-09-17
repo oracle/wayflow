@@ -54,7 +54,7 @@ setup(
     install_requires=[
         # 3rd party dependencies (imported in code)
         "pyagentspec>=26.3.0",
-        "httpx>0.28.0,<1.0.0",  # warning but no vulnerabilities
+        "httpx2>=2.0.0,<3.0.0",
         "numpy>=1.24.3,<3.0.0",
         "pandas>=2.0.3,<3.0.0",
         "jinja2>=3.1.6,<4.0.0",
@@ -75,7 +75,8 @@ setup(
         # 4rth party dependencies version bounds, for CVE patching
         "annotated-types>=0.6.0",
         "certifi>=2025.4.26",
-        "httpcore>=1.0.9",
+        "httpcore>=1.0.9",  # Required by MCP 1.x.
+        "httpcore2>=2.13.0,<3.0.0",
         "idna>=3.7",
         "pydantic_core>=2.33.0",  # warning but no vulnerabilities
         "PyJWT>=2.13.0,<3.0.0",  # Versions <2.13.0 were affected with CVEs; 2.13.0 is required.

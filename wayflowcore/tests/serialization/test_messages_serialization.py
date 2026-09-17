@@ -4,7 +4,7 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
-import httpx
+import httpx2
 import pytest
 
 from wayflowcore.messagelist import ImageContent, Message, MessageList, MessageType, TextContent
@@ -122,7 +122,7 @@ def test_message_serialization_stringifies_exceptions_in_tool_arguments_and_extr
 
 
 def test_message_list_copy_with_non_copyable_tool_result_output() -> None:
-    non_copyable = httpx.HTTPStatusError("", request=None, response=None)
+    non_copyable = httpx2.HTTPStatusError("", request=None, response=None)
     message_list = MessageList(
         [
             Message(

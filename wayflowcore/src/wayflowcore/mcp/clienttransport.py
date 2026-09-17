@@ -12,7 +12,7 @@ from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass, field
 from typing import TYPE_CHECKING, Any, Callable, ClassVar, Dict, List, Literal, Optional
 
-import httpx
+import httpx2
 from mcp.client.sse import sse_client
 from mcp.client.stdio import StdioServerParameters, stdio_client
 from mcp.client.streamable_http import streamablehttp_client
@@ -92,7 +92,7 @@ class ClientTransportWithAuth(ClientTransport, ABC):
     auth: Optional["AuthConfig"] = None
     """OAuth Configuration. Defaults to None."""
 
-    def _get_auth_provider(self) -> Optional[httpx.Auth]:
+    def _get_auth_provider(self) -> Optional[httpx2.Auth]:
         from wayflowcore.auth.auth import OAuthConfig
 
         if not self.auth:
@@ -238,7 +238,7 @@ class RemoteBaseTransport(SerializableDataclass, ClientTransport, ABC):
         return serialized_transport
 
 
-class _HttpxClientFactory:
+class _Httpx2ClientFactory:
     def __init__(
         self,
         verify: bool = True,
@@ -281,12 +281,33 @@ class _HttpxClientFactory:
         self.follow_redirects = follow_redirects
         self.retry_policy = retry_policy
 
+    @staticmethod
+    def _normalize_timeout(timeout: Any) -> httpx2.Timeout:
+        """Convert timeout values from MCP's legacy HTTP client API.
+
+        MCP 1.x constructs its factory argument with its own ``Timeout`` class.
+        That class has the same public timeout fields as ``httpx2.Timeout``, but
+        the two classes are intentionally not interchangeable. Passing the MCP
+        value through unchanged eventually makes ``httpcore2`` pass the object
+        to AnyIO where a numeric timeout is expected.
+        """
+        if isinstance(timeout, httpx2.Timeout):
+            return timeout
+        if isinstance(timeout, datetime.timedelta):
+            return httpx2.Timeout(timeout.total_seconds())
+
+        as_dict = getattr(timeout, "as_dict", None)
+        if callable(as_dict):
+            return httpx2.Timeout(**as_dict())
+
+        return httpx2.Timeout(timeout)
+
     def __call__(
         self,
         headers: dict[str, str] | None = None,
-        timeout: httpx.Timeout | None = None,
-        auth: httpx.Auth | None = None,
-    ) -> httpx.AsyncClient:
+        timeout: Any = None,
+        auth: httpx2.Auth | None = None,
+    ) -> httpx2.AsyncClient:
         # Set MCP defaults
         kwargs: dict[str, Any] = {
             "follow_redirects": self.follow_redirects,
@@ -294,11 +315,11 @@ class _HttpxClientFactory:
         }
         # Handle timeout
         if self.retry_policy is not None:
-            timeout = httpx.Timeout(self.retry_policy.request_timeout)
+            timeout = httpx2.Timeout(self.retry_policy.request_timeout)
         if timeout is None:
-            kwargs["timeout"] = httpx.Timeout(30.0)
+            kwargs["timeout"] = httpx2.Timeout(30.0)
         else:
-            kwargs["timeout"] = timeout
+            kwargs["timeout"] = self._normalize_timeout(timeout)
         # Handle headers
         if headers is not None:
             kwargs["headers"] = headers
@@ -307,7 +328,7 @@ class _HttpxClientFactory:
             kwargs["auth"] = auth
         if self.retry_policy is not None:
             return RetryingAsyncClient(retry_policy=self.retry_policy, **kwargs)
-        return httpx.AsyncClient(**kwargs)
+        return httpx2.AsyncClient(**kwargs)
 
 
 @dataclass
@@ -333,7 +354,7 @@ class SSETransport(RemoteBaseTransport, ClientTransportWithAuth, SerializableObj
             timeout=self.timeout,
             sse_read_timeout=self.sse_read_timeout,
             auth=self._get_auth_provider(),
-            httpx_client_factory=_HttpxClientFactory(
+            httpx_client_factory=_Httpx2ClientFactory(
                 follow_redirects=self.follow_redirects,
                 retry_policy=self.retry_policy,
             ),
@@ -405,7 +426,7 @@ class SSEmTLSTransport(HTTPmTLSBaseTransport, ClientTransportWithAuth, Serializa
             timeout=self.timeout,
             sse_read_timeout=self.sse_read_timeout,
             auth=self._get_auth_provider(),
-            httpx_client_factory=_HttpxClientFactory(
+            httpx_client_factory=_Httpx2ClientFactory(
                 key_file=self.key_file,
                 cert_file=self.cert_file,
                 ssl_ca_cert=self.ssl_ca_cert,
@@ -440,7 +461,7 @@ class StreamableHTTPTransport(RemoteBaseTransport, ClientTransportWithAuth, Seri
             timeout=datetime.timedelta(seconds=self.timeout),
             sse_read_timeout=datetime.timedelta(seconds=self.sse_read_timeout),
             auth=self._get_auth_provider(),
-            httpx_client_factory=_HttpxClientFactory(
+            httpx_client_factory=_Httpx2ClientFactory(
                 follow_redirects=self.follow_redirects,
                 retry_policy=self.retry_policy,
             ),
@@ -493,7 +514,7 @@ class StreamableHTTPmTLSTransport(
             timeout=datetime.timedelta(seconds=self.timeout),
             sse_read_timeout=datetime.timedelta(seconds=self.sse_read_timeout),
             auth=self._get_auth_provider(),
-            httpx_client_factory=_HttpxClientFactory(
+            httpx_client_factory=_Httpx2ClientFactory(
                 key_file=self.key_file,
                 cert_file=self.cert_file,
                 ssl_ca_cert=self.ssl_ca_cert,

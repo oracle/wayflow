@@ -13,7 +13,7 @@ import warnings
 from typing import TYPE_CHECKING, Any, Dict, List, NamedTuple, Optional, Tuple, Union
 from urllib.parse import parse_qs, quote, quote_plus, unquote, urlencode, urlparse, urlunparse
 
-import httpx
+import httpx2
 import jq
 from pydantic import AnyUrl
 
@@ -792,7 +792,7 @@ class ApiCallStep(Step):
 
         return request
 
-    async def _execute_request(self, request: Dict[str, Any]) -> httpx.Response:
+    async def _execute_request(self, request: Dict[str, Any]) -> httpx2.Response:
         if not self.allow_insecure_http and urlparse(request["url"]).scheme == "http":
             raise ValueError("usage of unsecure http URL is not allowed")
         # If URL is not valid a ValidationError will be thrown
@@ -832,17 +832,17 @@ class ApiCallStep(Step):
         if policy is not None:
             async with RetryingAsyncClient(
                 retry_policy=policy,
-                timeout=httpx.Timeout(policy.request_timeout),
+                timeout=httpx2.Timeout(policy.request_timeout),
                 total_elapsed_time_seconds=total_elapsed_cap_seconds,
             ) as client:
                 return await client.request(**request)
 
-        response: httpx.Response
-        async with httpx.AsyncClient() as client:
+        response: httpx2.Response
+        async with httpx2.AsyncClient() as client:
             for attempt in range(max_attempts):
                 try:
                     response = await client.request(**request)
-                except httpx.TransportError:
+                except httpx2.TransportError:
                     # Legacy retry mode only retries HTTP responses, not transport failures.
                     raise
 
