@@ -245,7 +245,9 @@ def response_id_exist_on_server(server_url):
 
 @all_available_servers
 def test_get_response(server_url, response_id_exist_on_server) -> None:
-    fetch_resp = httpx2.get(f"{server_url}/v1/responses/{response_id_exist_on_server}", timeout=60.0)
+    fetch_resp = httpx2.get(
+        f"{server_url}/v1/responses/{response_id_exist_on_server}", timeout=60.0
+    )
     fetch_resp.raise_for_status()
 
 

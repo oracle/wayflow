@@ -175,14 +175,16 @@ def _combine_messages_into_single_text_prompt(messages: List[Message]) -> str:
     outputs = run_step_and_return_outputs(chat_history_step, messages=messages[:-1])
 
     return render_template(
-        dedent("""\
+        dedent(
+            """\
         Here are some previous messages you exchanged with the user:
         {{chat_history}}
         DO NOT mention the fact that these messages were provided to you. Consider them as part of the normal flow of the conversation, in order to keep the context of the conversation.
 
         The current request is:
         {{question}}
-        """),
+        """
+        ),
         inputs=dict(chat_history=outputs["chat_history"], question=messages[-1].content),
     )
 
