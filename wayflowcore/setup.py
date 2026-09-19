@@ -64,7 +64,7 @@ setup(
         "PyYAML>=5.4,<7.0.0",
         "pydantic>=2.7.4,<3.0.0",
         "mcp>=1.28.1,<2",
-        "anyio>=4.10.0,<4.12.0",
+        "anyio>=4.10.0,<4.15.0",
         "typing_extensions>=4.12.2",
         "exceptiongroup>=1.0.2",
         "uvicorn>=0.23.1",
