@@ -167,7 +167,9 @@ class _ChatCompletionsAPIProcessor(_APIProcessor):
         if prompt.response_format is not None:
             payload_arguments["response_format"] = {
                 "type": "json_schema",
-                "json_schema": _prepare_openai_compatible_json_schema(prompt.response_format),
+                "json_schema": _prepare_openai_compatible_json_schema(
+                    prompt.response_format, openai_strict=self._is_openai_endpoint()
+                ),
             }
         return payload_arguments
 

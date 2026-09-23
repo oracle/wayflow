@@ -11,7 +11,11 @@ from typing import List, Sequence, Union, cast
 from wayflowcore._utils._templating_helpers import MessageAsDictT
 from wayflowcore.messagelist import Message, MessageType
 from wayflowcore.outputparser import JsonOutputParser, RegexOutputParser
-from wayflowcore.property import Property, _convert_list_of_properties_to_json_schema
+from wayflowcore.property import (
+    Property,
+    _convert_list_of_properties_to_json_schema,
+    _strip_wayflow_json_schema_extensions,
+)
 from wayflowcore.templates import PromptTemplate
 
 JSON_CONSTRAINED_GENERATION_PROMPT = "At the end of your answer, finish with <final_answer>$your_answer$</final_answer> with $your_answer$ being a properly formatted json that is valid against this JSON schema:"
@@ -26,7 +30,11 @@ def _create_json_instruction_message(
         content=system_prompt
         + "\n\n\n## Additional instructions: \n"
         + JSON_CONSTRAINED_GENERATION_PROMPT
-        + json.dumps(_convert_list_of_properties_to_json_schema(response_properties)),
+        + json.dumps(
+            _strip_wayflow_json_schema_extensions(
+                _convert_list_of_properties_to_json_schema(response_properties)
+            )
+        ),
     )
 
 
