@@ -8,7 +8,7 @@ import os
 import ssl
 from contextlib import contextmanager, nullcontext
 from copy import deepcopy
-from json import JSONDecodeError
+from json import JSONDecodeError, loads
 from typing import Any, Dict
 from unittest import mock
 from unittest.mock import AsyncMock, Mock, patch
@@ -34,7 +34,7 @@ from wayflowcore.models._openaihelpers._responses_processor import _ResponsesAPI
 from wayflowcore.models.llmmodel import LlmGenerationConfig
 from wayflowcore.models.llmmodelfactory import LlmModelFactory
 from wayflowcore.models.openaicompatiblemodel import OPEN_API_KEY
-from wayflowcore.property import StringProperty
+from wayflowcore.property import DictProperty, ObjectProperty, StringProperty, VectorProperty
 from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.serialization.serializer import serialize_to_dict
 from wayflowcore.tools import ServerTool, ToolRequest
@@ -563,6 +563,83 @@ def test_model_without_structured_generation_support_raises_when_prompted_with_t
     )
     with pytest.raises(ValueError, match="doesn't support structured generation"):
         llm.generate(prompt)
+
+
+@pytest.mark.parametrize(
+    "api_type,response_format_key",
+    [
+        (OpenAIAPIType.CHAT_COMPLETIONS, "json_schema"),
+        (OpenAIAPIType.RESPONSES, "format"),
+    ],
+)
+def test_dict_property_is_rejected_only_for_native_openai_endpoints(
+    api_type, response_format_key, https_json_server_factory, tls_material
+):
+    prompt = Prompt(
+        messages=[Message(role="user", content="hello")],
+        tools=[
+            Tool(
+                name="store_labels",
+                description="Store labels.",
+                input_descriptors=[
+                    DictProperty(name="labels", value_type=StringProperty()),
+                    VectorProperty(name="embedding"),
+                ],
+            )
+        ],
+        response_format=ObjectProperty(
+            name="result",
+            properties={
+                "labels": DictProperty(value_type=StringProperty()),
+                "embedding": VectorProperty(),
+            },
+        ),
+    )
+    captured_payload = {}
+
+    def capture_request(request):
+        captured_payload.update(loads(request.body))
+        if api_type == OpenAIAPIType.CHAT_COMPLETIONS:
+            return 200, {"choices": [{"message": {"content": "ok"}}]}
+        return 200, {
+            "output": [{"type": "message", "content": [{"type": "output_text", "text": "ok"}]}]
+        }
+
+    with https_json_server_factory(
+        response_factory=capture_request, tls_material=tls_material
+    ) as base_url:
+        compatible_model = OpenAICompatibleModel(
+            model_id="test-model",
+            base_url=base_url,
+            ca_file=tls_material.ca_cert_path,
+            api_type=api_type,
+        )
+        compatible_model.generate(prompt)
+
+    if api_type == OpenAIAPIType.CHAT_COMPLETIONS:
+        compatible_schema = captured_payload["response_format"][response_format_key]["schema"]
+    else:
+        compatible_schema = captured_payload["text"][response_format_key]["schema"]
+    assert compatible_schema["properties"]["labels"] == {
+        "type": "object",
+        "additionalProperties": {"type": "string"},
+    }
+    assert compatible_schema["additionalProperties"] is False
+    assert compatible_schema["required"] == ["labels", "embedding"]
+    assert "x_vector_property" not in compatible_schema["properties"]["embedding"]
+    tool_parameters = (
+        captured_payload["tools"][0]["function"]["parameters"]
+        if api_type == OpenAIAPIType.CHAT_COMPLETIONS
+        else captured_payload["tools"][0]["parameters"]
+    )
+    assert "key_type" not in tool_parameters["properties"]["labels"]
+    assert "x_vector_property" not in tool_parameters["properties"]["embedding"]
+
+    openai_model = OpenAICompatibleModel(
+        model_id="test-model", base_url="https://api.openai.com", api_type=api_type
+    )
+    with pytest.raises(ValueError, match="DictProperty.*strict structured output"):
+        openai_model.generate(prompt)
 
 
 @contextmanager

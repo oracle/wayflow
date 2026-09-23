@@ -233,7 +233,9 @@ class _ResponsesAPIProcessor(_APIProcessor):
             payload_arguments["text"] = {
                 "format": {
                     "type": "json_schema",
-                    **_prepare_openai_compatible_json_schema(prompt.response_format),
+                    **_prepare_openai_compatible_json_schema(
+                        prompt.response_format, openai_strict=self._is_openai_endpoint()
+                    ),
                 },
             }
         return payload_arguments
