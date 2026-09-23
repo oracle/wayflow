@@ -22,7 +22,12 @@ from wayflowcore.idgeneration import IdGenerator
 from wayflowcore.messagelist import Message, MessageType
 from wayflowcore.models.llmgenerationconfig import LlmGenerationConfig
 from wayflowcore.outputparser import OutputParser, ToolOutputParser
-from wayflowcore.property import AnyProperty, ListProperty, Property
+from wayflowcore.property import (
+    AnyProperty,
+    ListProperty,
+    Property,
+    _strip_wayflow_json_schema_extensions,
+)
 from wayflowcore.tools import Tool
 from wayflowcore.transforms import CallableMessageTransform, MessageTransform
 
@@ -391,7 +396,9 @@ class PromptTemplate(DataclassComponent):
             and self.response_format is not None
             and self.RESPONSE_FORMAT_PLACEHOLDER_NAME not in inputs
         ):
-            inputs[self.RESPONSE_FORMAT_PLACEHOLDER_NAME] = self.response_format.to_json_schema()
+            inputs[self.RESPONSE_FORMAT_PLACEHOLDER_NAME] = _strip_wayflow_json_schema_extensions(
+                self.response_format.to_json_schema()
+            )
 
         messages = await self._prepare_messages(inputs)
 

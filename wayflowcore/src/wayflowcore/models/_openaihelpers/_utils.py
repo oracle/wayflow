@@ -11,16 +11,20 @@ from typing import Any, Dict
 import json_repair
 
 from wayflowcore.models.openaiapitype import OpenAIAPIType
-from wayflowcore.property import JsonSchemaParam, Property
+from wayflowcore.property import JsonSchemaParam, Property, _strip_wayflow_json_schema_extensions
 
 logger = logging.getLogger(__name__)
 
 
-def _prepare_openai_compatible_json_schema(response_format: Property) -> Dict[str, Any]:
+def _prepare_openai_compatible_json_schema(
+    response_format: Property, openai_strict: bool = False
+) -> Dict[str, Any]:
     return {
         "name": response_format.name,
         "strict": True,
-        "schema": response_format.to_json_schema(openai_compatible=True),
+        "schema": _strip_wayflow_json_schema_extensions(
+            response_format.to_json_schema(openai_compatible=True, openai_strict=openai_strict)
+        ),
     }
 
 
@@ -61,7 +65,7 @@ def _remove_optional_from_signature(
         elif k == "properties" and isinstance(v, dict):
             for _, t in v.items():
                 _remove_optional_from_signature(t, False)
-    return param
+    return _strip_wayflow_json_schema_extensions(param) if _deepcopy else param
 
 
 _api_type_to_url_str = {

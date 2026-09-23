@@ -33,6 +33,7 @@ from wayflowcore._utils.lazy_loader import LazyLoader
 from wayflowcore.idgeneration import IdGenerator
 from wayflowcore.messagelist import ImageContent, TextContent, TextTokenLogProb, TextTokenTopLogProb
 from wayflowcore.models.openaiapitype import OpenAIAPIType
+from wayflowcore.property import _strip_wayflow_json_schema_extensions
 from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.serialization.serializer import serialize_to_dict
 from wayflowcore.tokenusage import TokenUsage
@@ -769,7 +770,9 @@ class _GenericOciApiFormatter(_OciApiFormatter):
     def convert_prompt_into_request(cls, prompt: "Prompt", model_id: str) -> Any:
         response_format = None
         if prompt.response_format is not None:
-            json_schema = prompt.response_format.to_json_schema(openai_compatible=True)
+            json_schema = _strip_wayflow_json_schema_extensions(
+                prompt.response_format.to_json_schema(openai_compatible=True)
+            )
             response_format = oci.generative_ai_inference.models.JsonSchemaResponseFormat(
                 json_schema=oci.generative_ai_inference.models.ResponseJsonSchema(
                     name=prompt.response_format.name, is_strict=True, schema=json_schema
@@ -1085,7 +1088,9 @@ class _CohereOciApiFormatter(_OciApiFormatter):
     def convert_prompt_into_request(cls, prompt: "Prompt", model_id: str) -> Any:
         cohere_response_format = None
         if prompt.response_format is not None:
-            json_schema = prompt.response_format.to_json_schema(openai_compatible=True)
+            json_schema = _strip_wayflow_json_schema_extensions(
+                prompt.response_format.to_json_schema(openai_compatible=True)
+            )
             cohere_response_format = oci.generative_ai_inference.models.CohereResponseJsonFormat(
                 schema=json_schema
             )
