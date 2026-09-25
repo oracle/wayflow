@@ -8,8 +8,8 @@
 from typing import Any, ForwardRef, List, Literal, Sequence, Tuple, Union, get_args, get_origin
 
 
-def is_any_type(tp: type) -> bool:
-    return tp is Any  # type: ignore
+def is_any_type(tp: Any) -> bool:
+    return tp is Any
 
 
 def is_union_type(tp: type) -> bool:

@@ -25,9 +25,7 @@ from wayflowcore.agentspec.agentspecexporter import AgentSpecExporter
 from wayflowcore.agentspec.components.transforms import (
     PluginToolRequestAndCallsTransform as AgentSpecToolRequestAndCallsTransform,
 )
-from wayflowcore.agentspec.components.transforms import (
-    messagetransform_serialization_plugin,
-)
+from wayflowcore.agentspec.components.transforms import messagetransform_serialization_plugin
 from wayflowcore.agentspec.runtimeloader import AgentSpecLoader
 from wayflowcore.datastore import InMemoryDatastore
 from wayflowcore.datastore.inmemory import _INMEMORY_USER_WARNING

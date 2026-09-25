@@ -142,9 +142,7 @@ from wayflowcore.agentspec.components import (
 from wayflowcore.agentspec.components import (
     PluginVllmEmbeddingConfig as AgentSpecPluginVllmEmbeddingConfig,
 )
-from wayflowcore.agentspec.components import (
-    all_serialization_plugin,
-)
+from wayflowcore.agentspec.components import all_serialization_plugin
 from wayflowcore.agentspec.components.agent import ExtendedAgent as AgentSpecExtendedAgent
 from wayflowcore.agentspec.components.contextprovider import (
     PluginConstantContextProvider as AgentSpecPluginConstantContextProvider,
@@ -391,9 +389,7 @@ from wayflowcore.models.ociclientconfig import (
 from wayflowcore.models.ociclientconfig import (
     OCIClientConfigWithUserAuthentication as RuntimeOCIClientConfigWithUserAuthentication,
 )
-from wayflowcore.models.openaicompatiblemodel import (
-    EMPTY_API_KEY,
-)
+from wayflowcore.models.openaicompatiblemodel import EMPTY_API_KEY
 from wayflowcore.models.openaicompatiblemodel import (
     OpenAICompatibleModel as RuntimeOpenAICompatibleModel,
 )
@@ -2013,23 +2009,22 @@ class WayflowBuiltinsSerializationPlugin(WayflowSerializationPlugin):
         use_plugin_model: bool = False,
     ) -> Union[AgentSpecMCPToolSpec, AgentSpecPluginMCPToolSpec]:
 
-        agentspec_model = AgentSpecPluginMCPToolSpec if use_plugin_model else AgentSpecMCPToolSpec
-        return cast(
-            Union[AgentSpecMCPToolSpec, AgentSpecPluginMCPToolSpec],
-            agentspec_model(
-                name=runtime_mcptoolspec.name,
-                description=runtime_mcptoolspec.description,
-                inputs=[
-                    _runtime_property_to_pyagentspec_property(input_)
-                    for input_ in runtime_mcptoolspec.input_descriptors or []
-                ],
-                outputs=[
-                    _runtime_property_to_pyagentspec_property(output)
-                    for output in runtime_mcptoolspec.output_descriptors or []
-                ],
-                requires_confirmation=runtime_mcptoolspec.requires_confirmation,
-                metadata=_create_agentspec_metadata_from_runtime_component(runtime_mcptoolspec),
-            ),
+        agentspec_model: Union[type[AgentSpecMCPToolSpec], type[AgentSpecPluginMCPToolSpec]] = (
+            AgentSpecPluginMCPToolSpec if use_plugin_model else AgentSpecMCPToolSpec
+        )
+        return agentspec_model(
+            name=runtime_mcptoolspec.name,
+            description=runtime_mcptoolspec.description,
+            inputs=[
+                _runtime_property_to_pyagentspec_property(input_)
+                for input_ in runtime_mcptoolspec.input_descriptors or []
+            ],
+            outputs=[
+                _runtime_property_to_pyagentspec_property(output)
+                for output in runtime_mcptoolspec.output_descriptors or []
+            ],
+            requires_confirmation=runtime_mcptoolspec.requires_confirmation,
+            metadata=_create_agentspec_metadata_from_runtime_component(runtime_mcptoolspec),
         )
 
     def _toolbox_convert_to_agentspec(
