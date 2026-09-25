@@ -96,8 +96,7 @@ def test_flow_rag_with_search_step(
     )
 
     llm_response_step = PromptExecutionStep(
-        prompt_template=dedent(
-            """
+        prompt_template=dedent("""
             You are a helpful motorcycle garage assistant. Based on the following search results:
 
             {{ retrieved_documents }}
@@ -105,8 +104,7 @@ def test_flow_rag_with_search_step(
             Answer the user's question: {{ user_query }}
 
             Be specific and mention details from the search results.
-        """
-        ),
+        """),
         llm=remotely_hosted_llm,
     )
 

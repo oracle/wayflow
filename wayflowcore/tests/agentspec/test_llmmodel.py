@@ -166,6 +166,8 @@ def test_llm_model_serde_restores_tls_sensitive_fields_from_components_registry(
     assert deserialized_llm_model.key_file == tls_material.client_key_path
     assert deserialized_llm_model.cert_file == tls_material.client_cert_path
     assert deserialized_llm_model.ca_file == tls_material.ca_cert_path
+
+
 @pytest.mark.parametrize(
     "llm_model, sensitive_field_name, sensitive_field_value",
     [

@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any, Dict, Union
 
 import anyio
-import httpx
+import httpx2
 import pytest
 from fastapi import HTTPException
 
@@ -58,7 +58,7 @@ def _create_response(
         "input": input_value,
         **payload_fields,
     }
-    response = httpx.post(f"{base_url}/v1/responses", json=payload, timeout=120.0, headers=headers)
+    response = httpx2.post(f"{base_url}/v1/responses", json=payload, timeout=120.0, headers=headers)
     response.raise_for_status()
     return response.json()
 
@@ -173,7 +173,7 @@ async def test_streaming_response_closes_receive_stream(monkeypatch: pytest.Monk
 
 @all_available_servers
 def test_list_models_endpoint(server_url) -> None:
-    resp = httpx.get(f"{server_url}/v1/models", timeout=30.0)
+    resp = httpx2.get(f"{server_url}/v1/models", timeout=30.0)
     resp.raise_for_status()
     payload = resp.json()
     assert payload["object"] == "list"
@@ -186,7 +186,7 @@ def test_list_models_endpoint(server_url) -> None:
 @all_available_servers
 def test_list_models_limit_and_ordering(server_url) -> None:
     params = {"limit": 1, "order": "asc"}
-    resp = httpx.get(f"{server_url}/v1/models", params=params, timeout=30.0)
+    resp = httpx2.get(f"{server_url}/v1/models", params=params, timeout=30.0)
     resp.raise_for_status()
     payload = resp.json()
     print(payload)
@@ -200,7 +200,7 @@ def test_list_models_limit_and_ordering(server_url) -> None:
 def test_list_models_with_limit_to_0(server_url) -> None:
 
     params = {"limit": 0, "order": "asc"}
-    resp = httpx.get(f"{server_url}/v1/models", params=params, timeout=30.0)
+    resp = httpx2.get(f"{server_url}/v1/models", params=params, timeout=30.0)
     resp.raise_for_status()
     payload = resp.json()
     assert payload["object"] == "list"
@@ -211,7 +211,7 @@ def test_list_models_with_limit_to_0(server_url) -> None:
 @all_available_servers
 def test_list_models_with_after(server_url) -> None:
     params = {"after": "simple-flow"}
-    resp = httpx.get(f"{server_url}/v1/models", params=params, timeout=30.0)
+    resp = httpx2.get(f"{server_url}/v1/models", params=params, timeout=30.0)
     resp.raise_for_status()
     payload = resp.json()
     assert payload["object"] == "list"
@@ -245,7 +245,9 @@ def response_id_exist_on_server(server_url):
 
 @all_available_servers
 def test_get_response(server_url, response_id_exist_on_server) -> None:
-    fetch_resp = httpx.get(f"{server_url}/v1/responses/{response_id_exist_on_server}", timeout=60.0)
+    fetch_resp = httpx2.get(
+        f"{server_url}/v1/responses/{response_id_exist_on_server}", timeout=60.0
+    )
     fetch_resp.raise_for_status()
 
 
@@ -259,7 +261,7 @@ def test_delete_response_official_client(
 
 @all_available_servers
 def test_get_unknow_response_fails(server_url, response_id_exist_on_server) -> None:
-    missing_resp = httpx.get(
+    missing_resp = httpx2.get(
         f"{server_url}/v1/responses/{response_id_exist_on_server}_unknown", timeout=30.0
     )
     assert missing_resp.status_code == 404
@@ -267,7 +269,7 @@ def test_get_unknow_response_fails(server_url, response_id_exist_on_server) -> N
 
 @all_available_servers
 def test_get_streaming_response_fails(server_url, response_id_exist_on_server) -> None:
-    not_supported_rsp = httpx.get(
+    not_supported_rsp = httpx2.get(
         f"{server_url}/v1/responses/{response_id_exist_on_server}",
         timeout=30.0,
         params=dict(stream=True),
@@ -280,13 +282,13 @@ def test_get_streaming_response_fails(server_url, response_id_exist_on_server) -
 
 @all_available_servers
 def test_delete_response(server_url, response_id_exist_on_server) -> None:
-    delete_resp = httpx.delete(
+    delete_resp = httpx2.delete(
         f"{server_url}/v1/responses/{response_id_exist_on_server}", timeout=30.0
     )
     delete_resp.raise_for_status()
 
     # after deletion, it's not there anymore
-    missing_resp = httpx.get(
+    missing_resp = httpx2.get(
         f"{server_url}/v1/responses/{response_id_exist_on_server}", timeout=30.0
     )
     assert missing_resp.status_code >= 400
@@ -306,7 +308,7 @@ def test_delete_response_official_client(
 
 @all_available_servers
 def test_delete_unexisting_response(server_url, response_id_exist_on_server) -> None:
-    delete_resp = httpx.delete(
+    delete_resp = httpx2.delete(
         f"{server_url}/v1/responses/{response_id_exist_on_server}_unknown", timeout=30.0
     )
     delete_resp.raise_for_status()
@@ -317,7 +319,7 @@ def test_delete_unexisting_response(server_url, response_id_exist_on_server) -> 
 
 @all_available_servers
 def test_cancel_response_not_implemented(server_url, response_id_exist_on_server) -> None:
-    cancel = httpx.post(
+    cancel = httpx2.post(
         f"{server_url}/v1/responses/{response_id_exist_on_server}/cancel", timeout=30.0
     )
     assert cancel.status_code == 501
@@ -330,7 +332,7 @@ def test_cancel_response_not_implemented(server_url, response_id_exist_on_server
 def test_create_response_unknown_model_returns_404(server_url) -> None:
 
     payload = {"model": "does-not-exist", "input": "hi"}
-    resp = httpx.post(f"{server_url}/v1/responses", json=payload, timeout=30.0)
+    resp = httpx2.post(f"{server_url}/v1/responses", json=payload, timeout=30.0)
     assert resp.status_code == 404
     detail = resp.json().get("detail")
     assert "assistant" in detail.lower()
@@ -340,7 +342,7 @@ def test_create_response_unknown_model_returns_404(server_url) -> None:
 def test_create_response_no_model_returns_404(server_url) -> None:
 
     payload = {"input": "hi"}
-    resp = httpx.post(f"{server_url}/v1/responses", json=payload, timeout=30.0)
+    resp = httpx2.post(f"{server_url}/v1/responses", json=payload, timeout=30.0)
     assert resp.status_code == 404
     detail = resp.json().get("detail")
     assert "assistant" in detail.lower()
@@ -350,7 +352,7 @@ def test_create_response_no_model_returns_404(server_url) -> None:
 def test_create_response_unknown_conversation(server_url) -> None:
 
     payload = {"model": "hr-assistant", "input": "hi", "conversation": "1"}
-    resp = httpx.post(f"{server_url}/v1/responses", json=payload, timeout=30.0)
+    resp = httpx2.post(f"{server_url}/v1/responses", json=payload, timeout=30.0)
     assert resp.status_code == 404
     detail = resp.json().get("detail")
     assert "conversation" in detail.lower()
@@ -360,7 +362,7 @@ def test_create_response_unknown_conversation(server_url) -> None:
 def test_create_response_unknown_response(server_url) -> None:
 
     payload = {"model": "hr-assistant", "input": "hi", "previous_response_id": "1"}
-    resp = httpx.post(f"{server_url}/v1/responses", json=payload, timeout=30.0)
+    resp = httpx2.post(f"{server_url}/v1/responses", json=payload, timeout=30.0)
     assert resp.status_code == 404
     detail = resp.json().get("detail")
     assert "previous response" in detail.lower()
@@ -370,7 +372,7 @@ def test_create_response_unknown_response(server_url) -> None:
 def test_create_response_with_instructions_when_agent_does_not_support_it(server_url) -> None:
 
     payload = {"model": "hr-assistant", "input": "hi", "instructions": "be polite"}
-    resp = httpx.post(f"{server_url}/v1/responses", json=payload, timeout=30.0)
+    resp = httpx2.post(f"{server_url}/v1/responses", json=payload, timeout=30.0)
     assert resp.status_code == 406
     detail = resp.json().get("detail")
     assert "Agent should have an `instructions` input" in detail
@@ -385,7 +387,7 @@ def test_create_response_respects_store_flag(server_url) -> None:
     )
     response_id = created["id"]
 
-    reuse_attempt = httpx.post(
+    reuse_attempt = httpx2.post(
         f"{server_url}/v1/responses",
         json={
             "model": "hr-assistant",
@@ -396,7 +398,7 @@ def test_create_response_respects_store_flag(server_url) -> None:
     )
     assert reuse_attempt.status_code >= 400
 
-    lookup = httpx.get(f"{server_url}/v1/responses/{response_id}", timeout=30.0)
+    lookup = httpx2.get(f"{server_url}/v1/responses/{response_id}", timeout=30.0)
     assert lookup.status_code >= 400
 
 
@@ -475,7 +477,7 @@ def test_unsupported_arguments_raise(server_url, arg_name, arg_value):
         "input": "hi",
         arg_name: arg_value,
     }
-    response = httpx.post(
+    response = httpx2.post(
         f"{server_url}/v1/responses",
         json=payload,
         timeout=120.0,
@@ -651,7 +653,7 @@ def _stream_request_and_return_output(
         "stream": True,
         **kwargs,
     }
-    with httpx.stream(
+    with httpx2.stream(
         "POST",
         f"{server_url}/v1/responses",
         json=streaming_payload,
@@ -1108,7 +1110,7 @@ def test_create_request_with_image_raises_when_llm_does_not_support_it_with_offi
 
 @all_available_servers
 def test_agent_can_be_given_instructions_when_agent_does_not_support_it(server_url):
-    response = httpx.post(
+    response = httpx2.post(
         f"{server_url}/v1/responses",
         json=dict(
             input="What is the capital of Switzerland?",
@@ -1131,7 +1133,7 @@ def test_agent_cant_be_given_instructions(multi_agent_inmemory_server):
     Max attempt:           3
     Justification:         (0.05 ** 3) ~= 9.4 / 100'000
     """
-    response = httpx.post(
+    response = httpx2.post(
         f"{multi_agent_inmemory_server}/v1/responses",
         json=dict(
             input="What is the capital of Switzerland?",
@@ -1155,7 +1157,7 @@ def test_tool_confirmation_is_not_implemented(multi_agent_inmemory_server):
     Max attempt:           3
     Justification:         (0.05 ** 3) ~= 9.4 / 100'000
     """
-    response = httpx.post(
+    response = httpx2.post(
         f"{multi_agent_inmemory_server}/v1/responses",
         json=dict(
             input="What are Maria's benefits?",
@@ -1169,7 +1171,7 @@ def test_tool_confirmation_is_not_implemented(multi_agent_inmemory_server):
 
 
 def test_missing_api_token_in_request(multi_agent_inmemory_server):
-    response = httpx.post(
+    response = httpx2.post(
         f"{multi_agent_inmemory_server}/v1/responses",
         json=dict(
             input="what is the capital of Switzerland?",

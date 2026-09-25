@@ -190,8 +190,8 @@ VERTEX_ADC_PROJECT_ID = _get_vertex_project_id_from_adc()
 
 
 def _cleanup_litellm_threads(*, threads_before: set[int]) -> None:
-    """Shutdown lingering LiteLLM/httpx thread-pool workers created during tests."""
-    # LiteLLM/httpx can leave private ThreadPoolExecutor workers around after a
+    """Shutdown lingering LiteLLM HTTP thread-pool workers created during tests."""
+    # LiteLLM can leave private ThreadPoolExecutor workers around after a
     # request. We compare thread snapshots so we only tear down executors that
     # were spawned during the current test run.
     threads_after = {

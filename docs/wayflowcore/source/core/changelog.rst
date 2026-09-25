@@ -10,6 +10,10 @@ New features
 Improvements
 ^^^^^^^^^^^^
 
+* **Switched to ``httpx2``:**
+
+  WayFlow now uses ``httpx2`` instead of ``httpx`` for its core HTTP clients.
+
 Bug fixes
 ^^^^^^^^^
 

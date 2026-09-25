@@ -8,7 +8,7 @@ import os
 from pathlib import Path
 from typing import Any, Dict, Union, cast
 
-import httpx
+import httpx2
 import pytest
 from pyagentspec.agent import Agent as AgentSpecAgent
 from pyagentspec.flows.nodes.toolnode import ToolNode as AgentSpecToolNode
@@ -209,9 +209,9 @@ def run_example(
 
 
 def _mock_open_meteo_api(monkeypatch: pytest.MonkeyPatch) -> None:
-    async def _execute_request(self: ApiCallStep, request: Dict[str, Any]) -> httpx.Response:
+    async def _execute_request(self: ApiCallStep, request: Dict[str, Any]) -> httpx2.Response:
         assert request["url"].startswith("https://api.open-meteo.com/v1/forecast")
-        return httpx.Response(
+        return httpx2.Response(
             200,
             json={
                 "latitude": 52.52,

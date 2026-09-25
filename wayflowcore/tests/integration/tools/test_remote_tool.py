@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Union
 from unittest.mock import patch
 
-import httpx
+import httpx2
 import pytest
 
 from wayflowcore.agent import Agent
@@ -78,7 +78,7 @@ def test_remote_tool_has_correct_input_arguments():
 
 
 @patch.object(
-    httpx.AsyncClient, "request", return_value=MockResponse.from_object({"full": "response"})
+    httpx2.AsyncClient, "request", return_value=MockResponse.from_object({"full": "response"})
 )
 def test_remote_tool_returns_whole_response_by_default(patched_request):
     tool = RemoteTool(
@@ -92,7 +92,7 @@ def test_remote_tool_returns_whole_response_by_default(patched_request):
 
 
 @patch.object(
-    httpx.AsyncClient,
+    httpx2.AsyncClient,
     "request",
     return_value=MockResponse.from_object({"a": "b", "c": ["d", {"e": "f", "g": ["h", "i"]}]}),
 )
@@ -110,7 +110,7 @@ def test_remote_tool_uses_the_jq_query(patched_request):
 
 @retry_test(max_attempts=3, wait_between_tries=1)
 @patch.object(
-    httpx.AsyncClient,
+    httpx2.AsyncClient,
     "request",
     return_value=MockResponse.from_object({"weather": "strong winds at 45 km/h"}),
 )
@@ -151,7 +151,7 @@ def test_agent_can_use_remote_tool_with_confirmation(patched_request, remotely_h
     assert "45" in agent_message  # The speed of the winds
 
 
-@patch.object(httpx.AsyncClient, "request", return_value=MockResponse.from_object({}))
+@patch.object(httpx2.AsyncClient, "request", return_value=MockResponse.from_object({}))
 def test_remote_tool_correctly_parametrizes_requests(patched_request):
     tool = RemoteTool(
         name="get_example_tool",
@@ -172,7 +172,7 @@ def test_remote_tool_correctly_parametrizes_requests(patched_request):
 
 @retry_test(max_attempts=3, wait_between_tries=1)
 @patch.object(
-    httpx.AsyncClient,
+    httpx2.AsyncClient,
     "request",
     return_value=MockResponse.from_object({"weather": "strong winds at 45 km/h"}),
 )

@@ -96,8 +96,7 @@ Here are the instructions specific to your role:
 ).strip()
 
 
-_DEFAULT_SWARM_SYSTEM_REMINDER = (
-    """
+_DEFAULT_SWARM_SYSTEM_REMINDER = ("""
 --- SYSTEM REMINDER ---
 You are a helpful AI Agent, your name: {{name}}. Your user/caller is: {{caller_name}}.
 
@@ -118,9 +117,7 @@ For multiple tool calls:
   {"name": "<second_function_name>", "parameters": {"<argument_name>": "<argument_value>"}}
 ]
 
-"""
-    + _TOOL_OUTPUT_SYSTEM_RULE
-).strip()
+""" + _TOOL_OUTPUT_SYSTEM_RULE).strip()
 
 
 def _is_system_reminder(message: "Message") -> bool:

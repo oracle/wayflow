@@ -13,6 +13,7 @@ from unittest.mock import Mock, patch
 
 import anyio
 import httpx
+import httpx2
 import pytest
 from anyio import to_thread
 from mcp import ClientSession
@@ -310,10 +311,10 @@ class _RunAsyncRuntime:
         return await async_fn(*args, **kwargs)
 
 
-def _make_http_status_error(status_code: int) -> httpx.HTTPStatusError:
-    request = httpx.Request("POST", "https://mcp.example.com/mcp")
-    response = httpx.Response(status_code, request=request)
-    return httpx.HTTPStatusError(
+def _make_http_status_error(status_code: int) -> httpx2.HTTPStatusError:
+    request = httpx2.Request("POST", "https://mcp.example.com/mcp")
+    response = httpx2.Response(status_code, request=request)
+    return httpx2.HTTPStatusError(
         f"HTTP status {status_code}",
         request=request,
         response=response,
@@ -499,7 +500,7 @@ async def test_mcp_tool_call_does_not_retry_without_retry_policy(
                 _validate_server_exists=False,
             )
 
-    with pytest.raises(httpx.HTTPStatusError):
+    with pytest.raises(httpx2.HTTPStatusError):
         await tool.run_async()
 
     assert session.calls == 1
@@ -650,6 +651,23 @@ def test_sse_transport_uses_tls_verification_by_default(monkeypatch):
     transport._get_client_transport_cm()
 
     assert captured_factory["value"].verify is True
+
+
+def test_mcp_http_client_factory_converts_mcp_timeout() -> None:
+    """MCP 1.x timeout objects must be converted before reaching httpcore2."""
+    from wayflowcore.mcp.clienttransport import _HttpxClientFactory
+
+    client = _HttpxClientFactory()(timeout=httpx.Timeout(5.0, read=60.0))
+    try:
+        assert isinstance(client.timeout, httpx2.Timeout)
+        assert client.timeout.as_dict() == {
+            "connect": 5.0,
+            "read": 60.0,
+            "write": 5.0,
+            "pool": 5.0,
+        }
+    finally:
+        anyio.run(client.aclose)
 
 
 def test_streamablehttp_transport_uses_tls_verification_by_default(monkeypatch):
@@ -1220,7 +1238,7 @@ def test_connection_persistence_with_agent_and_mcp_toolbox(
     agent, message_pattern = get_simple_mcp_agent_and_message_pattern(
         mcp_fooza_toolbox, remotely_hosted_llm
     )
-    logger = logging.getLogger("httpx")
+    logger = logging.getLogger("httpx2")
     logger.propagate = True  # necessary so that the caplog handler can capture logging messages
     logger.setLevel(logging.INFO)
     caplog.set_level(logging.INFO)
@@ -1248,7 +1266,7 @@ async def test_connection_persistence_with_agent_and_mcp_toolbox_async(
     agent, message_pattern = get_simple_mcp_agent_and_message_pattern(
         mcp_fooza_toolbox, remotely_hosted_llm
     )
-    logger = logging.getLogger("httpx")
+    logger = logging.getLogger("httpx2")
     logger.propagate = True  # necessary so that the caplog handler can capture logging messages
     logger.setLevel(logging.INFO)
     caplog.set_level(logging.INFO)
@@ -1291,7 +1309,7 @@ def test_connection_persistence_with_flow_and_mcp_tool(
     caplog: pytest.LogCaptureFixture, mcp_fooza_tool
 ) -> None:
     flow, message_pattern = get_simple_mcp_flow_and_message_pattern(mcp_fooza_tool)
-    logger = logging.getLogger("httpx")
+    logger = logging.getLogger("httpx2")
     logger.propagate = True  # necessary so that the caplog handler can capture logging messages
     logger.setLevel(logging.INFO)
     caplog.set_level(logging.INFO)
@@ -1311,7 +1329,7 @@ async def test_connection_persistence_with_flow_and_mcp_tool_async(
     mcp_fooza_tool,
 ) -> None:
     flow, message_pattern = get_simple_mcp_flow_and_message_pattern(mcp_fooza_tool)
-    logger = logging.getLogger("httpx")
+    logger = logging.getLogger("httpx2")
     logger.propagate = True  # necessary so that the caplog handler can capture logging messages
     logger.setLevel(logging.INFO)
     caplog.set_level(logging.INFO)
@@ -1664,7 +1682,7 @@ def test_oauth_raises_when_not_passing_oauth_config(
     _run_mcp_oauth_connection_and_catch_error(
         client_transport,
         llm,
-        exception=httpx.HTTPStatusError,
+        exception=httpx2.HTTPStatusError,
         match="Encountered Authorization error when connecting to the MCP server",
     )
 
@@ -1678,7 +1696,7 @@ def test_oauth_raises_when_using_incorrect_url(
     _run_mcp_oauth_connection_and_catch_error(
         client_transport,
         llm,
-        exception=httpx.HTTPStatusError,
+        exception=httpx2.HTTPStatusError,
         match="Successfully reached the MCP server but failed to find the endpoint for the given transport",
     )
 
@@ -1691,7 +1709,7 @@ def test_oauth_raises_when_using_incorrect_transport(
     _run_mcp_oauth_connection_and_catch_error(
         client_transport,
         llm,
-        exception=httpx.HTTPStatusError,
+        exception=httpx2.HTTPStatusError,
         match="Successfully reached the MCP server but failed when establishing the connection",
     )
 
@@ -1747,7 +1765,21 @@ def flow_with_oauth(tool_requiring_oauth) -> Flow:
     return Flow.from_steps([ToolExecutionStep(name="mcp_tool", tool=tool_requiring_oauth)])
 
 
-def test_oauth_works_on_flow_with_mcp_tool(flow_with_oauth: Flow):
+def test_oauth_works_on_flow_with_mcp_tool(flow_with_oauth: Flow, monkeypatch):
+    post_request_bodies: List[bytes] = []
+    original_client_init = httpx2.AsyncClient.__init__
+
+    async def capture_request(request: httpx2.Request) -> None:
+        if request.method == "POST":
+            post_request_bodies.append(request.content)
+
+    def client_init(self, *args, **kwargs):
+        event_hooks = dict(kwargs.get("event_hooks") or {})
+        event_hooks["request"] = [*event_hooks.get("request", []), capture_request]
+        original_client_init(self, *args, **{**kwargs, "event_hooks": event_hooks})
+
+    monkeypatch.setattr(httpx2.AsyncClient, "__init__", client_init)
+
     conv = flow_with_oauth.start_conversation()
     status = conv.execute()
 
@@ -1767,6 +1799,7 @@ def test_oauth_works_on_flow_with_mcp_tool(flow_with_oauth: Flow):
 
     outputs = status.output_values
     assert "tool_output" in outputs and "random_string_" in outputs["tool_output"]
+    assert any(b"grant_type=authorization_code" in body for body in post_request_bodies)
 
 
 def test_oauth_works_on_agent_with_mcptool(tool_requiring_oauth: MCPTool, remotely_hosted_llm):

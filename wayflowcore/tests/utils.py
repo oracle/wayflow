@@ -17,7 +17,7 @@ from collections import deque
 from contextlib import closing
 from typing import Optional
 
-import httpx
+import httpx2
 
 
 class LogTee:
@@ -124,7 +124,7 @@ def _check_server_is_up(
 
     last_exc: Optional[Exception] = None
     deadline = time.time() + timeout_s
-    with httpx.Client(verify=verify, timeout=1.0) as client:
+    with httpx2.Client(verify=verify, timeout=1.0) as client:
         while time.time() < deadline:
             try:
                 resp = client.get(url)
