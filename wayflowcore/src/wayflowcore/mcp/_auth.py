@@ -40,10 +40,11 @@
 import logging
 import ssl
 from collections.abc import AsyncGenerator
-from typing import Any, Optional, TypeAlias, cast
+from typing import Optional, TypeAlias, cast
 from urllib.parse import parse_qs, parse_qsl, urlparse
 
 import anyio
+import httpx
 import httpx2
 from exceptiongroup import ExceptionGroup
 from mcp.client.auth import OAuthClientProvider, OAuthFlowError, OAuthTokenError, TokenStorage
@@ -199,7 +200,7 @@ class OAuthFlowHandler(OAuthClientProvider, httpx2.Auth):  # type: ignore[misc]
         self._initialized = True  # important otherwise client info is reset.
 
     @staticmethod
-    def _to_httpx2_request(request: Any) -> httpx2.Request:
+    def _to_httpx2_request(request: httpx.Request | httpx2.Request) -> httpx2.Request:
         """Convert requests created by MCP 1.x to requests accepted by httpx2."""
         if isinstance(request, httpx2.Request):
             return request
@@ -210,6 +211,15 @@ class OAuthFlowHandler(OAuthClientProvider, httpx2.Auth):  # type: ignore[misc]
             content=request.content,
             extensions=request.extensions,
         )
+
+    @staticmethod
+    def _to_mcp_response(response: httpx2.Response) -> httpx.Response:
+        """Pass an httpx2 response to MCP's HTTP response readers."""
+        return cast(httpx.Response, response)
+
+    def _add_httpx2_auth_header(self, request: httpx2.Request) -> None:
+        """Use MCP's header logic on an httpx2 request."""
+        self._add_auth_header(cast(httpx.Request, request))
 
     @property
     def portal(self) -> AsyncRuntime:
@@ -400,12 +410,12 @@ class OAuthFlowHandler(OAuthClientProvider, httpx2.Auth):  # type: ignore[misc]
                 refresh_request = self._to_httpx2_request(await self._refresh_token())
                 refresh_response = yield refresh_request
 
-                if not await self._handle_refresh_response(cast(Any, refresh_response)):
+                if not await self._handle_refresh_response(self._to_mcp_response(refresh_response)):
                     # Refresh failed, need full re-authentication
                     self._initialized = False
 
             if self.context.is_token_valid():
-                self._add_auth_header(cast(Any, request))
+                self._add_httpx2_auth_header(request)
 
             # need to add something when failing to
             try:
@@ -418,7 +428,7 @@ class OAuthFlowHandler(OAuthClientProvider, httpx2.Auth):  # type: ignore[misc]
                 try:
                     # OAuth flow must be inline due to generator constraints
                     www_auth_resource_metadata_url = extract_resource_metadata_from_www_auth(
-                        cast(Any, response)
+                        self._to_mcp_response(response)
                     )
                     # Step 1: Discover protected resource metadata (SEP-985 with fallback support)
                     prm_discovery_urls = build_protected_resource_metadata_discovery_urls(
@@ -433,7 +443,7 @@ class OAuthFlowHandler(OAuthClientProvider, httpx2.Auth):  # type: ignore[misc]
                         )  # sending request
 
                         prm = await handle_protected_resource_response(
-                            cast(Any, discovery_response)
+                            self._to_mcp_response(discovery_response)
                         )
                         if prm:
                             self.context.protected_resource_metadata = prm
@@ -460,7 +470,7 @@ class OAuthFlowHandler(OAuthClientProvider, httpx2.Auth):  # type: ignore[misc]
                         )
 
                         ok, asm = await handle_auth_metadata_response(
-                            cast(Any, oauth_metadata_response)
+                            self._to_mcp_response(oauth_metadata_response)
                         )
                         if not ok:
                             break
@@ -472,7 +482,7 @@ class OAuthFlowHandler(OAuthClientProvider, httpx2.Auth):  # type: ignore[misc]
 
                     # Step 3: Apply scope selection strategy
                     self.context.client_metadata.scope = get_client_metadata_scopes(
-                        extract_scope_from_www_auth(cast(Any, response)),
+                        extract_scope_from_www_auth(self._to_mcp_response(response)),
                         self.context.protected_resource_metadata,
                         self.context.oauth_metadata,
                     )
@@ -503,7 +513,7 @@ class OAuthFlowHandler(OAuthClientProvider, httpx2.Auth):  # type: ignore[misc]
                                 registration_request
                             )
                             client_information = await handle_registration_response(
-                                cast(Any, registration_response)
+                                self._to_mcp_response(registration_response)
                             )
                             self.context.client_info = client_information
                             await self.context.storage.set_client_info(client_information)
@@ -545,18 +555,18 @@ class OAuthFlowHandler(OAuthClientProvider, httpx2.Auth):  # type: ignore[misc]
                     raise
 
                 # Retry with new tokens
-                self._add_auth_header(cast(Any, request))
+                self._add_httpx2_auth_header(request)
                 yield request
             elif response.status_code == 403:
                 # Step 1: Extract error field from WWW-Authenticate header
-                error = extract_field_from_www_auth(cast(Any, response), "error")
+                error = extract_field_from_www_auth(self._to_mcp_response(response), "error")
 
                 # Step 2: Check if we need to step-up authorization
                 if error == "insufficient_scope":  # pragma: no branch
                     try:
                         # Step 2a: Update the required scopes
                         self.context.client_metadata.scope = get_client_metadata_scopes(
-                            extract_scope_from_www_auth(cast(Any, response)),
+                            extract_scope_from_www_auth(self._to_mcp_response(response)),
                             self.context.protected_resource_metadata,
                         )
 
@@ -569,7 +579,7 @@ class OAuthFlowHandler(OAuthClientProvider, httpx2.Auth):  # type: ignore[misc]
                         raise
 
                 # Retry with new tokens
-                self._add_auth_header(cast(Any, request))
+                self._add_httpx2_auth_header(request)
                 yield request
 
     def _signal_oauth_completion_with_error(self) -> None:

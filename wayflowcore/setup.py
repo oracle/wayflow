@@ -76,7 +76,6 @@ setup(
         "annotated-types>=0.6.0",
         "certifi>=2025.4.26",
         "httpcore>=1.0.9",  # Required by MCP 1.x.
-        "httpcore2>=2.13.0,<3.0.0",
         "idna>=3.7",
         "pydantic_core>=2.33.0",  # warning but no vulnerabilities
         "PyJWT>=2.13.0,<3.0.0",  # Versions <2.13.0 were affected with CVEs; 2.13.0 is required.

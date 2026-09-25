@@ -90,11 +90,12 @@ Provider: Pydantic Services Inc.
 Component(s): httpx2
 
 
-Copyright: Tom Christie
+Copyright: Pydantic Services Inc. and individual contributors; Encode OSS Ltd
 License: BSD 3-Clause
 
  ./LICENSE.md
 
+Copyright © 2026 to present Pydantic Services Inc. and individual contributors.
 Copyright © 2019, [Encode OSS Ltd](https://www.encode.io/).
 All rights reserved.
 
@@ -113,11 +114,12 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 
 Dependency: :httpcore2
-Copyright: Tom Christie
+Copyright: Pydantic Services Inc. and individual contributors; Encode OSS Ltd
 License: BSD 3-Clause
 
  ./LICENSE.md
 
+Copyright © 2026 to present Pydantic Services Inc. and individual contributors.
 Copyright © 2020, [Encode OSS Ltd](https://www.encode.io/).
 All rights reserved.
 
@@ -1947,7 +1949,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 
-Dependency: :httpx2
+Dependency: :httpx
 Copyright: Tom Christie
 License: BSD 3-Clause
 

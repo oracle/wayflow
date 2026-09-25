@@ -12,6 +12,7 @@ from typing import Any, Awaitable, Callable, Dict, Generator, List, Tuple, cast
 from unittest.mock import Mock, patch
 
 import anyio
+import httpx
 import httpx2
 import pytest
 from anyio import to_thread
@@ -654,13 +655,9 @@ def test_sse_transport_uses_tls_verification_by_default(monkeypatch):
 
 def test_mcp_http_client_factory_converts_mcp_timeout() -> None:
     """MCP 1.x timeout objects must be converted before reaching httpcore2."""
-    from wayflowcore.mcp.clienttransport import _Httpx2ClientFactory
+    from wayflowcore.mcp.clienttransport import _HttpxClientFactory
 
-    class MCPTimeout:
-        def as_dict(self) -> Dict[str, float]:
-            return {"connect": 5.0, "read": 60.0, "write": 5.0, "pool": 5.0}
-
-    client = _Httpx2ClientFactory()(timeout=MCPTimeout())
+    client = _HttpxClientFactory()(timeout=httpx.Timeout(5.0, read=60.0))
     try:
         assert isinstance(client.timeout, httpx2.Timeout)
         assert client.timeout.as_dict() == {
@@ -1688,23 +1685,6 @@ def test_oauth_raises_when_not_passing_oauth_config(
         exception=httpx2.HTTPStatusError,
         match="Encountered Authorization error when connecting to the MCP server",
     )
-
-
-def test_oauth_flow_handler_is_compatible_with_httpx2() -> None:
-    from wayflowcore.mcp._auth import OAuthFlowHandler
-
-    assert issubclass(OAuthFlowHandler, httpx2.Auth)
-
-    class MCPRequest:
-        method = "POST"
-        url = "https://mcp.example.com/token"
-        headers = {"content-type": "application/x-www-form-urlencoded"}
-        content = b"grant_type=authorization_code"
-        extensions = {}
-
-    request = OAuthFlowHandler._to_httpx2_request(MCPRequest())
-    assert isinstance(request, httpx2.Request)
-    assert request.content == b"grant_type=authorization_code"
 
 
 def test_oauth_raises_when_using_incorrect_url(

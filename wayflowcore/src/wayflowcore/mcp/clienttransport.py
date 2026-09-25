@@ -12,6 +12,7 @@ from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass, field
 from typing import TYPE_CHECKING, Any, Callable, ClassVar, Dict, List, Literal, Optional, cast
 
+import httpx
 import httpx2
 from mcp.client.sse import sse_client
 from mcp.client.stdio import StdioServerParameters, stdio_client
@@ -238,7 +239,7 @@ class RemoteBaseTransport(SerializableDataclass, ClientTransport, ABC):
         return serialized_transport
 
 
-class _Httpx2ClientFactory:
+class _HttpxClientFactory:
     def __init__(
         self,
         verify: bool = True,
@@ -282,10 +283,10 @@ class _Httpx2ClientFactory:
         self.retry_policy = retry_policy
 
     @staticmethod
-    def _normalize_timeout(timeout: Any) -> httpx2.Timeout:
+    def _normalize_timeout(timeout: httpx.Timeout | httpx2.Timeout) -> httpx2.Timeout:
         """Convert timeout values from MCP's legacy HTTP client API.
 
-        MCP 1.x constructs its factory argument with its own ``Timeout`` class.
+        MCP 1.x constructs its factory argument with ``httpx.Timeout``.
         That class has the same public timeout fields as ``httpx2.Timeout``, but
         the two classes are intentionally not interchangeable. Passing the MCP
         value through unchanged eventually makes ``httpcore2`` pass the object
@@ -293,19 +294,12 @@ class _Httpx2ClientFactory:
         """
         if isinstance(timeout, httpx2.Timeout):
             return timeout
-        if isinstance(timeout, datetime.timedelta):
-            return httpx2.Timeout(timeout.total_seconds())
-
-        as_dict = getattr(timeout, "as_dict", None)
-        if callable(as_dict):
-            return httpx2.Timeout(**as_dict())
-
-        return httpx2.Timeout(timeout)
+        return httpx2.Timeout(**timeout.as_dict())
 
     def __call__(
         self,
         headers: dict[str, str] | None = None,
-        timeout: Any = None,
+        timeout: httpx.Timeout | httpx2.Timeout | None = None,
         auth: httpx2.Auth | None = None,
     ) -> httpx2.AsyncClient:
         # Set MCP defaults
@@ -358,7 +352,7 @@ class SSETransport(RemoteBaseTransport, ClientTransportWithAuth, SerializableObj
             auth=cast(Any, self._get_auth_provider()),
             httpx_client_factory=cast(
                 Any,
-                _Httpx2ClientFactory(
+                _HttpxClientFactory(
                     follow_redirects=self.follow_redirects,
                     retry_policy=self.retry_policy,
                 ),
@@ -435,7 +429,7 @@ class SSEmTLSTransport(HTTPmTLSBaseTransport, ClientTransportWithAuth, Serializa
             auth=cast(Any, self._get_auth_provider()),
             httpx_client_factory=cast(
                 Any,
-                _Httpx2ClientFactory(
+                _HttpxClientFactory(
                     key_file=self.key_file,
                     cert_file=self.cert_file,
                     ssl_ca_cert=self.ssl_ca_cert,
@@ -475,7 +469,7 @@ class StreamableHTTPTransport(RemoteBaseTransport, ClientTransportWithAuth, Seri
             auth=cast(Any, self._get_auth_provider()),
             httpx_client_factory=cast(
                 Any,
-                _Httpx2ClientFactory(
+                _HttpxClientFactory(
                     follow_redirects=self.follow_redirects,
                     retry_policy=self.retry_policy,
                 ),
@@ -533,7 +527,7 @@ class StreamableHTTPmTLSTransport(
             auth=cast(Any, self._get_auth_provider()),
             httpx_client_factory=cast(
                 Any,
-                _Httpx2ClientFactory(
+                _HttpxClientFactory(
                     key_file=self.key_file,
                     cert_file=self.cert_file,
                     ssl_ca_cert=self.ssl_ca_cert,

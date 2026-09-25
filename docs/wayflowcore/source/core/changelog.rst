@@ -518,7 +518,7 @@ Bug fixes
 * **Fixed warnings raised when LLM streaming generator was not properly closed:**
 
   Fixed a bug where streaming LLM generation in a ``chainlit`` app could raise warnings due to a non-closed generator. The generator is now properly
-  closed and we silence the known issue on the ``httpx2`` library.
+  closed and we silence the known issue on the ``httpx`` library.
 
 * **Continuing an agent conversation after an exception was raised could cause an exception:**
 
