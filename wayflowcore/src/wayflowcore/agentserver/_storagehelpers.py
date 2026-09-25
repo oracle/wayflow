@@ -27,8 +27,7 @@ def _prepare_postgres_datastore(
 ) -> None:
     from sqlalchemy.exc import ProgrammingError
 
-    create_table_query = dedent(
-        f"""
+    create_table_query = dedent(f"""
         CREATE TABLE {storage_config.table_name} (
             {storage_config.turn_id_column_name} VARCHAR(255) PRIMARY KEY,
             {storage_config.agent_id_column_name} VARCHAR(255) NOT NULL,
@@ -38,8 +37,7 @@ def _prepare_postgres_datastore(
             {storage_config.is_last_turn_column_name} INTEGER NOT NULL,
             {storage_config.extra_metadata_column_name} TEXT NOT NULL
         );
-        """
-    )
+        """)
     try:
         _execute_query_on_postgres_db(connection_config, create_table_query)
     except ProgrammingError as e:
@@ -54,8 +52,7 @@ def _prepare_postgres_datastore(
 def _prepare_oracle_datastore(
     connection_config: OracleDatabaseConnectionConfig, storage_config: ServerStorageConfig
 ) -> None:
-    create_table_query = dedent(
-        f"""
+    create_table_query = dedent(f"""
         CREATE TABLE {storage_config.table_name} (
             {storage_config.turn_id_column_name} VARCHAR2(255) PRIMARY KEY,
             {storage_config.agent_id_column_name} VARCHAR2(255) NOT NULL,
@@ -65,8 +62,7 @@ def _prepare_oracle_datastore(
             {storage_config.is_last_turn_column_name} INTEGER NOT NULL,
             {storage_config.extra_metadata_column_name} CLOB NOT NULL
         );
-        """
-    )
+        """)
     try:
         _execute_query_on_oracle_db(connection_config, query=create_table_query)
     except Exception as e:

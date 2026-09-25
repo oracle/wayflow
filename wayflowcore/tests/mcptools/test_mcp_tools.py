@@ -1765,7 +1765,21 @@ def flow_with_oauth(tool_requiring_oauth) -> Flow:
     return Flow.from_steps([ToolExecutionStep(name="mcp_tool", tool=tool_requiring_oauth)])
 
 
-def test_oauth_works_on_flow_with_mcp_tool(flow_with_oauth: Flow):
+def test_oauth_works_on_flow_with_mcp_tool(flow_with_oauth: Flow, monkeypatch):
+    post_request_bodies: List[bytes] = []
+    original_client_init = httpx2.AsyncClient.__init__
+
+    async def capture_request(request: httpx2.Request) -> None:
+        if request.method == "POST":
+            post_request_bodies.append(request.content)
+
+    def client_init(self, *args, **kwargs):
+        event_hooks = dict(kwargs.get("event_hooks") or {})
+        event_hooks["request"] = [*event_hooks.get("request", []), capture_request]
+        original_client_init(self, *args, **{**kwargs, "event_hooks": event_hooks})
+
+    monkeypatch.setattr(httpx2.AsyncClient, "__init__", client_init)
+
     conv = flow_with_oauth.start_conversation()
     status = conv.execute()
 
@@ -1785,6 +1799,7 @@ def test_oauth_works_on_flow_with_mcp_tool(flow_with_oauth: Flow):
 
     outputs = status.output_values
     assert "tool_output" in outputs and "random_string_" in outputs["tool_output"]
+    assert any(b"grant_type=authorization_code" in body for body in post_request_bodies)
 
 
 def test_oauth_works_on_agent_with_mcptool(tool_requiring_oauth: MCPTool, remotely_hosted_llm):

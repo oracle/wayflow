@@ -13,8 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 USEFULNESS_CRITERIA = {
-    "Task Completion Efficiency": dedent(
-        """
+    "Task Completion Efficiency": dedent("""
         - Task Completion Efficiency
         Explanation: [Technical explanation here]
         Score: [Strongly Disagree | Disagree | Neither Agree nor Disagree | Agree | Strongly Agree | N/A]
@@ -24,10 +23,8 @@ USEFULNESS_CRITERIA = {
         Neither Agree nor Disagree: The AI completes tasks with average efficiency, neither excelling nor failing noticeably.
         Agree: The AI generally completes tasks efficiently, often requiring fewer turns than expected.
         Strongly Agree: The AI consistently completes tasks with exceptional efficiency, minimizing the number of turns and maximizing productivity.
-        """
-    ),
-    "Proactive Assistance": dedent(
-        """
+        """),
+    "Proactive Assistance": dedent("""
         - Proactive Assistance
         Explanation: [Technical explanation here]
         Score: [Strongly Disagree | Disagree | Neither Agree nor Disagree | Agree | Strongly Agree | N/A]
@@ -37,10 +34,8 @@ USEFULNESS_CRITERIA = {
         Neither Agree nor Disagree: The AI occasionally offers proactive assistance but is primarily reactive in its approach.
         Agree: The AI frequently anticipates user needs and provides relevant information or suggestions unprompted.
         Strongly Agree: The AI consistently demonstrates high-level proactive assistance, anticipating complex user needs and offering valuable insights.
-        """
-    ),
-    "Clarification and Elaboration": dedent(
-        """
+        """),
+    "Clarification and Elaboration": dedent("""
         -. Clarification and Elaboration
         Explanation: [Technical explanation here]
         Score: [Strongly Disagree | Disagree | Neither Agree nor Disagree | Agree | Strongly Agree | N/A]
@@ -50,8 +45,7 @@ USEFULNESS_CRITERIA = {
         Neither Agree nor Disagree: The AI sometimes seeks clarification and provides basic elaboration when necessary.
         Agree: The AI rarely asks for clarification or elaborates on its responses, often leading to misunderstandings.
         Strongly Agree: The AI never seeks clarification when needed and provides minimal or no elaboration on its responses.
-        """
-    ),
+        """),
 }
 
 

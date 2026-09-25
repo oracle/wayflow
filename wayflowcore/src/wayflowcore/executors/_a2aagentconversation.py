@@ -39,14 +39,12 @@ class A2AAgentConversation(Conversation):
         result = f"State: {self.state}\nList of messages:\n"
 
         for i, message in enumerate(self.message_list.messages):
-            message_str = dedent(
-                """
+            message_str = dedent("""
                     Message #{}
                     Message type: {}
                     Message content:\n
                     {}\n
-                """
-            ).format(i, message.message_type, message.content)
+                """).format(i, message.message_type, message.content)
 
             result += message_str
         return result

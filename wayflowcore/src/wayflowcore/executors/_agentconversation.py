@@ -91,16 +91,14 @@ class AgentConversation(Conversation):
         result = f"State: {self.state}\nList of messages:\n"
 
         for i, message in enumerate(self.message_list.messages):
-            message_str = dedent(
-                """
+            message_str = dedent("""
                 Message #{}
                 Message type: {}
                 Message content:\n
                 {}\n
                 tool_requests: {}
                 tool_results: {}
-            """
-            ).format(
+            """).format(
                 i, message.message_type, message.content, message.tool_requests, message.tool_result
             )
 

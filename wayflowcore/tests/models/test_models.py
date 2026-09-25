@@ -2096,12 +2096,10 @@ def test_structured_generation_with_enum(request, llm_fixture_name):
     Justification:         (0.05 ** 3) ~= 9.4 / 100'000
     """
     llm = request.getfixturevalue(llm_fixture_name)
-    text = dedent(
-        """
+    text = dedent("""
         Here is some text, extract some information about it:
         Sea turtles are animals living most of their lives in the ocean, in the deep waters. They are in danger, and are lonely animals.
-        """
-    )
+        """)
     habitat_enum = ("WATER", "FOREST", "DESERT", "MOUNTAINS")
     state_enum = ("NA", "IN_DANGER", "EXTINCTION")
     life_enum = ("ALONE", "FAMILY", "HERD")
