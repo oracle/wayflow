@@ -9,6 +9,7 @@ from typing import Dict, List, Optional, Union
 import pytest
 
 from wayflowcore import Message, MessageType
+from wayflowcore._utils.formatting import correct_type
 from wayflowcore.outputparser import JsonToolOutputParser
 from wayflowcore.tools import tool
 
@@ -85,3 +86,38 @@ def test_llm_output_can_be_corrected_to_proper_tool_call(raw_args, expected_tool
     assert parsed_llm_message.message_type == MessageType.TOOL_REQUEST
     assert len(parsed_llm_message.tool_requests) == 1
     assert parsed_llm_message.tool_requests[0].args == expected_tool_call_args
+
+
+@pytest.mark.parametrize(
+    "additional_properties,input_value,expected_value",
+    [
+        (
+            True,
+            {"name": "example", "tags": ["one"], "extra": "unchanged"},
+            {"name": "example", "tags": ["one"], "extra": "unchanged"},
+        ),
+        (
+            False,
+            {"name": "example", "tags": ["one"], "extra": "removed"},
+            {"name": "example", "tags": ["one"]},
+        ),
+        (
+            {"type": "integer"},
+            {"name": "example", "tags": ["one"], "extra": "3"},
+            {"name": "example", "tags": ["one"], "extra": 3},
+        ),
+    ],
+)
+def test_object_properties_take_precedence_over_additional_properties(
+    additional_properties, input_value, expected_value
+):
+    schema = {
+        "type": "object",
+        "properties": {
+            "name": {"type": "string"},
+            "tags": {"type": "array", "items": {"type": "string"}},
+        },
+        "additionalProperties": additional_properties,
+    }
+
+    assert correct_type(input_value, schema) == expected_value

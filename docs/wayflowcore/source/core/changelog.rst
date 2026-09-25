@@ -13,6 +13,11 @@ Improvements
 Bug fixes
 ^^^^^^^^^
 
+* **Structured tool argument normalization**
+
+  Tool-call normalization now applies ``additionalProperties`` only to undeclared object fields,
+  preventing declared values from being replaced with booleans.
+
 WayFlow 26.3.0
 --------------
 
