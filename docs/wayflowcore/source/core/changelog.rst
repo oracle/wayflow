@@ -10,6 +10,12 @@ New features
 Improvements
 ^^^^^^^^^^^^
 
+* **AnyIO 4.14.2 support**
+
+  Require AnyIO 4.14.2 or newer within the 4.x series and use its public
+  ``NoEventLoopError`` when detecting synchronous execution contexts. Calls
+  from worker threads now pass a coroutine function to ``from_thread.run()``.
+
 * **Switched to ``httpx2``:**
 
   WayFlow now uses ``httpx2`` instead of ``httpx`` for its core HTTP clients.

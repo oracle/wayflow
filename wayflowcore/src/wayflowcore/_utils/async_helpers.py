@@ -27,7 +27,6 @@ from typing import (
 import anyio
 from anyio import from_thread
 from exceptiongroup import BaseExceptionGroup
-from sniffio import AsyncLibraryNotFoundError
 from typing_extensions import Self
 
 T = TypeVar("T")
@@ -43,31 +42,6 @@ class AsyncContext(Enum):
     SYNC_WORKER = "sync_worker"
 
 
-def _no_event_loop_exc_types() -> tuple[type[BaseException], ...]:
-    exc_types: list[type[BaseException]] = []
-
-    # anyio < 4.12.0
-    exc_types.append(AsyncLibraryNotFoundError)
-
-    # anyio == 4.12.0
-    try:
-        from anyio._core._eventloop import NoCurrentAsyncBackend  # type: ignore
-    except ImportError:
-        pass
-    else:
-        exc_types.append(NoCurrentAsyncBackend)
-
-    # anyio > 4.12.0
-    t = getattr(anyio, "NoEventLoopError", None)
-    if isinstance(t, type) and issubclass(t, BaseException):
-        exc_types.append(t)
-
-    return tuple(exc_types)
-
-
-_NO_EVENT_LOOP_EXCS = _no_event_loop_exc_types()
-
-
 def get_execution_context() -> AsyncContext:
     """
     Return one of:
@@ -78,7 +52,7 @@ def get_execution_context() -> AsyncContext:
     try:
         anyio.get_current_task()
         return AsyncContext.ASYNC
-    except _NO_EVENT_LOOP_EXCS:
+    except anyio.NoEventLoopError:
         # 1. if no backend is installed
         # 2. if no event loop is running
         current_thread = from_thread.current_thread()  # type: ignore
@@ -104,7 +78,10 @@ def run_async_in_sync(
             return anyio.run(async_function, *args)
         case AsyncContext.SYNC_WORKER:
             # case 2: from worker thread get back to existing async event loop
-            return from_thread.run(async_function, *args)
+            async def run_in_worker_context() -> T:
+                return await async_function(*args)
+
+            return from_thread.run(run_in_worker_context)
         case AsyncContext.ASYNC:
             # case 3: from async main context
             # this is highly discouraged since it synchronises work that could
