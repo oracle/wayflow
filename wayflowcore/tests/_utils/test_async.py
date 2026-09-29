@@ -99,6 +99,20 @@ async def test_can_run_synchronous_api_from_sync_anyio_workers():
 
 
 @pytest.mark.anyio
+async def test_can_run_custom_awaitable_from_sync_anyio_worker():
+    class CustomAwaitable:
+        def __await__(self):
+            return async_work().__await__()
+
+    def make_awaitable():
+        return CustomAwaitable()
+
+    result = await to_thread.run_sync(run_async_in_sync, make_awaitable)
+
+    assert result is True
+
+
+@pytest.mark.anyio
 async def test_can_run_synchronous_api_from_async_workers():
     result = None
 
