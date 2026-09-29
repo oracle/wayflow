@@ -38,7 +38,7 @@ def mock_server(session_tmp_path):
     import threading
     import time
 
-    import httpx
+    import httpx2
     import uvicorn
     from fastapi import FastAPI, HTTPException, Request, status
     from fastapi.responses import JSONResponse
@@ -88,7 +88,7 @@ def mock_server(session_tmp_path):
     url = f"http://{host}:{port}/protected?user=test"
     headers = {"Authorization": "Bearer valid-token"}
 
-    with httpx.Client(timeout=0.2) as client:
+    with httpx2.Client(timeout=0.2) as client:
         for _ in range(50):  # up to 5 seconds
             try:
                 response = client.get(url, headers=headers)

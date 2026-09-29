@@ -333,7 +333,7 @@ class CallVisitor(ast.NodeVisitor):
         self.tool_calls: List[Tuple[str, Dict[str, Any]]] = []
 
     def visit_Call(self, node: ast.Call) -> None:
-        arg_dict = {}
+        arg_dict: Dict[str, Any] = {}
 
         # first parse children to enqueue recursive tool calls first
         self.generic_visit(node)

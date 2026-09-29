@@ -8,7 +8,7 @@ import json
 import random
 from typing import List, Optional
 
-import httpx
+import httpx2
 import pytest
 from opentelemetry.sdk.trace import ReadableSpan as OtelSdkReadableSpan
 from opentelemetry.sdk.trace.export import SpanExporter as OtelSdkSpanExporter
@@ -33,7 +33,7 @@ class OTLPSpanExporter(OtelSdkSpanExporter):
         responses = []
         for span in spans:
             responses.append(
-                httpx.post(f"http://{self._endpoint}/v1/traces", json=json.loads(span.to_json()))
+                httpx2.post(f"http://{self._endpoint}/v1/traces", json=json.loads(span.to_json()))
             )
         if any(200 <= response.status_code < 300 for response in responses):
             return OtelSdkSpanExportResult.SUCCESS
@@ -65,7 +65,7 @@ def test_spans_get_exported_correctly_to_otel_collector(
             record_event(MyCustomEvent(name="MyTestCustomEvent", custom_attribute={"a": 1}))
             span.record_end_span_event(EndSpanEvent())
 
-    with httpx.Client(timeout=1.0) as client:
+    with httpx2.Client(timeout=1.0) as client:
         response = client.post(f"http://{otel_server}/v1/getspan", json={"span_id": span_id})
     assert 200 <= response.status_code < 300
     response_json = response.json()

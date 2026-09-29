@@ -203,7 +203,7 @@ class GeminiModel(LlmModel):
 
             yield StreamChunkType.START_CHUNK, Message(content="", message_type=MessageType.AGENT)
 
-            stream_state = {
+            stream_state: Dict[str, Any] = {
                 "text": "",
                 "tool_deltas": [],
                 "message_extra_content": None,
@@ -250,7 +250,7 @@ class GeminiModel(LlmModel):
 
         # Async streaming uses the same accumulation strategy as the sync path:
         # collect partial LiteLLM chunks until we can emit the final Message.
-        stream_state = {
+        stream_state: Dict[str, Any] = {
             "text": "",
             "tool_deltas": [],
             "message_extra_content": None,

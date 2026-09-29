@@ -15,7 +15,7 @@ from multiprocessing import Process
 from typing import Any, Dict, List, Tuple, Union
 from urllib.parse import parse_qs, parse_qsl, urlparse
 
-import httpx
+import httpx2
 import pytest
 
 from wayflowcore.flowhelpers import (
@@ -63,7 +63,7 @@ class MockResponse:
 @dataclass
 class AsyncRequestFaker:
     requests: List[Tuple[tuple, dict]] = field(default_factory=list)
-    response: httpx.Response = field(default_factory=MockResponse.from_object)
+    response: httpx2.Response = field(default_factory=MockResponse.from_object)
 
     def overwrite_status_code(self, code: int):
         self.response.status_code = code
@@ -76,7 +76,7 @@ class AsyncRequestFaker:
 @pytest.fixture
 def faked_request(monkeypatch):
     request_faker = AsyncRequestFaker()
-    monkeypatch.setattr(httpx.AsyncClient, "request", request_faker)
+    monkeypatch.setattr(httpx2.AsyncClient, "request", request_faker)
     return request_faker
 
 
@@ -356,9 +356,9 @@ def deploy_test_webapp(hostname: str, port: int):
 
 def check_server_is_up(base_url: str) -> bool:
     try:
-        response = httpx.get(f"{base_url}?q=3")
+        response = httpx2.get(f"{base_url}?q=3")
         return response.status_code == 200
-    except httpx.ConnectError as e:
+    except httpx2.ConnectError as e:
         return False
 
 

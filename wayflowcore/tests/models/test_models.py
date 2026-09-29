@@ -14,7 +14,7 @@ from pathlib import Path
 from textwrap import dedent
 from typing import Annotated, Any, Dict, List, Literal, Optional, Tuple, Union
 
-import httpx
+import httpx2
 import pytest
 
 from wayflowcore.embeddingmodels.openaicompatiblemodel import OpenAICompatibleEmbeddingModel
@@ -196,7 +196,7 @@ async def test_request_post_with_retry_policy_retries_on_429(monkeypatch):
     ]
     fake_client = _FakeAsyncClient(responses)
 
-    monkeypatch.setattr(httpx, "AsyncClient", lambda **kwargs: fake_client)
+    monkeypatch.setattr(httpx2, "AsyncClient", lambda **kwargs: fake_client)
 
     async def _noop_sleep(*_args, **_kwargs):
         return None
@@ -228,7 +228,7 @@ async def test_request_post_with_retry_policy_honors_request_timeout(monkeypatch
         async def post(self, **kwargs):
             return _FakeResponse(200, json_body={"ok": True})
 
-    monkeypatch.setattr(httpx, "AsyncClient", lambda **kwargs: _Client(**kwargs))
+    monkeypatch.setattr(httpx2, "AsyncClient", lambda **kwargs: _Client(**kwargs))
 
     out = await request_post_with_retries(
         request_params={"url": "https://example.com", "json": {}},
@@ -244,7 +244,7 @@ async def test_request_post_with_retry_policy_does_not_retry_on_401(monkeypatch)
     responses = [_FakeResponse(401, headers={}, text_body="unauthorized")]
     fake_client = _FakeAsyncClient(responses)
 
-    monkeypatch.setattr(httpx, "AsyncClient", lambda **kwargs: fake_client)
+    monkeypatch.setattr(httpx2, "AsyncClient", lambda **kwargs: fake_client)
 
     async def _noop_sleep(*_args, **_kwargs):
         return None
@@ -267,13 +267,13 @@ async def test_apicallstep_retries_on_429_and_honors_retry_after(monkeypatch):
     async def _fake_request(*_args, **_kwargs):
         calls["n"] += 1
         if calls["n"] == 1:
-            return httpx.Response(429, headers={"retry-after": "10"}, content=b"throttled")
-        return httpx.Response(200, content=b"{}")
+            return httpx2.Response(429, headers={"retry-after": "10"}, content=b"throttled")
+        return httpx2.Response(200, content=b"{}")
 
     async def _fake_send(self, *args, **kwargs):
         return await _fake_request(*args, **kwargs)
 
-    monkeypatch.setattr(httpx.AsyncClient, "send", _fake_send)
+    monkeypatch.setattr(httpx2.AsyncClient, "send", _fake_send)
 
     slept = {"seconds": []}
 
@@ -310,7 +310,7 @@ async def test_apicallstep_retry_policy_honors_request_timeout(monkeypatch):
             return False
 
         async def request(self, *args, **kwargs):
-            return httpx.Response(200, content=b"{}")
+            return httpx2.Response(200, content=b"{}")
 
     monkeypatch.setattr("wayflowcore.steps.apicallstep.RetryingAsyncClient", _Client)
 
@@ -322,7 +322,7 @@ async def test_apicallstep_retry_policy_honors_request_timeout(monkeypatch):
     response = await step._execute_request({"url": "https://example.com", "method": "GET"})
 
     assert response.status_code == 200
-    assert captured["timeout"] == httpx.Timeout(9.0)
+    assert captured["timeout"] == httpx2.Timeout(9.0)
 
 
 @pytest.mark.anyio
@@ -351,7 +351,7 @@ async def test_llmmodel_retries_on_429(monkeypatch):
         async def post(self, **kwargs):
             return await _fake_post(**kwargs)
 
-    monkeypatch.setattr(httpx, "AsyncClient", lambda **kwargs: _Client())
+    monkeypatch.setattr(httpx2, "AsyncClient", lambda **kwargs: _Client())
 
     async def _noop_sleep(*_args, **_kwargs):
         return None
@@ -393,7 +393,7 @@ async def test_embeddingmodel_retries_on_429(monkeypatch):
         async def post(self, **kwargs):
             return await _fake_post(**kwargs)
 
-    monkeypatch.setattr(httpx, "AsyncClient", lambda **kwargs: _Client())
+    monkeypatch.setattr(httpx2, "AsyncClient", lambda **kwargs: _Client())
 
     async def _noop_sleep(*_args, **_kwargs):
         return None
@@ -417,12 +417,12 @@ async def test_retrying_async_client_does_not_retry_tls_errors(monkeypatch):
 
     async def _fake_send(self, *args, **kwargs):
         calls["n"] += 1
-        raise httpx.ConnectError("certificate verify failed")
+        raise httpx2.ConnectError("certificate verify failed")
 
-    monkeypatch.setattr(httpx.AsyncClient, "send", _fake_send)
+    monkeypatch.setattr(httpx2.AsyncClient, "send", _fake_send)
 
     async with RetryingAsyncClient(retry_policy=RetryPolicy(max_attempts=4)) as client:
-        with pytest.raises(httpx.ConnectError):
+        with pytest.raises(httpx2.ConnectError):
             await client.request("GET", "https://example.com")
 
     assert calls["n"] == 1
@@ -1869,11 +1869,11 @@ def test_generate_works_with_frequency_penalty(llm_config):
         assert gen_cnt_no_penalty > gen_cnt_penalty
 
 
-@pytest.mark.parametrize("timeout", [0.0001, httpx.Timeout(timeout=0.0001)])
+@pytest.mark.parametrize("timeout", [0.0001, httpx2.Timeout(timeout=0.0001)])
 def test_configure_timeout_works(timeout):
     llm = LlmModelFactory.from_config(VLLM_MODEL_CONFIG)
     rp = RetryPolicy(
-        max_attempts=1, request_timeout=(0.0001 if isinstance(timeout, httpx.Timeout) else timeout)
+        max_attempts=1, request_timeout=(0.0001 if isinstance(timeout, httpx2.Timeout) else timeout)
     )
     llm.retry_policy = rp
     with pytest.raises(

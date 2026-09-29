@@ -93,8 +93,7 @@ Here are the instructions specific to your role.:
 """
 ).strip()
 
-_DEFAULT_MANAGERWORKERS_SYSTEM_REMINDER = (
-    """
+_DEFAULT_MANAGERWORKERS_SYSTEM_REMINDER = ("""
 --- SYSTEM REMINDER ---
 You are an helpful AI Agent, your name: {{name}}. Your user/caller is: {{caller_name}}.
 
@@ -115,9 +114,7 @@ For multiple tool calls:
   {"name": "<second_function_name>", "parameters": {"<argument_name>": "<argument_value>"}}
 ]
 
-"""
-    + _TOOL_OUTPUT_SYSTEM_RULE
-).strip()
+""" + _TOOL_OUTPUT_SYSTEM_RULE).strip()
 
 
 class ManagerWorkersJsonToolOutputParser(JsonToolOutputParser, SerializableObject):

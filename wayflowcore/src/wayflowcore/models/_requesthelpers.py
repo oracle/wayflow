@@ -33,7 +33,7 @@ from typing import (
 )
 
 import anyio
-import httpx
+import httpx2
 
 from wayflowcore.retrypolicy import RetryJitter, RetryPolicy
 
@@ -44,10 +44,10 @@ from wayflowcore.tokenusage import TokenUsage
 
 logger = logging.getLogger(__name__)
 
-VerifyType = Union[bool, str, ssl.SSLContext]
+VerifyType = Union[bool, ssl.SSLContext]
 
 
-DEFAULT_REQUEST_TIMEOUT: httpx.Timeout = httpx.Timeout(timeout=600, connect=20.0)
+DEFAULT_REQUEST_TIMEOUT: httpx2.Timeout = httpx2.Timeout(timeout=600, connect=20.0)
 """Default request timeout for remote calls."""
 
 DEFAULT_TOTAL_ELAPSED_TIME_SECONDS = 600.0
@@ -179,12 +179,12 @@ def _is_tls_or_cert_error(exc: BaseException) -> bool:
 
 
 def _resolve_timeout(
-    timeout: Union[float, httpx.Timeout],
+    timeout: Union[float, httpx2.Timeout],
     retry_policy: Optional[RetryPolicy],
-) -> Union[float, httpx.Timeout]:
+) -> Union[float, httpx2.Timeout]:
     if retry_policy is None:
         return timeout
-    return cast(Union[float, httpx.Timeout], retry_policy.request_timeout)
+    return cast(Union[float, httpx2.Timeout], retry_policy.request_timeout)
 
 
 def _compute_wait_before_next_attempt(
@@ -283,7 +283,7 @@ def _iter_exception_chain(exc: BaseException) -> Iterator[BaseException]:
 
 def _get_http_status_code_from_exception(exc: BaseException) -> Optional[int]:
     # SDK status exceptions usually expose status_code/status directly; fall
-    # back to response.status_code for HTTP client exceptions such as httpx.
+    # back to response.status_code for HTTP client exceptions such as httpx2.
     status_code = getattr(exc, "status_code", getattr(exc, "status", None))
     if status_code is None:
         response = getattr(exc, "response", None)
@@ -323,8 +323,8 @@ _PRE_RESPONSE_TRANSPORT_EXCEPTION_CLASS_NAMES = {
 
 def _is_transport_failure_without_http_response(exc: BaseException) -> bool:
     """Return whether an exception is a network/client failure before an HTTP response."""
-    # Native httpx transport failures do not represent HTTP responses.
-    if isinstance(exc, httpx.TransportError):
+    # Native httpx2 transport failures do not represent HTTP responses.
+    if isinstance(exc, httpx2.TransportError):
         return True
 
     # SDK status errors normally carry a response and must be classified by HTTP
@@ -360,7 +360,7 @@ def _classify_http_exception_for_retry(
 ) -> RetryClassification:
     # Some optional provider SDKs wrap HTTP failures in their own exception
     # classes. Keep retry classification based on stable HTTP attributes and
-    # httpx transport causes so importing those optional SDKs is not required.
+    # httpx2 transport causes so importing those optional SDKs is not required.
     for current in _iter_exception_chain(exc):
         if _is_transport_failure_without_http_response(current):
             if _is_tls_or_cert_error(current):
@@ -504,8 +504,8 @@ async def execute_async_with_retry(
     raise RuntimeError("Retry attempts were exhausted unexpectedly.")
 
 
-class RetryingAsyncClient(httpx.AsyncClient):
-    """HTTPX async client that applies ``RetryPolicy`` to transport and HTTP failures."""
+class RetryingAsyncClient(httpx2.AsyncClient):
+    """HTTPX2 async client that applies ``RetryPolicy`` to transport and HTTP failures."""
 
     def __init__(
         self,
@@ -521,12 +521,12 @@ class RetryingAsyncClient(httpx.AsyncClient):
 
     async def send(
         self,
-        request: httpx.Request,
+        request: httpx2.Request,
         *,
         stream: bool = False,
-        auth: Any = httpx.USE_CLIENT_DEFAULT,
-        follow_redirects: Any = httpx.USE_CLIENT_DEFAULT,
-    ) -> httpx.Response:
+        auth: Any = httpx2.USE_CLIENT_DEFAULT,
+        follow_redirects: Any = httpx2.USE_CLIENT_DEFAULT,
+    ) -> httpx2.Response:
         """Send a request and retry retryable transport or HTTP failures."""
         if self._retry_policy is None:
             return await super().send(
@@ -549,7 +549,7 @@ class RetryingAsyncClient(httpx.AsyncClient):
                     auth=auth,
                     follow_redirects=follow_redirects,
                 )
-            except httpx.TransportError as exc:
+            except httpx2.TransportError as exc:
                 if _is_tls_or_cert_error(exc) or request_attempt_num >= policy.total_attempts - 1:
                     raise
 
@@ -636,7 +636,7 @@ async def request_post_with_retries(
     proxy: Optional[str] = None,
     verify: VerifyType = True,
     retry_policy: Optional[RetryPolicy] = None,
-    timeout: Union[float, httpx.Timeout] = DEFAULT_REQUEST_TIMEOUT,
+    timeout: Union[float, httpx2.Timeout] = DEFAULT_REQUEST_TIMEOUT,
     total_elapsed_time_seconds: Optional[float] = DEFAULT_TOTAL_ELAPSED_TIME_SECONDS,
 ) -> Dict[str, Any]:
     """Makes a POST request using requests.post with OpenAI-like retry behavior"""
@@ -651,7 +651,7 @@ async def request_post_with_retries(
             # Ignore ambient proxy environment variables with `trust_env=False` to prevent injected
             # HTTPS proxy settings from hijack localhost TLS test traffic and cause the client to
             # validate the proxy certificate instead of the test server certificate.
-            async with httpx.AsyncClient(
+            async with httpx2.AsyncClient(
                 proxy=proxy,
                 timeout=timeout,
                 # Preserve the caller's TLS verification mode or CA bundle configuration.
@@ -709,7 +709,7 @@ async def request_post_with_retries(
                 raise Exception(
                     f"API request failed with status code {response.status_code}: {response_error} ({response})",
                 )
-        except httpx.TransportError as exc:
+        except httpx2.TransportError as exc:
             # Security: do not retry TLS / certificate validation failures.
             if _is_tls_or_cert_error(exc):
                 raise
@@ -740,9 +740,9 @@ async def request_post_with_retries(
     raise Exception("API request failed after maximum retries.")
 
 
-# Suppress “async generator ignored GeneratorExit” from httpcore/httpx streams:
+# Suppress “async generator ignored GeneratorExit” from httpcore2/httpx2 streams:
 # This warning happens when an async HTTP stream is cancelled/cleaned up mid-yield
-# (e.g., httpcore’s connection pool iterator during teardown) — the generator gets
+# (e.g., httpcore2’s connection pool iterator during teardown) — the generator gets
 # a GeneratorExit that it doesn’t cleanly propagate, resulting in Python printing
 # “async generator ignored GeneratorExit”. See:
 # https://github.com/Chainlit/chainlit/issues/2361
@@ -761,7 +761,7 @@ def _silence_generator_exit_noise(unraisable: Any) -> None:
 def silence_generator_exit_warnings() -> Generator[None, None, None]:
     prev_unraisable_hook = sys.unraisablehook
     try:
-        # ignore unraisable error coming from httpx to avoid polluting the logs
+        # ignore unraisable error coming from httpx2 to avoid polluting the logs
         sys.unraisablehook = _silence_generator_exit_noise
         yield
     finally:
@@ -773,7 +773,7 @@ async def request_streaming_post_with_retries(
     proxy: Optional[str] = None,
     verify: VerifyType = True,
     retry_policy: Optional[RetryPolicy] = None,
-    timeout: Union[float, httpx.Timeout] = DEFAULT_REQUEST_TIMEOUT,
+    timeout: Union[float, httpx2.Timeout] = DEFAULT_REQUEST_TIMEOUT,
     total_elapsed_time_seconds: Optional[float] = DEFAULT_TOTAL_ELAPSED_TIME_SECONDS,
 ) -> AsyncGenerator[str, None]:
     policy = retry_policy if retry_policy is not None else RetryPolicy()
@@ -789,7 +789,7 @@ async def request_streaming_post_with_retries(
             try:
                 # Match non-streaming behavior: only use the explicit `proxy` argument and do
                 # not inherit proxy settings from the process environment.
-                async with httpx.AsyncClient(
+                async with httpx2.AsyncClient(
                     proxy=proxy,
                     timeout=timeout,
                     # Preserve the caller's TLS verification mode or CA bundle configuration.
@@ -803,7 +803,7 @@ async def request_streaming_post_with_retries(
                             return
 
                         # Read the error body while the stream is still open.
-                        # If we attempt to read outside the context manager, httpx
+                        # If we attempt to read outside the context manager, httpx2
                         # raises `StreamClosed`.
                         raw_response = await response.aread()
                         response_content = raw_response.decode()
@@ -842,7 +842,7 @@ async def request_streaming_post_with_retries(
                         raise Exception(
                             f"API streaming request failed with status code {response.status_code}: {response_content} {response}"
                         )
-            except httpx.TransportError as exc:
+            except httpx2.TransportError as exc:
                 if _is_tls_or_cert_error(exc):
                     raise
                 last_exc = exc

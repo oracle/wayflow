@@ -10,7 +10,7 @@ import time
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional, Sequence
 
-from httpx import Timeout
+from httpx2 import Timeout
 
 from wayflowcore._utils.lazy_loader import LazyLoader
 from wayflowcore.conversation import Conversation

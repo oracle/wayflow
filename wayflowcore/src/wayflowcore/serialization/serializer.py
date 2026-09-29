@@ -383,7 +383,8 @@ def deserialize_any_from_dict(
 
     try:
         if issubclass(expected_type, Enum):
-            return expected_type(obj)  # type: ignore
+            enum_value: Enum = expected_type(obj)
+            return cast(M, enum_value)
     except (TypeError, ValueError):
         # "ValueError: * is not a valid `expected_type`" or
         # "TypeError: issubclass() arg 1 must be a class"

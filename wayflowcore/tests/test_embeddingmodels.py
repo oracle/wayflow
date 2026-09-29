@@ -58,7 +58,7 @@ def mock_openai_compatible_api(request):
     Fixture to mock OpenAI API calls with successful responses.
     """
     # Apply mocking for normal tests
-    with patch("httpx.AsyncClient.post") as mock_post:
+    with patch("httpx2.AsyncClient.post") as mock_post:
 
         async def create_successful_response(*args, **kwargs):
             payload = kwargs.get("json", {})

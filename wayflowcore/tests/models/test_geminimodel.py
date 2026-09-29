@@ -11,7 +11,7 @@ import ssl
 from typing import Annotated, Any
 from unittest.mock import patch
 
-import httpx
+import httpx2
 import pytest
 
 pytestmark = pytest.mark.skipif(
@@ -92,9 +92,9 @@ def _capture_generate_request(
 
 
 def _make_status_error(status_code: int, *, retry_after: str | None = None) -> APIStatusError:
-    request = httpx.Request("POST", "https://example.test")
+    request = httpx2.Request("POST", "https://example.test")
     headers = {"retry-after": retry_after} if retry_after is not None else {}
-    response = httpx.Response(status_code, request=request, headers=headers)
+    response = httpx2.Response(status_code, request=request, headers=headers)
     return APIStatusError("retryable status error", response=response, body={"error": "retry"})
 
 
@@ -391,7 +391,7 @@ def test_geminimodel_sync_generate_retries_connection_errors(monkeypatch) -> Non
         retry_policy=retry_policy,
     )
     prompt = Prompt(messages=[Message(role="user", content="Hello")])
-    request = httpx.Request("POST", "https://example.test")
+    request = httpx2.Request("POST", "https://example.test")
     call_count = 0
     timeouts: list[float] = []
 
@@ -402,7 +402,7 @@ def test_geminimodel_sync_generate_retries_connection_errors(monkeypatch) -> Non
         if call_count < 3:
             # The OpenAI SDK wraps transport failures this way, so exercise the
             # retry classifier through the realistic __cause__ chain.
-            transport_error = httpx.ConnectError("Connection error.", request=request)
+            transport_error = httpx2.ConnectError("Connection error.", request=request)
             raise APIConnectionError(
                 message="Connection error.", request=request
             ) from transport_error
@@ -540,7 +540,7 @@ def test_geminimodel_sync_generate_respects_retry_policy_for_litellm_api_errors_
         retry_policy=retry_policy,
     )
     prompt = Prompt(messages=[Message(role="user", content="Hello")])
-    request = httpx.Request("POST", "https://example.test")
+    request = httpx2.Request("POST", "https://example.test")
     call_count = 0
 
     def fake_completion(**_kwargs: Any) -> Any:
@@ -577,7 +577,7 @@ def test_geminimodel_sync_generate_does_not_retry_openai_tls_errors_in_context(
         retry_policy=retry_policy,
     )
     prompt = Prompt(messages=[Message(role="user", content="Hello")])
-    request = httpx.Request("POST", "https://example.test")
+    request = httpx2.Request("POST", "https://example.test")
     call_count = 0
 
     def fake_completion(**_kwargs: Any) -> Any:

@@ -5,6 +5,7 @@ src_paths = [
 ]
 profile = "black"
 line_length = 100
+split_on_trailing_comma = false
 
 [tool.black]
 line-length = 100

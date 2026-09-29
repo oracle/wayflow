@@ -8,18 +8,7 @@ import logging
 from abc import ABC, abstractmethod
 from copy import copy
 from pathlib import Path
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Dict,
-    Generic,
-    List,
-    Optional,
-    Set,
-    Type,
-    TypeVar,
-    Union,
-)
+from typing import TYPE_CHECKING, Any, Dict, Generic, List, Optional, Set, Type, TypeVar, Union
 
 from wayflowcore._metadata import MetadataType
 from wayflowcore.componentwithio import ComponentWithInputsOutputs

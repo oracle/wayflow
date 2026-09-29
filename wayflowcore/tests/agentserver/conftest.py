@@ -12,7 +12,7 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Any, Callable, List, Optional, Tuple, Union
 
-import httpx
+import httpx2
 import pytest
 import yaml
 
@@ -36,10 +36,10 @@ def _wait_for_http_ready(url: str, timeout: float) -> None:
     deadline = time.time() + timeout
     while time.time() < deadline:
         try:
-            resp = httpx.get(url, timeout=5.0)
+            resp = httpx2.get(url, timeout=5.0)
             if resp.status_code < 500:
                 return
-        except httpx.RequestError:
+        except httpx2.RequestError:
             pass
         time.sleep(0.5)
     raise TimeoutError(f"Timed out waiting for server readiness at {url}")
@@ -155,9 +155,9 @@ def _get_api_key_headers():
 def _check_server_is_up(base_url: str) -> bool:
     url = f"{base_url}/v1/models"
     try:
-        resp = httpx.get(url, timeout=5.0, headers=_get_api_key_headers())
+        resp = httpx2.get(url, timeout=5.0, headers=_get_api_key_headers())
         return resp.status_code == 200
-    except httpx.RequestError:
+    except httpx2.RequestError:
         return False
 
 
