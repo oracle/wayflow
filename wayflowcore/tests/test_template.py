@@ -14,6 +14,7 @@ from wayflowcore._utils.formatting import parse_tool_call_using_json
 from wayflowcore.messagelist import Message, MessageType
 from wayflowcore.outputparser import JsonToolOutputParser, PythonToolOutputParser, RegexOutputParser
 from wayflowcore.property import (
+    DictProperty,
     IntegerProperty,
     ListProperty,
     ObjectProperty,
@@ -487,6 +488,19 @@ def test_template_with_non_native_structured_generation(template, expected_conte
     prompt = template.format(inputs={})
     assert prompt.response_format is None
     assert_messages_are_correct(prompt.messages, [Message(expected_content)])
+
+
+def test_template_strips_wayflow_schema_extensions_from_non_native_response_formats():
+    template = PromptTemplate(
+        messages=[Message("{{__RESPONSE_FORMAT__ | tojson}}")],
+        response_format=DictProperty(name="labels", value_type=StringProperty()),
+        output_parser=RegexOutputParser(".*"),
+        native_structured_generation=False,
+    )
+
+    prompt = template.format()
+
+    assert '"key_type"' not in prompt.messages[0].content
 
 
 def test_native_chat_template():
