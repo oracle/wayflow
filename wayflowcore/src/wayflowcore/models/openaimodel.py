@@ -5,6 +5,9 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
 import os
+import re
+import warnings
+from copy import copy
 from typing import Any, Dict, Optional
 
 from wayflowcore._metadata import MetadataType
@@ -12,8 +15,19 @@ from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.serialization.serializer import serialize_to_dict
 
 from .llmgenerationconfig import LlmGenerationConfig
+from .llmmodel import Prompt
 from .openaiapitype import OpenAIAPIType
 from .openaicompatiblemodel import OPEN_API_KEY, OpenAICompatibleModel
+
+_GPT_MODEL_VERSION_PATTERN = re.compile(r"(?<![a-z0-9])gpt-(\d+)(?:\.(\d+))?", re.IGNORECASE)
+
+
+def _is_gpt_54_or_later(model_id: str) -> bool:
+    match = _GPT_MODEL_VERSION_PATTERN.search(model_id)
+    if match is None:
+        return False
+    version = (int(match.group(1)), int(match.group(2) or 0))
+    return version >= (5, 4)
 
 
 class OpenAIModel(OpenAICompatibleModel):
@@ -100,6 +114,71 @@ class OpenAIModel(OpenAICompatibleModel):
             name=name,
             description=description,
         )
+
+    def _prepare_prompt_and_api_processor(self, prompt: Prompt) -> tuple[Prompt, Any]:
+        """Use Responses for tool calls with reasoning effort unsupported by Chat Completions.
+
+        Tool availability is prompt-specific, so select the API processor per request rather than
+        changing the model's configured API type. This also keeps concurrent requests isolated.
+        """
+        if self.api_type != OpenAIAPIType.CHAT_COMPLETIONS or not _is_gpt_54_or_later(
+            self.model_id
+        ):
+            return super()._prepare_prompt_and_api_processor(prompt)
+
+        generation_config = prompt.generation_config
+        if generation_config is None:
+            return super()._prepare_prompt_and_api_processor(prompt)
+
+        reasoning_effort = generation_config.extra_args.get("reasoning_effort")
+        if reasoning_effort is None:
+            return super()._prepare_prompt_and_api_processor(prompt)
+        if not isinstance(reasoning_effort, str):
+            if not prompt.tools or str(reasoning_effort).casefold() == "none":
+                return super()._prepare_prompt_and_api_processor(prompt)
+            raise ValueError(
+                "`reasoning_effort` must be a string when switching to the OpenAI Responses API."
+            )
+
+        normalized_effort = reasoning_effort.lower()
+        if not prompt.tools or normalized_effort == "none":
+            if reasoning_effort == normalized_effort:
+                return super()._prepare_prompt_and_api_processor(prompt)
+
+            normalized_generation_config = copy(generation_config)
+            normalized_extra_args = dict(generation_config.extra_args)
+            normalized_extra_args["reasoning_effort"] = normalized_effort
+            normalized_generation_config.extra_args = normalized_extra_args
+            return (
+                prompt.copy(generation_config=normalized_generation_config),
+                self.api_processor,
+            )
+
+        # The Chat Completions and Responses APIs use different field names. Copy the config so
+        # preparing this request doesn't mutate a caller-owned Prompt or model default.
+        responses_generation_config = copy(generation_config)
+        responses_extra_args = dict(generation_config.extra_args)
+        responses_extra_args.pop("reasoning_effort")
+        reasoning = responses_extra_args.get("reasoning")
+        if reasoning is None:
+            reasoning = {}
+        elif isinstance(reasoning, dict):
+            reasoning = dict(reasoning)
+        else:
+            raise ValueError("`reasoning` must be a dictionary for the OpenAI Responses API.")
+        reasoning["effort"] = normalized_effort
+        responses_extra_args["reasoning"] = reasoning
+        responses_generation_config.extra_args = responses_extra_args
+        prompt = prompt.copy(generation_config=responses_generation_config)
+
+        warnings.warn(
+            f"Model {self.model_id!r} is switching from {OpenAIAPIType.CHAT_COMPLETIONS} to "
+            f"{OpenAIAPIType.RESPONSES} because Chat Completions does not support function "
+            "tools with a non-NONE reasoning_effort.",
+            UserWarning,
+            stacklevel=2,
+        )
+        return prompt, self._create_api_processor(OpenAIAPIType.RESPONSES)
 
     @property
     def config(self) -> Dict[str, Any]:
