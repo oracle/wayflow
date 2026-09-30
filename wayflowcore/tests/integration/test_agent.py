@@ -39,7 +39,7 @@ from wayflowcore.models.llmgenerationconfig import LlmGenerationConfig
 from wayflowcore.models.llmmodel import LlmModel
 from wayflowcore.models.llmmodelfactory import LlmModelFactory
 from wayflowcore.models.vllmmodel import VllmModel
-from wayflowcore.property import BooleanProperty, IntegerProperty, StringProperty
+from wayflowcore.property import BooleanProperty, IntegerProperty, ObjectProperty, StringProperty
 from wayflowcore.steps import (
     AgentExecutionStep,
     InputMessageStep,
@@ -2689,3 +2689,73 @@ def test_agent_outputs_both_talk_user_and_normal_tool(remotely_hosted_llm):
         status = conv.execute()
         assert isinstance(status, UserMessageRequestStatus)
         assert status.message.content == "something else"
+
+
+def test_agent_tool_call_omitting_nested_properties_with_defaults_receives_filled_arguments() -> (
+    None
+):
+    # Tools called directly by the agent receive the same normalized arguments as when they
+    # are called from a `ToolExecutionStep` in a `Flow`
+    request_property = ObjectProperty(
+        name="request",
+        properties={
+            "customer_id": StringProperty(),
+            "priority": StringProperty(default_value="normal"),
+            "settings": ObjectProperty(
+                properties={"retries": IntegerProperty(default_value=3)}, default_value={}
+            ),
+        },
+    )
+    received_requests = []
+
+    def normalize(request):
+        received_requests.append(request)
+        return "normalized"
+
+    normalize_tool = ServerTool(
+        name="normalize",
+        description="Normalizes a request",
+        input_descriptors=[request_property],
+        output_descriptors=[StringProperty(name="result")],
+        func=normalize,
+    )
+    llm = DummyModel()
+    agent = Agent(llm=llm, tools=[normalize_tool])
+    conversation = agent.start_conversation()
+    conversation.append_user_message("Normalize the request of customer C-1042")
+
+    with patch_llm(
+        llm,
+        outputs=[
+            [
+                ToolRequest(
+                    "normalize", {"request": {"customer_id": "C-1042"}}, tool_request_id="tc-1"
+                )
+            ],
+            "Done",
+        ],
+    ):
+        status = conversation.execute()
+
+    assert isinstance(status, UserMessageRequestStatus)
+    assert received_requests == [
+        {"customer_id": "C-1042", "priority": "normal", "settings": {"retries": 3}}
+    ]
+
+
+def test_submit_result_defaults_fill_nested_object_defaults() -> None:
+    from wayflowcore.executors._agentexecutor import _fill_submit_result_defaults
+
+    report_property = ObjectProperty(
+        name="report",
+        properties={
+            "settings": ObjectProperty(
+                properties={"retries": IntegerProperty(default_value=3)}, default_value={}
+            )
+        },
+        default_value={},
+    )
+
+    assert _fill_submit_result_defaults({}, [report_property]) == {
+        "report": {"settings": {"retries": 3}}
+    }
