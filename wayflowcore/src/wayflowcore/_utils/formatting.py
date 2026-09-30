@@ -93,20 +93,21 @@ def correct_type(value: Any, json_schema: JsonSchemaParam, catch_exception: bool
                 value = json_repair.loads(value)
 
             result = {}
-            for key, value in value.items():
-                properties = json_schema.get("properties", {})
+            properties = json_schema.get("properties", {})
+            for key, child_value in value.items():
                 if key in properties:
-                    result[key] = correct_type(value, properties[key])
+                    child_schema = properties[key]
+                    result[key] = correct_type(child_value, child_schema)
                     continue
 
                 # JSON Schema allows additional properties unless explicitly disabled.
                 additional_properties = json_schema.get("additionalProperties", True)
                 if additional_properties is True:
-                    result[key] = value
+                    result[key] = child_value
                 elif additional_properties is False:
                     continue
                 else:
-                    result[key] = correct_type(value, additional_properties)
+                    result[key] = correct_type(child_value, additional_properties)
             return result
 
         else:
