@@ -93,17 +93,21 @@ def correct_type(value: Any, json_schema: JsonSchemaParam, catch_exception: bool
                 value = json_repair.loads(value)
 
             result = {}
-            for key, value in value.items():
-                if "additionalProperties" in json_schema:
-                    schema_param = json_schema["additionalProperties"]
-                else:
-                    schema_param = json_schema["properties"][key]
+            properties = json_schema.get("properties", {})
+            for key, child_value in value.items():
+                if key in properties:
+                    child_schema = properties[key]
+                    result[key] = correct_type(child_value, child_schema)
+                    continue
 
-                # additionalProperties may be bool for OpenAI-compatible JSONSchema
-                if isinstance(schema_param, bool):
-                    result[key] = schema_param
+                # JSON Schema allows additional properties unless explicitly disabled.
+                additional_properties = json_schema.get("additionalProperties", True)
+                if additional_properties is True:
+                    result[key] = child_value
+                elif additional_properties is False:
+                    continue
                 else:
-                    result[key] = correct_type(value, schema_param)
+                    result[key] = correct_type(child_value, additional_properties)
             return result
 
         else:
