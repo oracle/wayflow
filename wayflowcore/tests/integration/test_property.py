@@ -631,3 +631,87 @@ def test_casting_object_value_missing_required_nested_property_raises():
 
     with pytest.raises(KeyError, match="customer_id"):
         _cast_value_into({"profile": {"name": "Ada", "age": 36}, "tags": []}, _request_property())
+
+
+def _nested_settings_property(name: str = "request") -> ObjectProperty:
+    return ObjectProperty(
+        name=name,
+        properties={
+            "customer_id": StringProperty(),
+            "settings": ObjectProperty(
+                properties={
+                    "limits": ObjectProperty(
+                        properties={"retries": IntegerProperty(default_value=3)},
+                        default_value={},
+                    )
+                },
+                default_value={},
+            ),
+        },
+    )
+
+
+def test_filling_nested_defaults_expands_omitted_nested_object_defaults():
+    # The default of an omitted object (`{}`) is itself filled with the defaults of its children
+    request_property = _nested_settings_property()
+
+    filled_value = request_property._fill_nested_values_with_explicit_defaults(
+        {"customer_id": "C-1042"}
+    )
+
+    assert filled_value == {"customer_id": "C-1042", "settings": {"limits": {"retries": 3}}}
+
+
+def test_filling_nested_defaults_keeps_provided_nested_values():
+    request_property = _nested_settings_property()
+    value = {"customer_id": "C-1042", "settings": {"limits": {"retries": 5}}}
+
+    assert request_property._fill_nested_values_with_explicit_defaults(value) == value
+
+
+def test_filling_nested_defaults_on_object_instance_returns_filled_copy():
+    @dataclass
+    class Request:
+        name: str
+        settings: Any
+
+    request_property = ObjectProperty(
+        name="request",
+        properties={
+            "name": StringProperty(),
+            "priority": StringProperty(default_value="normal"),
+            "settings": ObjectProperty(properties={"retries": IntegerProperty(default_value=3)}),
+        },
+    )
+    request = Request(name="Ada", settings={})
+
+    filled_request = request_property._fill_nested_values_with_explicit_defaults(request)
+
+    assert filled_request.name == "Ada"
+    assert filled_request.priority == "normal"
+    assert filled_request.settings == {"retries": 3}
+    # the caller's instance is left untouched
+    assert not hasattr(request, "priority")
+    assert request.settings == {}
+
+
+def test_filling_nested_defaults_leaves_object_rejecting_new_attributes_untouched():
+    @dataclass(frozen=True)
+    class Request:
+        name: str
+
+    request_property = ObjectProperty(
+        name="request",
+        properties={"name": StringProperty(), "priority": StringProperty(default_value="normal")},
+    )
+    request = Request(name="Ada")
+
+    assert request_property._fill_nested_values_with_explicit_defaults(request) is request
+
+
+def test_casting_object_value_fills_nested_defaults_recursively():
+    from wayflowcore.property import _cast_value_into
+
+    casted_value = _cast_value_into({"customer_id": 1042}, _nested_settings_property())
+
+    assert casted_value == {"customer_id": "1042", "settings": {"limits": {"retries": 3}}}

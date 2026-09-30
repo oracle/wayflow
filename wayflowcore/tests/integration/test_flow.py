@@ -4,6 +4,7 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 import logging
+from dataclasses import dataclass
 
 import anyio
 import pytest
@@ -580,3 +581,92 @@ def test_flow_input_omitting_required_nested_property_is_rejected():
     )
     with pytest.raises(TypeError, match="is not of the expected type"):
         flow.start_conversation(inputs={"request": {"priority": "high"}})
+
+
+def test_flow_input_default_is_filled_for_dataclass_attribute():
+    # ObjectProperty accepts object instances as inputs, not just dictionaries. A missing
+    # attribute with an explicit default is supplied before the tool receives the request.
+    @dataclass
+    class Request:
+        name: str
+
+    request_property = ObjectProperty(
+        name="request",
+        properties={
+            "name": StringProperty(),
+            "priority": StringProperty(default_value="normal"),
+        },
+        additional_properties=False,
+    )
+
+    def read_priority(request):
+        if isinstance(request, dict):
+            return request.get("priority", "<missing>")
+        return getattr(request, "priority", "<missing>")
+
+    tool = ServerTool(
+        name="read_priority",
+        description="Reads the request priority",
+        input_descriptors=[request_property],
+        output_descriptors=[StringProperty(name="priority")],
+        func=read_priority,
+    )
+    flow = Flow.from_steps([ToolExecutionStep(tool, name="read_priority_step")])
+
+    conversation = flow.start_conversation(inputs={"request": Request(name="Ada")})
+    status = conversation.execute()
+
+    assert isinstance(status, FinishedStatus)
+    assert status.output_values["priority"] == "normal"
+
+
+def test_flow_step_receives_defaults_inside_nested_object_defaults():
+    # Each omitted object defaults to {}, and its own child has another default.
+    # The tool receives the fully expanded chain ending in retries=3.
+    request_property = ObjectProperty(
+        name="request",
+        properties={
+            "settings": ObjectProperty(
+                properties={
+                    "options": ObjectProperty(
+                        properties={
+                            "policy": ObjectProperty(
+                                properties={
+                                    "limits": ObjectProperty(
+                                        properties={"retries": IntegerProperty(default_value=3)},
+                                        default_value={},
+                                    )
+                                },
+                                default_value={},
+                            )
+                        },
+                        default_value={},
+                    )
+                },
+                default_value={},
+            )
+        },
+    )
+
+    def read_retries(request):
+        value = request
+        for key in ("settings", "options", "policy", "limits", "retries"):
+            if not isinstance(value, dict) or key not in value:
+                return -1
+            value = value[key]
+        return value
+
+    tool = ServerTool(
+        name="read_retries",
+        description="Reads the retry count",
+        input_descriptors=[request_property],
+        output_descriptors=[IntegerProperty(name="retries")],
+        func=read_retries,
+    )
+    flow = Flow.from_steps([ToolExecutionStep(tool, name="read_retries_step")])
+
+    conversation = flow.start_conversation(inputs={"request": {}})
+    status = conversation.execute()
+
+    assert isinstance(status, FinishedStatus)
+    assert status.output_values["retries"] == 3
