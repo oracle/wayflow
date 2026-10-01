@@ -299,25 +299,31 @@ class OCIGenAIModel(LlmModel):
         )
 
     def _init_client(self) -> None:
-        """Initialize the native OCI SDK client lazily."""
-        self._client = oci.generative_ai_inference.GenerativeAiInferenceClient(
-            **_client_config_to_oci_client_kwargs(
-                self.client_config,
-                request_timeout=(self.retry_policy.request_timeout if self.retry_policy else None),
+        if self.api_type == OciAPIType.OCI:
+            self._client = oci.generative_ai_inference.GenerativeAiInferenceClient(
+                **_client_config_to_oci_client_kwargs(
+                    self.client_config,
+                    request_timeout=(
+                        self.retry_policy.request_timeout if self.retry_policy else None
+                    ),
+                )
             )
-        )
 
-        if self.serving_mode == ServingMode.ON_DEMAND:
-            self._oci_serving_mode = oci.generative_ai_inference.models.OnDemandServingMode(
-                model_id=self.model_id
-            )
-        elif self.serving_mode == ServingMode.DEDICATED:
-            self._oci_serving_mode = oci.generative_ai_inference.models.DedicatedServingMode(
-                endpoint_id=self.model_id
-            )
+            if self.serving_mode == ServingMode.ON_DEMAND:
+                self._oci_serving_mode = oci.generative_ai_inference.models.OnDemandServingMode(
+                    model_id=self.model_id
+                )
+            elif self.serving_mode == ServingMode.DEDICATED:
+                self._oci_serving_mode = oci.generative_ai_inference.models.DedicatedServingMode(
+                    endpoint_id=self.model_id
+                )
+            else:
+                raise ValueError(
+                    f"Invalid `serving_mode` specified for OciGenAIModel. Valid options are {ServingMode.ON_DEMAND, ServingMode.DEDICATED} but got {self.serving_mode} instead."
+                )
         else:
             raise ValueError(
-                f"Invalid `serving_mode` specified for OciGenAIModel. Valid options are {ServingMode.ON_DEMAND, ServingMode.DEDICATED} but got {self.serving_mode} instead."
+                f"Invalid `api_type` specified for OciGenAIModel. Valid options are {OciAPIType.OCI, OciAPIType.OPENAI_RESPONSES, OciAPIType.OPENAI_CHAT_COMPLETIONS} but got {self.api_type} instead."
             )
 
     def _init_client_if_needed(self) -> None:
