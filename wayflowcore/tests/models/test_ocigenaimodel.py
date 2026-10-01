@@ -4,25 +4,19 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
-import asyncio
 import logging
 import os
 import re
+import warnings
 from copy import deepcopy
 from types import SimpleNamespace
 from typing import Any
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import pytest
 
 from wayflowcore.messagelist import Message, MessageContent, TextContent
-from wayflowcore.models import (
-    LlmCompletion,
-    LlmGenerationConfig,
-    LlmModelFactory,
-    OCIGenAIModel,
-    Prompt,
-)
+from wayflowcore.models import LlmGenerationConfig, LlmModelFactory, OCIGenAIModel, Prompt
 from wayflowcore.models.ociclientconfig import OCIClientConfig, _OCIAuthType
 from wayflowcore.models.ocigenaimodel import (
     ModelProvider,
@@ -171,105 +165,22 @@ def test_oci_responses_e2e_can_continue_after_tool_call_with_replayed_history() 
     run_responses_tool_call_replay_e2e(llm)
 
 
-def _make_oci_chat_model(api_type: OciAPIType) -> OCIGenAIModel:
-    return OCIGenAIModel(
-        model_id="openai.gpt-5.6-luna",
-        compartment_id="compartment-id",
-        client_config=OCIClientConfig.from_dict(
-            {"service_endpoint": "https://example.com", "auth_type": "API_KEY"}
-        ),
-        api_type=api_type,
-    )
-
-
-def _make_tool_prompt(reasoning_effort: Any) -> Prompt:
-    return Prompt(
-        messages=[Message(role="user", content="use the tool")],
-        tools=[ClientTool(name="test_tool", description="A test tool", input_descriptors=[])],
-        generation_config=LlmGenerationConfig(extra_args={"reasoning_effort": reasoning_effort}),
-    )
-
-
-@pytest.mark.parametrize("api_type", [OciAPIType.OCI, OciAPIType.OPENAI_CHAT_COMPLETIONS])
-@pytest.mark.parametrize("reasoning_effort", ["low", "HIGH"])
-def test_openai_oci_model_uses_responses_for_reasoning_effort_with_tools(
-    api_type, reasoning_effort
-):
-    llm = _make_oci_chat_model(api_type)
-    prompt = _make_tool_prompt(reasoning_effort)
-    captured_request = {}
-
-    async def fake_generate_impl_openai_sdk(prompt, api_type=None):
-        captured_request["api_type"] = api_type
-        return LlmCompletion(message=Message(role="assistant", content="ok"), token_usage=None)
-
-    with patch.object(llm, "_generate_impl_openai_sdk", new=fake_generate_impl_openai_sdk):
-        with pytest.warns(UserWarning, match="switching from .* to OciAPIType.OPENAI_RESPONSES"):
-            llm.generate(prompt)
-
-    assert captured_request["api_type"] == OciAPIType.OPENAI_RESPONSES
-    assert prompt.generation_config.extra_args["reasoning_effort"] == reasoning_effort
-    assert llm.api_type == api_type
-
-
-@pytest.mark.parametrize("api_type", [OciAPIType.OCI, OciAPIType.OPENAI_CHAT_COMPLETIONS])
-def test_openai_oci_model_streaming_uses_responses_for_reasoning_effort_with_tools(api_type):
-    llm = _make_oci_chat_model(api_type)
-    captured_request = {}
-
-    async def fake_stream_impl_openai_sdk(prompt, api_type=None):
-        captured_request["api_type"] = api_type
-        yield "test_chunk", Message(role="assistant", content="ok"), None
-
-    async def read_first_chunk():
-        with patch.object(llm, "_stream_generate_impl_openai_sdk", new=fake_stream_impl_openai_sdk):
-            await llm._stream_generate_impl(_make_tool_prompt("high")).__anext__()
-
-    with pytest.warns(UserWarning, match="switching from .* to OciAPIType.OPENAI_RESPONSES"):
-        asyncio.run(read_first_chunk())
-
-    assert captured_request["api_type"] == OciAPIType.OPENAI_RESPONSES
-
-
-@pytest.mark.parametrize("api_type", [OciAPIType.OCI, OciAPIType.OPENAI_CHAT_COMPLETIONS])
-@pytest.mark.parametrize("reasoning_effort", ["none", "NONE"])
-def test_openai_oci_chat_keeps_none_reasoning_effort_with_tools(api_type, reasoning_effort):
-    llm = _make_oci_chat_model(api_type)
-    prompt = _make_tool_prompt(reasoning_effort)
-
-    if api_type == OciAPIType.OCI:
-        request = _GenericOciApiFormatter.convert_prompt_into_request(prompt, llm.model_id)
-        assert request.reasoning_effort == "NONE"
-    else:
-        processor = llm._create_openai_api_processor(api_type)
-        request = llm._generate_openai_sdk_parameters(prompt, processor, api_type=api_type)
-        assert request["reasoning_effort"] == "none"
-
-    assert prompt.generation_config.extra_args["reasoning_effort"] == reasoning_effort
-
-
-def test_openai_oci_responses_request_maps_reasoning_effort_and_tools():
-    llm = _make_oci_chat_model(OciAPIType.OCI)
-    prompt = _make_tool_prompt("HIGH")
-    processor = llm._create_openai_api_processor(OciAPIType.OPENAI_RESPONSES)
-
-    request = llm._generate_openai_sdk_parameters(
-        prompt, processor, api_type=OciAPIType.OPENAI_RESPONSES
-    )
-
-    assert request["reasoning"]["effort"] == "high"
-    assert request["tools"]
-    assert prompt.generation_config.extra_args["reasoning_effort"] == "HIGH"
-
-
 @pytest.mark.parametrize(
-    "api_type,max_tokens_key",
+    "api_type,max_tokens_key,model_id,effort",
     [
-        (OciAPIType.OPENAI_CHAT_COMPLETIONS, "max_completion_tokens"),
-        (OciAPIType.OPENAI_RESPONSES, "max_output_tokens"),
+        (OciAPIType.OPENAI_CHAT_COMPLETIONS, "max_completion_tokens", "openai.gpt-oss-120b", None),
+        (OciAPIType.OPENAI_RESPONSES, "max_output_tokens", "openai.gpt-oss-120b", None),
+        (OciAPIType.OCI, "max_output_tokens", "openai.gpt-5.4", "HIGH"),
+        (OciAPIType.OPENAI_CHAT_COMPLETIONS, "max_output_tokens", "openai.gpt-5.4", "HIGH"),
+        (OciAPIType.OPENAI_CHAT_COMPLETIONS, "max_completion_tokens", "openai.gpt-5.3", "HIGH"),
+        (OciAPIType.OPENAI_CHAT_COMPLETIONS, "max_completion_tokens", "openai.gpt-5.4", "NONE"),
     ],
 )
-def test_oci_openai_api_generation_config_reaches_sdk_create(api_type, max_tokens_key):
+@pytest.mark.parametrize("stream", [False, True])
+def test_oci_openai_api_generation_config_reaches_sdk_create(
+    api_type, max_tokens_key, model_id, effort, stream
+):
+    pytest.importorskip("oci_openai")
     captured_create_kwargs = {}
 
     class FakeResponse:
@@ -278,6 +189,16 @@ def test_oci_openai_api_generation_config_reaches_sdk_create(api_type, max_token
 
         def model_dump(self):
             return self.payload
+
+        def __aiter__(self):
+            async def events():
+                if "output" in self.payload:
+                    yield FakeResponse({"type": "response.output_text.delta", "delta": "ok"})
+                    yield FakeResponse({"type": "response.completed", "response": self.payload})
+                else:
+                    yield FakeResponse({"choices": [{"delta": {"content": "ok"}}]})
+
+            return events()
 
     class FakeResponses:
         async def create(self, **kwargs):
@@ -312,7 +233,7 @@ def test_oci_openai_api_generation_config_reaches_sdk_create(api_type, max_token
             pass
 
     llm = OCIGenAIModel(
-        model_id="openai.gpt-oss-120b",
+        model_id=model_id,
         compartment_id="compartment-id",
         client_config=OCIClientConfig.from_dict(
             {
@@ -325,26 +246,90 @@ def test_oci_openai_api_generation_config_reaches_sdk_create(api_type, max_token
             max_tokens=13,
             temperature=0.2,
             top_p=0.9,
-            extra_args={"reasoning": {"effort": "low"}},
+            extra_args=(
+                {"reasoning": {"effort": "low"}} if effort is None else {"reasoning_effort": effort}
+            ),
         ),
     )
 
-    with patch.object(llm, "_init_client_if_needed", side_effect=llm._init_client), patch.object(
-        llm, "_create_openai_client", return_value=FakeOciOpenAIClient()
-    ):
-        llm.generate(Prompt(messages=[Message(role="user", content="hello")]))
+    prompt = Prompt(
+        messages=[Message(role="user", content="hello")],
+        tools=(
+            [ClientTool(name="dummy", description="A tool", input_descriptors=[])]
+            if effort
+            else None
+        ),
+    )
+    original_config = deepcopy(llm.generation_config.extra_args)
+    with patch("oci_openai.AsyncOciOpenAI", return_value=FakeOciOpenAIClient()), patch(
+        "oci_openai.OciUserPrincipalAuth"
+    ), warnings.catch_warnings(record=True) as recorded:
+        warnings.simplefilter("always")
+        if stream:
+            message = list(llm.stream_generate(prompt))[-1][1]
+        else:
+            message = llm.generate(prompt).message
 
-    assert captured_create_kwargs["model"] == "openai.gpt-oss-120b"
+    assert captured_create_kwargs["model"] == model_id
     assert captured_create_kwargs["store"] is False
     assert captured_create_kwargs["temperature"] == 0.2
     assert captured_create_kwargs["top_p"] == 0.9
     assert captured_create_kwargs[max_tokens_key] == 13
-    assert captured_create_kwargs["reasoning"]["effort"] == "low"
     assert "prompt_cache_key" not in captured_create_kwargs
+    assert message.content == "ok"
+    assert llm.api_type == api_type
 
-    if api_type == OciAPIType.OPENAI_RESPONSES:
+    if max_tokens_key == "max_output_tokens":
+        assert captured_create_kwargs["reasoning"]["effort"] == (
+            effort.lower() if effort else "low"
+        )
         assert captured_create_kwargs["reasoning"]["summary"] == "auto"
         assert "reasoning.encrypted_content" in captured_create_kwargs["include"]
+    if effort is not None:
+        assert llm.generation_config.extra_args == original_config
+        assert bool(recorded) == (max_tokens_key == "max_output_tokens")
+        if max_tokens_key == "max_completion_tokens":
+            assert captured_create_kwargs["reasoning_effort"] == effort.lower()
+
+
+@pytest.mark.parametrize(
+    "model_id,effort", [("openai.gpt-5.3", "HIGH"), ("openai.gpt-5.4", "NONE")]
+)
+def test_oci_compatible_reasoning_tool_request_keeps_native_api(model_id, effort):
+    pytest.importorskip("oci_openai")
+    client = Mock()
+    client.chat.return_value = SimpleNamespace(
+        data=SimpleNamespace(
+            chat_response=SimpleNamespace(
+                choices=[
+                    SimpleNamespace(
+                        message=SimpleNamespace(
+                            content=[SimpleNamespace(type="TEXT", text="ok")], tool_calls=None
+                        )
+                    )
+                ]
+            )
+        )
+    )
+    llm = OCIGenAIModel(
+        model_id=model_id,
+        compartment_id="compartment-id",
+        client_config=OCIClientConfig.from_dict(
+            {"service_endpoint": "https://example.com", "auth_type": "API_KEY"}
+        ),
+    )
+    prompt = Prompt(
+        messages=[Message(role="user", content="hello")],
+        tools=[ClientTool(name="dummy", description="A tool", input_descriptors=[])],
+        generation_config=LlmGenerationConfig(extra_args={"reasoning_effort": effort}),
+    )
+    with patch("oci.config.from_file", return_value=DUMMY_OCI_USER_CONFIG_DICT), patch(
+        "oci.generative_ai_inference.GenerativeAiInferenceClient", return_value=client
+    ), patch("oci_openai.AsyncOciOpenAI") as openai_client:
+        assert llm.generate(prompt).message.content == "ok"
+    assert client.chat.call_args.kwargs["chat_details"].chat_request.reasoning_effort == effort
+    openai_client.assert_not_called()
+    assert prompt.generation_config.extra_args == {"reasoning_effort": effort}
 
 
 @pytest.mark.skip("Skip because we do not have any custom dedicated model on our tenancy")

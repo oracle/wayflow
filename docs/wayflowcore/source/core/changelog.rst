@@ -17,6 +17,12 @@ Improvements
 Bug fixes
 ^^^^^^^^^
 
+* **GPT reasoning with tools**
+
+  OpenAI and OCI GPT-5.4+ chat requests with tools and non-``none`` reasoning effort
+  now use the Responses API for that request, without changing the model configuration
+  or the caller's prompt.
+
 * **Structured tool argument normalization**
 
   Tool-call normalization now applies ``additionalProperties`` only to undeclared object fields,

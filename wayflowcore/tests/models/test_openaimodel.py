@@ -3,16 +3,21 @@
 # This software is under the Apache License 2.0
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
+import asyncio
 import os
 import warnings
+from contextlib import asynccontextmanager
+from copy import deepcopy
+from json import dumps
 from unittest.mock import AsyncMock, patch
 
+import httpx2
 import pytest
 
 from wayflowcore.messagelist import Message
 from wayflowcore.models import OpenAIAPIType, OpenAIModel, Prompt
 from wayflowcore.models.llmgenerationconfig import LlmGenerationConfig
-from wayflowcore.models.openaicompatiblemodel import OPEN_API_KEY, OpenAICompatibleModel
+from wayflowcore.models.openaicompatiblemodel import OPEN_API_KEY
 from wayflowcore.serialization.serializer import serialize
 from wayflowcore.templates import PromptTemplate
 from wayflowcore.tools import Tool
@@ -33,109 +38,102 @@ def _make_reasoning_tool_prompt(reasoning_effort: str, include_tools: bool = Tru
 
 
 def _responses_text_result(text: str = "hello"):
-    return {
-        "output": [
-            {
-                "type": "message",
-                "content": [{"type": "output_text", "text": text}],
-            }
-        ],
-        "usage": {"input_tokens": 1, "output_tokens": 1, "total_tokens": 2},
-    }
-
-
-@pytest.mark.parametrize("reasoning_effort", ["high", "HIGH"])
-@pytest.mark.parametrize("model_id", ["gpt-5.4", "gpt-5.6-luna", "openai.gpt-6.1-luna"])
-def test_openai_model_switches_incompatible_tool_request_to_responses(model_id, reasoning_effort):
-    llm = OpenAIModel(model_id=model_id, api_key="test-key")
-    prompt = _make_reasoning_tool_prompt(reasoning_effort)
-    post = AsyncMock(return_value=_responses_text_result())
-
-    with patch.object(OpenAICompatibleModel, "_post", new=post):
-        with pytest.warns(UserWarning, match="(?i)switching.*responses"):
-            completion = llm.generate(prompt)
-
-    request_params = post.await_args.kwargs["request_params"]
-    assert request_params["url"] == "https://api.openai.com/v1/responses"
-    assert request_params["json"]["reasoning"]["effort"] == reasoning_effort.lower()
-    assert "reasoning_effort" not in request_params["json"]
-    assert len(request_params["json"]["tools"]) == 1
-    assert completion.message.content == "hello"
-    assert prompt.generation_config.extra_args == {"reasoning_effort": reasoning_effort}
-    assert llm.api_type == OpenAIAPIType.CHAT_COMPLETIONS
-
-
-@pytest.mark.parametrize(
-    "model_id, reasoning_effort, include_tools, expected_effort",
-    [
-        ("gpt-5.6-luna", "none", True, "none"),
-        ("gpt-5.6-luna", "NONE", True, "none"),
-        ("gpt-5.6-luna", "HIGH", False, "high"),
-        ("gpt-5.3", "high", True, "high"),
-        ("gpt-5.3", "HIGH", True, "HIGH"),
-        ("gpt-4o", "high", True, "high"),
-    ],
-)
-def test_openai_model_keeps_compatible_request_on_configured_chat_completions(
-    model_id, reasoning_effort, include_tools, expected_effort
-):
-    llm = OpenAIModel(model_id=model_id, api_key="test-key")
-    prompt = _make_reasoning_tool_prompt(reasoning_effort, include_tools=include_tools)
-    post = AsyncMock(
-        return_value={
-            "choices": [{"message": {"role": "assistant", "content": "hello"}}],
-            "usage": {"prompt_tokens": 1, "completion_tokens": 1, "total_tokens": 2},
-        }
-    )
-
-    with warnings.catch_warnings(record=True) as recorded_warnings:
-        warnings.simplefilter("always")
-        with patch.object(OpenAICompatibleModel, "_post", new=post):
-            completion = llm.generate(prompt)
-
-    request_params = post.await_args.kwargs["request_params"]
-    assert request_params["url"] == "https://api.openai.com/v1/chat/completions"
-    assert request_params["json"]["reasoning_effort"] == expected_effort
-    assert completion.message.content == "hello"
-    assert not recorded_warnings
+    return {"output": [{"type": "message", "content": [{"type": "output_text", "text": text}]}]}
 
 
 @pytest.mark.anyio
-async def test_openai_model_streaming_uses_responses_for_incompatible_tool_request():
-    llm = OpenAIModel(model_id="gpt-5.6-luna", api_key="test-key")
-    prompt = _make_reasoning_tool_prompt("HIGH")
-    captured_request_params = {}
+@pytest.mark.parametrize("stream", [False, True])
+@pytest.mark.parametrize(
+    "model_id, effort, tools, use_responses",
+    [
+        ("gpt-5.4", "HIGH", True, True),
+        ("gpt-6.1-luna", "low", True, True),
+        ("gpt-5.3", "HIGH", True, False),
+        ("gpt-5.4", "NONE", True, False),
+        ("gpt-5.4", "HIGH", False, False),
+    ],
+)
+async def test_openai_reasoning_tool_routing(model_id, effort, tools, use_responses, stream):
+    llm = OpenAIModel(model_id=model_id, api_key="test-key")
+    prompt = _make_reasoning_tool_prompt(effort, tools)
+    prompt.generation_config.max_tokens = 42
+    if use_responses:
+        prompt.generation_config.extra_args["reasoning"] = {"summary": "detailed"}
+    original_config = deepcopy(prompt.generation_config.extra_args)
+    result = (
+        _responses_text_result()
+        if use_responses
+        else {"choices": [{"message": {"content": "hello"}}]}
+    )
+    post = AsyncMock(return_value=httpx2.Response(200, json=result))
+    captured = {}
 
-    def fake_post_stream(request_params, **kwargs):
-        captured_request_params.update(request_params)
+    @asynccontextmanager
+    async def post_stream(self, method, **params):
+        captured.update(params)
+        events = (
+            [
+                {"type": "response.output_text.delta", "delta": "hello"},
+                {"type": "response.completed", "response": result},
+            ]
+            if use_responses
+            else [{"choices": [{"delta": {"content": "hello"}}]}]
+        )
+        yield httpx2.Response(200, text="".join(f"data: {dumps(event)}\n\n" for event in events))
 
-        async def json_stream():
-            yield {"type": "response.output_text.delta", "delta": "hello"}
-            yield {
-                "type": "response.completed",
-                "response": {
-                    "output": [
-                        {
-                            "type": "message",
-                            "content": [{"type": "output_text", "text": "hello"}],
-                        }
-                    ],
-                    "usage": {"input_tokens": 1, "output_tokens": 1, "total_tokens": 2},
-                },
-            }
+    with (
+        patch("httpx2.AsyncClient.post", new=post),
+        patch("httpx2.AsyncClient.stream", new=post_stream),
+        warnings.catch_warnings(record=True) as recorded,
+    ):
+        warnings.simplefilter("always")
+        if stream:
+            chunks = [chunk async for chunk in llm.stream_generate_async(prompt)]
+            message = chunks[-1][1]
+        else:
+            message = (await llm.generate_async(prompt)).message
+            captured.update(post.await_args.kwargs)
 
-        return json_stream()
+    assert captured["url"].endswith("/responses" if use_responses else "/chat/completions")
+    payload = captured["json"]
+    if use_responses:
+        assert payload["reasoning"] == {"summary": "detailed", "effort": effort.lower()}
+        assert payload["max_output_tokens"] == 42
+        assert payload["tools"]
+        assert "reasoning_effort" not in payload
+    else:
+        assert payload["reasoning_effort"] == (effort if model_id == "gpt-5.3" else effort.lower())
+    assert bool(recorded) == use_responses
+    assert message.content == "hello"
+    assert prompt.generation_config.extra_args == original_config
+    assert llm.api_type == OpenAIAPIType.CHAT_COMPLETIONS
 
-    with patch.object(OpenAICompatibleModel, "_post_stream", side_effect=fake_post_stream):
-        with pytest.warns(UserWarning, match="(?i)switching.*responses"):
-            chunks = []
-            async for chunk in llm.stream_generate_async(prompt):
-                chunks.append(chunk)
 
-    request_json = captured_request_params["json"]
-    assert captured_request_params["url"] == "https://api.openai.com/v1/responses"
-    assert request_json["reasoning"]["effort"] == "high"
-    assert chunks[-1][1].content == "hello"
+@pytest.mark.anyio
+async def test_openai_concurrent_requests_keep_their_selected_api():
+    llm = OpenAIModel(model_id="gpt-5.4", api_key="test-key")
+    prompts = [_make_reasoning_tool_prompt("HIGH", tools) for tools in (True, False)]
+    requests = []
+
+    async def post(self, **params):
+        requests.append(params)
+        await asyncio.sleep(0)
+        result = (
+            _responses_text_result()
+            if params["url"].endswith("/responses")
+            else {"choices": [{"message": {"content": "hello"}}]}
+        )
+        return httpx2.Response(200, json=result)
+
+    with patch("httpx2.AsyncClient.post", new=post), pytest.warns(UserWarning, match="switching"):
+        results = await asyncio.gather(*(llm.generate_async(prompt) for prompt in prompts))
+
+    assert [params["url"].rsplit("/", 1)[-1] for params in requests] == ["responses", "completions"]
+    assert all(result.message.content == "hello" for result in results)
+    assert all(
+        prompt.generation_config.extra_args == {"reasoning_effort": "HIGH"} for prompt in prompts
+    )
+    assert llm.api_type == OpenAIAPIType.CHAT_COMPLETIONS
 
 
 def test_openai_model_with_api_key():
