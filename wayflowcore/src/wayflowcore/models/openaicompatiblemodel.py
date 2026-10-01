@@ -219,7 +219,6 @@ class OpenAICompatibleModel(LlmModel):
         return headers
 
     def _setup_api_processor(self, api_type: OpenAIAPIType) -> None:
-        self.api_processor: _APIProcessor
         self.api_processor = self._create_api_processor(api_type)
 
     def _create_api_processor(self, api_type: OpenAIAPIType) -> _APIProcessor:
@@ -299,16 +298,11 @@ class OpenAICompatibleModel(LlmModel):
             )
 
     def _generate_request_params(
-        self,
-        prompt: "Prompt",
-        stream: bool,
-        api_processor: Optional[_APIProcessor] = None,
+        self, prompt: "Prompt", stream: bool, api_processor: _APIProcessor
     ) -> Dict[str, Any]:
-        """Generate Request Parameters for the API type"""
-        supports_tool_role = _supports_tool_role(self.model_id)
-        processor = api_processor or self.api_processor
-        return processor._generate_request_params(
-            prompt, stream=stream, supports_tool_role=supports_tool_role
+        """Generate request parameters using the processor selected for this request."""
+        return api_processor._generate_request_params(
+            prompt, stream=stream, supports_tool_role=_supports_tool_role(self.model_id)
         )
 
 
