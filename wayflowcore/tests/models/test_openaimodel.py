@@ -7,13 +7,35 @@ import os
 
 import pytest
 
-from wayflowcore.models import OpenAIAPIType, OpenAIModel
+from wayflowcore.messagelist import Message
+from wayflowcore.models import OpenAIAPIType, OpenAIModel, Prompt
 from wayflowcore.models.llmgenerationconfig import LlmGenerationConfig
 from wayflowcore.models.openaicompatiblemodel import OPEN_API_KEY
 from wayflowcore.serialization.serializer import serialize
 from wayflowcore.templates import PromptTemplate
+from wayflowcore.tools import Tool
 
 from .test_openaicompatiblemodel import run_responses_tool_call_replay_e2e
+
+
+@pytest.mark.skipif(OPEN_API_KEY not in os.environ, reason="OPENAI_API_KEY is not set")
+@pytest.mark.parametrize("stream", [False, True])
+def test_openai_reasoning_tools_use_responses_without_changing_config(stream):
+    config = LlmGenerationConfig(max_tokens=1024, extra_args={"reasoning_effort": "low"})
+    llm = OpenAIModel(model_id="gpt-5.4", generation_config=config)
+    prompt = Prompt(
+        messages=[Message(role="user", content="Call test_tool now.")],
+        tools=[Tool(name="test_tool", description="A no-op tool.", input_descriptors=[])],
+        generation_config=config,
+    )
+    with pytest.warns(UserWarning, match="switching"):
+        message = (
+            list(llm.stream_generate(prompt))[-1][1] if stream else llm.generate(prompt).message
+        )
+    assert message.tool_requests and message.tool_requests[0].name == "test_tool"
+    assert llm.api_type == OpenAIAPIType.CHAT_COMPLETIONS
+    assert llm.generation_config is config and prompt.generation_config is config
+    assert config.extra_args == {"reasoning_effort": "low"}
 
 
 def test_openai_model_with_api_key():

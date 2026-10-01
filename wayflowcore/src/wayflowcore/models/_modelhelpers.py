@@ -5,6 +5,8 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 import json
 import re
+import warnings
+from copy import copy
 from json import JSONDecodeError
 
 from wayflowcore._utils.async_helpers import run_async_in_sync
@@ -12,6 +14,59 @@ from wayflowcore.messagelist import Message, MessageType
 from wayflowcore.models import LlmGenerationConfig, LlmModel, Prompt
 from wayflowcore.property import IntegerProperty, ObjectProperty, StringProperty, logger
 from wayflowcore.tools import Tool
+
+_GPT_MODEL_VERSION_PATTERN = re.compile(r"(?<![a-z0-9])gpt-(\d+)(?:\.(\d+))?", re.IGNORECASE)
+
+
+def _is_gpt_54_or_later(model_id: str) -> bool:
+    match = _GPT_MODEL_VERSION_PATTERN.search(model_id)
+    return match is not None and (int(match[1]), int(match[2] or 0)) >= (5, 4)
+
+
+def _normalize_openai_reasoning_effort(effort: str) -> str:
+    """OpenAI-compatible APIs use lowercase reasoning-effort values."""
+    return effort.lower()
+
+
+def _requires_gpt_responses_api(prompt: Prompt, model_id: str) -> bool:
+    """Check whether GPT-5.4+ tools require Responses and warn about the fallback."""
+    config = prompt.generation_config
+    if not _is_gpt_54_or_later(model_id) or not prompt.tools or config is None:
+        return False
+
+    effort = config.extra_args.get("reasoning_effort")
+    if effort is None:
+        return False
+
+    if not isinstance(effort, str):
+        raise ValueError("`reasoning_effort` must be a string for the Responses API.")
+    if _normalize_openai_reasoning_effort(effort) == "none":
+        return False
+    warnings.warn(
+        f"Model {model_id!r} is switching to the Responses API because Chat Completions "
+        "does not support tools with non-none reasoning effort.",
+        UserWarning,
+        stacklevel=3,
+    )
+    return True
+
+
+def _convert_chat_reasoning_to_responses(
+    generation_config: LlmGenerationConfig,
+) -> LlmGenerationConfig:
+    """Copy a config with Chat Completions reasoning converted to Responses format."""
+    extra_args = dict(generation_config.extra_args)
+    effort = extra_args.pop("reasoning_effort")
+    reasoning = extra_args.get("reasoning")
+    if reasoning is not None and not isinstance(reasoning, dict):
+        raise ValueError("`reasoning` must be a dictionary for the Responses API.")
+    extra_args["reasoning"] = {
+        **(reasoning or {}),
+        "effort": _normalize_openai_reasoning_effort(effort),
+    }
+    adapted_config = copy(generation_config)
+    adapted_config.extra_args = extra_args
+    return adapted_config
 
 
 def _fetch_structured_generation_support(llm: "LlmModel") -> bool:

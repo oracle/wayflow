@@ -10,6 +10,17 @@ New features
 Improvements
 ^^^^^^^^^^^^
 
+* **GPT reasoning with tools**
+
+  OpenAI and OCI GPT-5.4+ chat requests with tools and non-``none`` reasoning effort
+  now use the Responses API for that request, without changing the model configuration
+  or the caller's prompt. Requests that do not require the fallback retain their
+  configured API and generation parameters. Request preparation does not initialize
+  clients; each SDK execution path creates only the client it needs. Fallback
+  eligibility is checked separately from adapting the prompt's reasoning parameters.
+  OCI Responses streaming requests disable response compression to avoid an HTTPX
+  zstd decoding failure when ``zstandard`` is installed.
+
 * **Switched to ``httpx2``:**
 
   WayFlow now uses ``httpx2`` instead of ``httpx`` for its core HTTP clients.

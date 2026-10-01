@@ -148,7 +148,10 @@ class OpenAICompatibleModel(LlmModel):
         prompt: "Prompt",
     ) -> LlmCompletion:
         prompt = self._pre_process(prompt)
-        request_params = self._generate_request_params(prompt, stream=False)
+        prompt, api_processor = self._prepare_prompt_and_api_processor(prompt)
+        request_params = api_processor._generate_request_params(
+            prompt, stream=False, supports_tool_role=_supports_tool_role(self.model_id)
+        )
         request_params["headers"] = self._get_headers()
         response_data = await self._post(
             request_params=request_params,
@@ -157,18 +160,21 @@ class OpenAICompatibleModel(LlmModel):
             retry_policy=self.retry_policy,
         )
         logger.debug(f"Raw LLM answer: %s", response_data)
-        message = self.api_processor._convert_openai_response_into_message(response_data)
+        message = api_processor._convert_openai_response_into_message(response_data)
         message = self._post_process(message)
         message = prompt.parse_output(message)
         return LlmCompletion(
-            message=message, token_usage=self.api_processor._extract_usage(response_data)
+            message=message, token_usage=api_processor._extract_usage(response_data)
         )
 
     async def _stream_generate_impl(
         self, prompt: "Prompt"
     ) -> AsyncIterable[TaggedMessageChunkTypeWithTokenUsage]:
         prompt = self._pre_process(prompt)
-        request_args = self._generate_request_params(prompt, stream=True)
+        prompt, api_processor = self._prepare_prompt_and_api_processor(prompt)
+        request_args = api_processor._generate_request_params(
+            prompt, stream=True, supports_tool_role=_supports_tool_role(self.model_id)
+        )
         request_args["headers"] = self._get_headers()
 
         def final_message_post_processing(message: "Message") -> "Message":
@@ -179,16 +185,24 @@ class OpenAICompatibleModel(LlmModel):
             proxy=self.proxy,
             verify=self._ssl_verify,
             retry_policy=self.retry_policy,
-            api_processor=self.api_processor,
+            api_processor=api_processor,
         )
 
         async for (
             chunk
-        ) in self.api_processor._tagged_chunk_iterator_from_stream_of_openai_compatible_json(
+        ) in api_processor._tagged_chunk_iterator_from_stream_of_openai_compatible_json(
             json_object_iterable=json_stream,
             post_processing=final_message_post_processing,
         ):
             yield chunk
+
+    def _prepare_prompt_and_api_processor(self, prompt: "Prompt") -> tuple["Prompt", _APIProcessor]:
+        """Select the API processor to use for this prompt.
+
+        Subclasses can override this to select an API type per request without changing the
+        processor configured on the model instance.
+        """
+        return prompt, self.api_processor
 
     def _pre_process(self, prompt: "Prompt") -> "Prompt":
         return prompt
@@ -205,9 +219,12 @@ class OpenAICompatibleModel(LlmModel):
         return headers
 
     def _setup_api_processor(self, api_type: OpenAIAPIType) -> None:
-        self.api_processor: _APIProcessor
+        self.api_processor = self._create_api_processor(api_type)
+
+    def _create_api_processor(self, api_type: OpenAIAPIType) -> _APIProcessor:
+        """Create a processor without changing the model's configured API type."""
         model_cls = _openai_api_type_to_processor_map[api_type]
-        self.api_processor = model_cls(self.model_id, self.base_url, api_type)
+        return model_cls(self.model_id, self.base_url, api_type)
 
     @staticmethod
     async def _post(

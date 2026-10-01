@@ -41,11 +41,14 @@ from wayflowcore.tools import Tool, ToolRequest
 from wayflowcore.transforms import CanonicalizationMessageTransform
 
 from ._modelhelpers import (
+    _convert_chat_reasoning_to_responses,
     _is_llama_legacy_model,
     _is_native_tool_calling_gemma_model,
+    _normalize_openai_reasoning_effort,
+    _requires_gpt_responses_api,
     _supports_tool_role,
 )
-from ._openaihelpers import _ChatCompletionsAPIProcessor, _ResponsesAPIProcessor
+from ._openaihelpers import _APIProcessor, _ChatCompletionsAPIProcessor, _ResponsesAPIProcessor
 from ._openaihelpers._utils import _safe_json_loads
 from ._requesthelpers import (
     _DEFAULT_RNG,
@@ -271,6 +274,7 @@ class OCIGenAIModel(LlmModel):
         self.provider = provider
 
         self._client = None
+        self._api_processor: Optional[_APIProcessor] = None
         self._oci_serving_mode = None
         self.api_type = api_type
         self.conversation_store_id = conversation_store_id
@@ -348,12 +352,10 @@ class OCIGenAIModel(LlmModel):
                 )
 
     async def _generate_impl(self, prompt: Prompt) -> "LlmCompletion":
-        if self.api_type == OciAPIType.OCI:
+        prompt, api_processor = self._prepare_prompt_and_api_processor(prompt)
+        if api_processor is None:
             return await self._generate_impl_oci_sdk(prompt)
-        elif self.api_type in [OciAPIType.OPENAI_RESPONSES, OciAPIType.OPENAI_CHAT_COMPLETIONS]:
-            return await self._generate_impl_openai_sdk(prompt)
-        else:
-            raise ValueError(f"`api_type` not supported: {self.api_type}")
+        return await self._generate_impl_openai_sdk(prompt, api_processor)
 
     def _create_openai_client(self) -> Any:
         from oci_openai import AsyncOciOpenAI  # type: ignore
@@ -377,22 +379,20 @@ class OCIGenAIModel(LlmModel):
             retry_budget_exhausted_message="OCI OpenAI-compatible request retry budget exhausted",
         )
 
-    async def _generate_impl_openai_sdk(self, prompt: Prompt) -> LlmCompletion:
-        self._init_client_if_needed()
-        if self._api_processor is None:
-            raise ValueError("Could not initialize the OCI client")
-
-        openai_parameters = self._generate_openai_sdk_parameters(prompt)
+    async def _generate_impl_openai_sdk(
+        self, prompt: Prompt, api_processor: _APIProcessor
+    ) -> LlmCompletion:
+        openai_parameters = self._generate_openai_sdk_parameters(prompt, api_processor)
         logger.debug(f"LLm Request: {json.dumps(openai_parameters, indent=4)}")
 
         async with self._create_openai_client() as openai_client:
 
             async def _call_openai() -> Any:
-                if self.api_type == OciAPIType.OPENAI_RESPONSES:
+                if api_processor.api_type == OpenAIAPIType.RESPONSES:
                     return await openai_client.responses.create(
                         model=self.model_id, store=False, **openai_parameters
                     )
-                elif self.api_type == OciAPIType.OPENAI_CHAT_COMPLETIONS:
+                elif api_processor.api_type == OpenAIAPIType.CHAT_COMPLETIONS:
                     return await openai_client.chat.completions.create(
                         model=self.model_id, store=False, **openai_parameters
                     )
@@ -403,22 +403,28 @@ class OCIGenAIModel(LlmModel):
         # convert the openai models into dict
         response_data = response.model_dump()
         # convert this dict using the existing openai processors
-        message = self._api_processor._convert_openai_response_into_message(response_data)
+        message = api_processor._convert_openai_response_into_message(response_data)
 
         message = prompt.parse_output(message)
-        token_usage = self._api_processor._extract_usage(response_data)
+        token_usage = api_processor._extract_usage(response_data)
         return LlmCompletion(message=message, token_usage=token_usage)
 
-    def _generate_openai_sdk_parameters(self, prompt: Prompt) -> Dict[str, Any]:
-        if self._api_processor is None:
-            raise ValueError("Could not initialize the OCI client")
-
+    @staticmethod
+    def _generate_openai_sdk_parameters(
+        prompt: Prompt, api_processor: _APIProcessor
+    ) -> Dict[str, Any]:
         openai_parameters = {
-            **self._api_processor._convert_prompt(
-                prompt, supports_tool_role=_supports_tool_role(self.model_id)
+            **api_processor._convert_prompt(
+                prompt, supports_tool_role=_supports_tool_role(api_processor.model_id)
             ),
-            **self._api_processor._convert_generation_params(prompt.generation_config),
+            **api_processor._convert_generation_params(prompt.generation_config),
         }
+
+        if api_processor.api_type == OpenAIAPIType.CHAT_COMPLETIONS:
+            effort = openai_parameters.get("reasoning_effort")
+            if isinstance(effort, str):
+                # The OpenAI-compatible API expects lowercase reasoning-effort values.
+                openai_parameters["reasoning_effort"] = _normalize_openai_reasoning_effort(effort)
 
         # oci doesn't support this parameter
         # `prompt_cache_key` is only added for certain endpoints (e.g. OpenAI), and is not supported
@@ -534,14 +540,38 @@ class OCIGenAIModel(LlmModel):
         self,
         prompt: Prompt,
     ) -> AsyncIterable[TaggedMessageChunkTypeWithTokenUsage]:
-        if self.api_type == OciAPIType.OCI:
-            async for chunk in self._stream_generate_impl_oci_sdk(prompt=prompt):
-                yield chunk
-        elif self.api_type in [OciAPIType.OPENAI_RESPONSES, OciAPIType.OPENAI_CHAT_COMPLETIONS]:
-            async for chunk in self._stream_generate_impl_openai_sdk(prompt=prompt):
-                yield chunk
+        prompt, api_processor = self._prepare_prompt_and_api_processor(prompt)
+        if api_processor is None:
+            chunks = self._stream_generate_impl_oci_sdk(prompt)
         else:
-            raise ValueError(f"`api_type` not supported: {self.api_type}")
+            chunks = self._stream_generate_impl_openai_sdk(prompt, api_processor)
+        async for chunk in chunks:
+            yield chunk
+
+    def _prepare_prompt_and_api_processor(
+        self, prompt: Prompt
+    ) -> tuple[Prompt, Optional[_APIProcessor]]:
+        """Select request dependencies once; None denotes the native OCI SDK."""
+        config = prompt.generation_config
+        if (
+            self.api_type in (OciAPIType.OCI, OciAPIType.OPENAI_CHAT_COMPLETIONS)
+            and self.model_id.lower().startswith("openai.")
+            and config is not None
+            and _requires_gpt_responses_api(prompt=prompt, model_id=self.model_id)
+        ):
+            responses_prompt = prompt.copy(
+                generation_config=_convert_chat_reasoning_to_responses(generation_config=config)
+            )
+            return responses_prompt, _ResponsesAPIProcessor(
+                self.model_id, "url", OpenAIAPIType.RESPONSES
+            )
+        if self.api_type == OciAPIType.OCI:
+            return prompt, None
+        if self._api_processor is not None:
+            return prompt, self._api_processor
+        processor_cls = _OCI_API_TYPE_TO_PROCESSOR[self.api_type]
+        openai_api_type = _OCI_API_TYPE_TO_OPENAI_API_TYPE[self.api_type]
+        return prompt, processor_cls(self.model_id, "url", openai_api_type)
 
     async def _stream_generate_impl_oci_sdk(
         self,
@@ -564,21 +594,26 @@ class OCIGenAIModel(LlmModel):
     async def _stream_generate_impl_openai_sdk(
         self,
         prompt: Prompt,
+        api_processor: _APIProcessor,
     ) -> AsyncIterable[TaggedMessageChunkTypeWithTokenUsage]:
-        self._init_client_if_needed()
-        if self._api_processor is None:
-            raise ValueError("Could not initialize the OCI client")
-
-        openai_parameters = self._generate_openai_sdk_parameters(prompt)
+        openai_parameters = self._generate_openai_sdk_parameters(prompt, api_processor)
 
         client_args = dict(model=self.model_id, store=False, stream=True, **openai_parameters)
+        if api_processor.api_type == OpenAIAPIType.RESPONSES:
+            # OCI Responses streams can contain separate zstd frames. The OpenAI SDK's
+            # HTTPX decoder can reuse a completed decompressor and fail when zstandard
+            # is installed, so request an uncompressed response for this streaming path.
+            client_args["extra_headers"] = {
+                **(client_args.get("extra_headers") or {}),
+                "Accept-Encoding": "identity",
+            }
 
         async with self._create_openai_client() as openai_client:
 
             async def _create_stream() -> Any:
-                if self.api_type == OciAPIType.OPENAI_RESPONSES:
+                if api_processor.api_type == OpenAIAPIType.RESPONSES:
                     return await openai_client.responses.create(**client_args)
-                if self.api_type == OciAPIType.OPENAI_CHAT_COMPLETIONS:
+                if api_processor.api_type == OpenAIAPIType.CHAT_COMPLETIONS:
                     return await openai_client.chat.completions.create(**client_args)
                 raise ValueError("Internal error: unsupported API type")
 
@@ -594,7 +629,7 @@ class OCIGenAIModel(LlmModel):
 
             async for (
                 chunk
-            ) in self._api_processor._tagged_chunk_iterator_from_stream_of_openai_compatible_json(
+            ) in api_processor._tagged_chunk_iterator_from_stream_of_openai_compatible_json(
                 json_object_iterable=json_stream,
                 post_processing=prompt.parse_output,
             ):

@@ -25,6 +25,7 @@ from wayflowcore.models.ocigenaimodel import (
 )
 from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.templates import PromptTemplate
+from wayflowcore.tools import ClientTool
 
 from ..conftest import (
     DUMMY_OCI_USER_CONFIG_DICT,
@@ -246,6 +247,30 @@ def test_oci_openai_api_generation_config_reaches_sdk_create(api_type, max_token
     if api_type == OciAPIType.OPENAI_RESPONSES:
         assert captured_create_kwargs["reasoning"]["summary"] == "auto"
         assert "reasoning.encrypted_content" in captured_create_kwargs["include"]
+
+
+@pytest.mark.skipif(
+    not os.path.exists(os.path.expanduser("~/.oci/config")), reason="Missing OCI config file"
+)
+@pytest.mark.parametrize("stream", [False, True])
+@pytest.mark.parametrize("api_type", [OciAPIType.OCI, OciAPIType.OPENAI_CHAT_COMPLETIONS])
+def test_oci_reasoning_tools_use_responses_without_changing_config(api_type, stream):
+    pytest.importorskip("oci_openai")
+    config = deepcopy(OCI_REASONING_MODEL_API_KEY_CONFIG)
+    config.update(model_id="openai.gpt-5.6-luna", api_type=api_type)
+    config["generation_config"] = {"max_tokens": 1024, "reasoning_effort": "LOW"}
+    llm = LlmModelFactory.from_config(config)
+    prompt = Prompt(
+        messages=[Message(role="user", content="Call test_tool now.")],
+        tools=[ClientTool(name="test_tool", description="A no-op tool.", input_descriptors=[])],
+    )
+    with pytest.warns(UserWarning, match="switching"):
+        message = (
+            list(llm.stream_generate(prompt))[-1][1] if stream else llm.generate(prompt).message
+        )
+    assert message.tool_requests and message.tool_requests[0].name == "test_tool"
+    assert llm.api_type == api_type and prompt.generation_config is None
+    assert llm.generation_config.extra_args == {"reasoning_effort": "LOW"}
 
 
 @pytest.mark.skip("Skip because we do not have any custom dedicated model on our tenancy")
