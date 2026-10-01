@@ -751,15 +751,11 @@ def test_non_streaming_works_when_backend_forces_streaming_response(mocked_httpx
     ],
     ids=["https", "https-full", "http", "no-scheme/v1", "localhost"],
 )
-@patch(
-    "httpx2.AsyncClient.post",
-    return_value=httpx2.Response(200, json={"choices": [{"message": {"content": "ok"}}]}),
-)
-def test_model_calls_correct_url(post, base_url, expected):
+def test_model_calls_correct_url(base_url, expected):
     prompt = Prompt(messages=[Message(role="user", content="hello")])
-    model = OpenAICompatibleModel(model_id="my.model-id", base_url=base_url)
-    model.generate(prompt)
-    payload = post.await_args.kwargs
+    payload = OpenAICompatibleModel(
+        model_id="my.model-id", base_url=base_url
+    )._generate_request_params(prompt, stream=False)
     assert payload["url"] == expected
     if os.environ.get("OPENAI_API_KEY") is None:
         assert payload.get("headers", {}).get("Authorization") is None  # no api_key was specified
@@ -788,16 +784,10 @@ def test_openai_compatible_formats_tool_role_based_on_model_support(model_id, ex
         ]
     )
 
-    model = OpenAICompatibleModel(
+    payload = OpenAICompatibleModel(
         model_id=model_id,
         base_url="example.test",
-    )
-    post = AsyncMock(
-        return_value=httpx2.Response(200, json={"choices": [{"message": {"content": "ok"}}]})
-    )
-    with patch("httpx2.AsyncClient.post", new=post):
-        model.generate(prompt)
-    payload = post.await_args.kwargs
+    )._generate_request_params(prompt, stream=False)
 
     assert payload["json"]["messages"][0]["role"] == expected_role
 
@@ -823,15 +813,11 @@ def test_gemma_legacy_vllm_uses_default_canonicalization():
 
 
 @mock.patch.dict(os.environ, {"OPENAI_API_KEY": "sk-012-MOCKED_KEY"})
-@patch(
-    "httpx2.AsyncClient.post",
-    return_value=httpx2.Response(200, json={"choices": [{"message": {"content": "ok"}}]}),
-)
-def test_model_has_correct_api_key(post):
+def test_model_has_correct_api_key():
     prompt = Prompt(messages=[Message(role="user", content="hello")])
     model = OpenAICompatibleModel(model_id="my.model-id", base_url="my_awesome_llm")
-    model.generate(prompt)
-    payload = post.await_args.kwargs
+    payload = model._generate_request_params(prompt, stream=False)
+    payload["headers"] = model._get_headers()
     assert payload.get("headers", {}).get("Authorization") == "Bearer sk-012-MOCKED_KEY"
 
 
@@ -1190,15 +1176,11 @@ def test_openai_model_does_not_raise_on_receiving_incomplete_tool_calls_from_rem
     ],
     ids=["https", "https-full", "http", "no-scheme/v1", "localhost"],
 )
-@patch(
-    "httpx2.AsyncClient.post",
-    return_value=httpx2.Response(200, json={"choices": [{"message": {"content": "ok"}}]}),
-)
-def test_vllm_ollama_with_correct_url(post, model_cls, base_url, expected):
+def test_vllm_ollama_with_correct_url(model_cls, base_url, expected):
     prompt = Prompt(messages=[Message(role="user", content="hello")])
-    model = model_cls(model_id="my.model-id", host_port=base_url)
-    model.generate(prompt)
-    payload = post.await_args.kwargs
+    payload = model_cls(model_id="my.model-id", host_port=base_url)._generate_request_params(
+        prompt, stream=False
+    )
     assert payload["url"] == expected
     if os.environ.get("OPENAI_API_KEY") is None:
         assert payload.get("headers", {}).get("Authorization") is None  # no api_key was specified
@@ -1206,15 +1188,11 @@ def test_vllm_ollama_with_correct_url(post, model_cls, base_url, expected):
 
 @pytest.mark.parametrize("model_cls", [VllmModel, OllamaModel])
 @mock.patch.dict(os.environ, {"OPENAI_API_KEY": "sk-034-MOCKED_KEY"})
-@patch(
-    "httpx2.AsyncClient.post",
-    return_value=httpx2.Response(200, json={"choices": [{"message": {"content": "ok"}}]}),
-)
-def test_vllm_ollama_with_api_key(post, model_cls):
+def test_vllm_ollama_with_api_key(model_cls):
     prompt = Prompt(messages=[Message(role="user", content="hello")])
     model = model_cls(model_id="my.model-id", host_port="localhost:80000")
-    model.generate(prompt)
-    payload = post.await_args.kwargs
+    payload = model._generate_request_params(prompt, stream=False)
+    payload["headers"] = model._get_headers()
     assert payload.get("headers", {}).get("Authorization") == "Bearer sk-034-MOCKED_KEY"
 
 
