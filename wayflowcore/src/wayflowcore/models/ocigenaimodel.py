@@ -41,9 +41,11 @@ from wayflowcore.tools import Tool, ToolRequest
 from wayflowcore.transforms import CanonicalizationMessageTransform
 
 from ._modelhelpers import (
+    _convert_chat_reasoning_to_responses,
     _is_llama_legacy_model,
     _is_native_tool_calling_gemma_model,
-    _prepare_gpt_chat_prompt,
+    _normalize_openai_reasoning_effort,
+    _requires_gpt_responses_api,
     _supports_tool_role,
 )
 from ._openaihelpers import _APIProcessor, _ChatCompletionsAPIProcessor, _ResponsesAPIProcessor
@@ -272,6 +274,7 @@ class OCIGenAIModel(LlmModel):
         self.provider = provider
 
         self._client = None
+        self._api_processor: Optional[_APIProcessor] = None
         self._oci_serving_mode = None
         self.api_type = api_type
         self.conversation_store_id = conversation_store_id
@@ -299,7 +302,20 @@ class OCIGenAIModel(LlmModel):
         )
 
     def _init_client(self) -> None:
-        if self.api_type == OciAPIType.OCI:
+        if self.api_type in [OciAPIType.OPENAI_RESPONSES, OciAPIType.OPENAI_CHAT_COMPLETIONS]:
+
+            if self.serving_mode == ServingMode.DEDICATED:
+                warnings.warn(
+                    "Serving mode DEDICATED is not supported with OciAPIType.OPENAI_RESPONSES or OciAPIType.OPENAI_CHAT_COMPLETIONS. Please set OciAPIType.OCI  to use the dedicated serving mode."
+                )
+
+            self._client = None
+            model_cls = _OCI_API_TYPE_TO_PROCESSOR[self.api_type]
+            openai_api_type_equivalent = _OCI_API_TYPE_TO_OPENAI_API_TYPE[self.api_type]
+            # we use the openai processor to create the requests for
+            self._api_processor = model_cls(self.model_id, "url", openai_api_type_equivalent)
+
+        elif self.api_type == OciAPIType.OCI:
             self._client = oci.generative_ai_inference.GenerativeAiInferenceClient(
                 **_client_config_to_oci_client_kwargs(
                     self.client_config,
@@ -335,22 +351,6 @@ class OCIGenAIModel(LlmModel):
                     "Optional dependency `oci` not found. Please install `wayflowcore[oci]` to be able to use `OciGenAIModel`"
                 )
 
-    def _prepare_prompt_and_api_processor(
-        self, prompt: Prompt
-    ) -> tuple[Prompt, Optional[_APIProcessor]]:
-        """Select request dependencies once; None denotes the native OCI SDK."""
-        api_type = self.api_type
-        if api_type in (
-            OciAPIType.OCI,
-            OciAPIType.OPENAI_CHAT_COMPLETIONS,
-        ) and self.model_id.lower().startswith("openai."):
-            prompt, api_type = _prepare_gpt_chat_prompt(
-                prompt, self.model_id, api_type, OciAPIType.OPENAI_RESPONSES
-            )
-        if api_type == OciAPIType.OCI:
-            return prompt, None
-        return prompt, self._create_openai_api_processor(api_type)
-
     async def _generate_impl(self, prompt: Prompt) -> "LlmCompletion":
         prompt, api_processor = self._prepare_prompt_and_api_processor(prompt)
         if api_processor is None:
@@ -379,26 +379,6 @@ class OCIGenAIModel(LlmModel):
             retry_budget_exhausted_message="OCI OpenAI-compatible request retry budget exhausted",
         )
 
-    def _create_openai_api_processor(self, api_type: OciAPIType) -> _APIProcessor:
-        if api_type not in _OCI_API_TYPE_TO_PROCESSOR:
-            raise ValueError(f"`api_type` not supported: {api_type}")
-        if self.serving_mode == ServingMode.DEDICATED:
-            warnings.warn(
-                "Serving mode DEDICATED is not supported with OciAPIType.OPENAI_RESPONSES or OciAPIType.OPENAI_CHAT_COMPLETIONS. Please set OciAPIType.OCI  to use the dedicated serving mode."
-            )
-        model_cls = _OCI_API_TYPE_TO_PROCESSOR[api_type]
-        openai_api_type_equivalent = _OCI_API_TYPE_TO_OPENAI_API_TYPE[api_type]
-        return model_cls(self.model_id, "url", openai_api_type_equivalent)
-
-    @staticmethod
-    def _get_openai_create(openai_client: Any, api_processor: _APIProcessor) -> Callable[..., Any]:
-        """Bind the SDK operation to the processor selected for this request."""
-        if api_processor.api_type == OpenAIAPIType.RESPONSES:
-            create = openai_client.responses.create
-        else:
-            create = openai_client.chat.completions.create
-        return cast(Callable[..., Any], create)
-
     async def _generate_impl_openai_sdk(
         self, prompt: Prompt, api_processor: _APIProcessor
     ) -> LlmCompletion:
@@ -406,10 +386,17 @@ class OCIGenAIModel(LlmModel):
         logger.debug(f"LLm Request: {json.dumps(openai_parameters, indent=4)}")
 
         async with self._create_openai_client() as openai_client:
-            create = self._get_openai_create(openai_client, api_processor)
 
             async def _call_openai() -> Any:
-                return await create(model=self.model_id, store=False, **openai_parameters)
+                if api_processor.api_type == OpenAIAPIType.RESPONSES:
+                    return await openai_client.responses.create(
+                        model=self.model_id, store=False, **openai_parameters
+                    )
+                elif api_processor.api_type == OpenAIAPIType.CHAT_COMPLETIONS:
+                    return await openai_client.chat.completions.create(
+                        model=self.model_id, store=False, **openai_parameters
+                    )
+                raise ValueError("Internal error: unsupported API type")
 
             response = await self._execute_openai_request_with_retry(_call_openai)
 
@@ -436,7 +423,8 @@ class OCIGenAIModel(LlmModel):
         if api_processor.api_type == OpenAIAPIType.CHAT_COMPLETIONS:
             effort = openai_parameters.get("reasoning_effort")
             if isinstance(effort, str):
-                openai_parameters["reasoning_effort"] = effort.lower()
+                # The OpenAI-compatible API expects lowercase reasoning-effort values.
+                openai_parameters["reasoning_effort"] = _normalize_openai_reasoning_effort(effort)
 
         # oci doesn't support this parameter
         # `prompt_cache_key` is only added for certain endpoints (e.g. OpenAI), and is not supported
@@ -560,6 +548,31 @@ class OCIGenAIModel(LlmModel):
         async for chunk in chunks:
             yield chunk
 
+    def _prepare_prompt_and_api_processor(
+        self, prompt: Prompt
+    ) -> tuple[Prompt, Optional[_APIProcessor]]:
+        """Select request dependencies once; None denotes the native OCI SDK."""
+        config = prompt.generation_config
+        if (
+            self.api_type in (OciAPIType.OCI, OciAPIType.OPENAI_CHAT_COMPLETIONS)
+            and self.model_id.lower().startswith("openai.")
+            and config is not None
+            and _requires_gpt_responses_api(prompt=prompt, model_id=self.model_id)
+        ):
+            responses_prompt = prompt.copy(
+                generation_config=_convert_chat_reasoning_to_responses(generation_config=config)
+            )
+            return responses_prompt, _ResponsesAPIProcessor(
+                self.model_id, "url", OpenAIAPIType.RESPONSES
+            )
+        if self.api_type == OciAPIType.OCI:
+            return prompt, None
+        if self._api_processor is not None:
+            return prompt, self._api_processor
+        processor_cls = _OCI_API_TYPE_TO_PROCESSOR[self.api_type]
+        openai_api_type = _OCI_API_TYPE_TO_OPENAI_API_TYPE[self.api_type]
+        return prompt, processor_cls(self.model_id, "url", openai_api_type)
+
     async def _stream_generate_impl_oci_sdk(
         self,
         prompt: Prompt,
@@ -586,12 +599,23 @@ class OCIGenAIModel(LlmModel):
         openai_parameters = self._generate_openai_sdk_parameters(prompt, api_processor)
 
         client_args = dict(model=self.model_id, store=False, stream=True, **openai_parameters)
+        if api_processor.api_type == OpenAIAPIType.RESPONSES:
+            # OCI Responses streams can contain separate zstd frames. The OpenAI SDK's
+            # HTTPX decoder can reuse a completed decompressor and fail when zstandard
+            # is installed, so request an uncompressed response for this streaming path.
+            client_args["extra_headers"] = {
+                **(client_args.get("extra_headers") or {}),
+                "Accept-Encoding": "identity",
+            }
 
         async with self._create_openai_client() as openai_client:
-            create = self._get_openai_create(openai_client, api_processor)
 
             async def _create_stream() -> Any:
-                return await create(**client_args)
+                if api_processor.api_type == OpenAIAPIType.RESPONSES:
+                    return await openai_client.responses.create(**client_args)
+                if api_processor.api_type == OpenAIAPIType.CHAT_COMPLETIONS:
+                    return await openai_client.chat.completions.create(**client_args)
+                raise ValueError("Internal error: unsupported API type")
 
             stream = await self._execute_openai_request_with_retry(_create_stream)
 
@@ -805,11 +829,7 @@ class _GenericOciApiFormatter(_OciApiFormatter):
     def _generation_config_to_oci_parameter(
         generation_config: Optional[LlmGenerationConfig],
     ) -> Any:
-        parameters = _generation_config_to_generic_oci_parameters(generation_config, False)
-        effort = parameters.get("reasoning_effort")
-        if isinstance(effort, str):
-            parameters["reasoning_effort"] = effort.upper()
-        return parameters
+        return _generation_config_to_generic_oci_parameters(generation_config, False)
 
     @staticmethod
     def convert_completion_into_message(response: Dict[str, Any]) -> "Message":

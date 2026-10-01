@@ -11,7 +11,7 @@ from wayflowcore._metadata import MetadataType
 from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.serialization.serializer import serialize_to_dict
 
-from ._modelhelpers import _prepare_gpt_chat_prompt
+from ._modelhelpers import _convert_chat_reasoning_to_responses, _requires_gpt_responses_api
 from ._openaihelpers import _APIProcessor
 from .llmgenerationconfig import LlmGenerationConfig
 from .llmmodel import Prompt
@@ -105,12 +105,17 @@ class OpenAIModel(OpenAICompatibleModel):
         )
 
     def _prepare_prompt_and_api_processor(self, prompt: Prompt) -> tuple[Prompt, _APIProcessor]:
-        if self.api_type != OpenAIAPIType.CHAT_COMPLETIONS:
+        config = prompt.generation_config
+        if (
+            self.api_type != OpenAIAPIType.CHAT_COMPLETIONS
+            or config is None
+            or not _requires_gpt_responses_api(prompt=prompt, model_id=self.model_id)
+        ):
             return prompt, self.api_processor
-        prompt, api_type = _prepare_gpt_chat_prompt(
-            prompt, self.model_id, self.api_type, OpenAIAPIType.RESPONSES
+        responses_prompt = prompt.copy(
+            generation_config=_convert_chat_reasoning_to_responses(generation_config=config)
         )
-        return prompt, self._create_api_processor(api_type)
+        return responses_prompt, self._create_api_processor(OpenAIAPIType.RESPONSES)
 
     @property
     def config(self) -> Dict[str, Any]:

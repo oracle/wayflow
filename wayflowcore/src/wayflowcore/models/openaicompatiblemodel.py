@@ -149,8 +149,8 @@ class OpenAICompatibleModel(LlmModel):
     ) -> LlmCompletion:
         prompt = self._pre_process(prompt)
         prompt, api_processor = self._prepare_prompt_and_api_processor(prompt)
-        request_params = self._generate_request_params(
-            prompt, stream=False, api_processor=api_processor
+        request_params = api_processor._generate_request_params(
+            prompt, stream=False, supports_tool_role=_supports_tool_role(self.model_id)
         )
         request_params["headers"] = self._get_headers()
         response_data = await self._post(
@@ -172,8 +172,8 @@ class OpenAICompatibleModel(LlmModel):
     ) -> AsyncIterable[TaggedMessageChunkTypeWithTokenUsage]:
         prompt = self._pre_process(prompt)
         prompt, api_processor = self._prepare_prompt_and_api_processor(prompt)
-        request_args = self._generate_request_params(
-            prompt, stream=True, api_processor=api_processor
+        request_args = api_processor._generate_request_params(
+            prompt, stream=True, supports_tool_role=_supports_tool_role(self.model_id)
         )
         request_args["headers"] = self._get_headers()
 
@@ -297,12 +297,11 @@ class OpenAICompatibleModel(LlmModel):
                 self,
             )
 
-    def _generate_request_params(
-        self, prompt: "Prompt", stream: bool, api_processor: _APIProcessor
-    ) -> Dict[str, Any]:
-        """Generate request parameters using the processor selected for this request."""
-        return api_processor._generate_request_params(
-            prompt, stream=stream, supports_tool_role=_supports_tool_role(self.model_id)
+    def _generate_request_params(self, prompt: "Prompt", stream: bool) -> Dict[str, Any]:
+        """Generate Request Parameters for the API type"""
+        supports_tool_role = _supports_tool_role(self.model_id)
+        return self.api_processor._generate_request_params(
+            prompt, stream=stream, supports_tool_role=supports_tool_role
         )
 
 
