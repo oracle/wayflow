@@ -28,10 +28,7 @@ def test_openai_reasoning_tools_use_responses_without_changing_config(stream):
         tools=[Tool(name="test_tool", description="A no-op tool.", input_descriptors=[])],
         generation_config=config,
     )
-    with pytest.warns(UserWarning, match="switching"):
-        message = (
-            list(llm.stream_generate(prompt))[-1][1] if stream else llm.generate(prompt).message
-        )
+    message = list(llm.stream_generate(prompt))[-1][1] if stream else llm.generate(prompt).message
     assert message.tool_requests and message.tool_requests[0].name == "test_tool"
     assert llm.api_type == OpenAIAPIType.CHAT_COMPLETIONS
     assert llm.generation_config is config and prompt.generation_config is config

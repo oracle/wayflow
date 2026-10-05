@@ -264,10 +264,7 @@ def test_oci_reasoning_tools_use_responses_without_changing_config(api_type, str
         messages=[Message(role="user", content="Call test_tool now.")],
         tools=[ClientTool(name="test_tool", description="A no-op tool.", input_descriptors=[])],
     )
-    with pytest.warns(UserWarning, match="switching"):
-        message = (
-            list(llm.stream_generate(prompt))[-1][1] if stream else llm.generate(prompt).message
-        )
+    message = list(llm.stream_generate(prompt))[-1][1] if stream else llm.generate(prompt).message
     assert message.tool_requests and message.tool_requests[0].name == "test_tool"
     assert llm.api_type == api_type and prompt.generation_config is None
     assert llm.generation_config.extra_args == {"reasoning_effort": "LOW"}

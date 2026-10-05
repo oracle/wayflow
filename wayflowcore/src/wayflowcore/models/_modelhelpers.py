@@ -8,6 +8,7 @@ import re
 import warnings
 from copy import copy
 from json import JSONDecodeError
+from threading import Lock
 
 from wayflowcore._utils.async_helpers import run_async_in_sync
 from wayflowcore.messagelist import Message, MessageType
@@ -16,6 +17,8 @@ from wayflowcore.property import IntegerProperty, ObjectProperty, StringProperty
 from wayflowcore.tools import Tool
 
 _GPT_MODEL_VERSION_PATTERN = re.compile(r"(?<![a-z0-9])gpt-(\d+)(?:\.(\d+))?", re.IGNORECASE)
+_gpt_responses_warning_emitted = False
+_gpt_responses_warning_lock = Lock()
 
 
 def _is_gpt_54_or_later(model_id: str) -> bool:
@@ -30,6 +33,7 @@ def _normalize_openai_reasoning_effort(effort: str) -> str:
 
 def _requires_gpt_responses_api(prompt: Prompt, model_id: str) -> bool:
     """Check whether GPT-5.4+ tools require Responses and warn about the fallback."""
+    global _gpt_responses_warning_emitted
     config = prompt.generation_config
     if not _is_gpt_54_or_later(model_id) or not prompt.tools or config is None:
         return False
@@ -42,6 +46,11 @@ def _requires_gpt_responses_api(prompt: Prompt, model_id: str) -> bool:
         raise ValueError("`reasoning_effort` must be a string for the Responses API.")
     if _normalize_openai_reasoning_effort(effort) == "none":
         return False
+    with _gpt_responses_warning_lock:
+        if _gpt_responses_warning_emitted:
+            return True
+        # OCI authentication changes warning filters, resetting Python's suppression.
+        _gpt_responses_warning_emitted = True
     warnings.warn(
         f"Model {model_id!r} is switching to the Responses API because Chat Completions "
         "does not support tools with non-none reasoning effort.",

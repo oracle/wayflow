@@ -423,7 +423,7 @@ class OCIGenAIModel(LlmModel):
         if api_processor.api_type == OpenAIAPIType.CHAT_COMPLETIONS:
             effort = openai_parameters.get("reasoning_effort")
             if isinstance(effort, str):
-                # The OpenAI-compatible API expects lowercase reasoning-effort values.
+                # OCI's native API expects uppercase values; this OpenAI-compatible API expects lowercase.
                 openai_parameters["reasoning_effort"] = _normalize_openai_reasoning_effort(effort)
 
         # oci doesn't support this parameter

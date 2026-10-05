@@ -18,6 +18,7 @@ Improvements
   configured API and generation parameters. Request preparation does not initialize
   clients; each SDK execution path creates only the client it needs. Fallback
   eligibility is checked separately from adapting the prompt's reasoning parameters.
+  The fallback warning is emitted only once per process.
   OCI Responses streaming requests disable response compression to avoid an HTTPX
   zstd decoding failure when ``zstandard`` is installed.
 
