@@ -1006,6 +1006,10 @@ def _generation_config_to_generic_oci_parameters(
     if generation_config.extra_args:
         kwargs.update(generation_config.extra_args)
 
+    # Omit unspecified effort so the provider uses its default; "none" explicitly disables reasoning.
+    if kwargs.get("reasoning_effort") in (None, ""):
+        kwargs.pop("reasoning_effort", None)
+
     return kwargs
 
 

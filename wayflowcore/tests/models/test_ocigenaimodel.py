@@ -252,6 +252,10 @@ def test_oci_openai_api_generation_config_reaches_sdk_create(api_type, max_token
 @pytest.mark.skipif(
     not os.path.exists(os.path.expanduser("~/.oci/config")), reason="Missing OCI config file"
 )
+@pytest.mark.filterwarnings(
+    "ignore:Model .* is switching to the Responses API because Chat Completions does not support "
+    "tools with non-none reasoning effort\\.:UserWarning"
+)
 @pytest.mark.parametrize("stream", [False, True])
 @pytest.mark.parametrize("api_type", [OciAPIType.OCI, OciAPIType.OPENAI_CHAT_COMPLETIONS])
 def test_oci_reasoning_tools_use_responses_without_changing_config(api_type, stream):

@@ -26,9 +26,14 @@ def _is_gpt_54_or_later(model_id: str) -> bool:
     return match is not None and (int(match[1]), int(match[2] or 0)) >= (5, 4)
 
 
-def _normalize_openai_reasoning_effort(effort: str) -> str:
-    """OpenAI-compatible APIs use lowercase reasoning-effort values."""
-    return effort.lower()
+def _normalize_openai_reasoning_effort(effort: str) -> str | None:
+    """Lowercase an effort for OpenAI APIs; an empty string means unspecified.
+
+    Return ``None`` for ``""`` so the parameter can be omitted. The explicit
+    value ``"none"`` disables reasoning and is preserved. This does not validate
+    supported effort values or strip whitespace.
+    """
+    return effort.lower() if effort else None
 
 
 def _requires_gpt_responses_api(prompt: Prompt, model_id: str) -> bool:
@@ -44,7 +49,8 @@ def _requires_gpt_responses_api(prompt: Prompt, model_id: str) -> bool:
 
     if not isinstance(effort, str):
         raise ValueError("`reasoning_effort` must be a string for the Responses API.")
-    if _normalize_openai_reasoning_effort(effort) == "none":
+    effort = _normalize_openai_reasoning_effort(effort)
+    if effort in (None, "none"):
         return False
     with _gpt_responses_warning_lock:
         if _gpt_responses_warning_emitted:
@@ -63,7 +69,11 @@ def _requires_gpt_responses_api(prompt: Prompt, model_id: str) -> bool:
 def _convert_chat_reasoning_to_responses(
     generation_config: LlmGenerationConfig,
 ) -> LlmGenerationConfig:
-    """Copy a config with Chat Completions reasoning converted to Responses format."""
+    """Copy a config with Chat Completions reasoning converted to Responses format.
+
+    Requires ``reasoning_effort`` in ``extra_args``, validated as a string by
+    ``_requires_gpt_responses_api`` before calling this helper.
+    """
     extra_args = dict(generation_config.extra_args)
     effort = extra_args.pop("reasoning_effort")
     reasoning = extra_args.get("reasoning")
