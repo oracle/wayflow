@@ -8,7 +8,7 @@ import json
 import logging
 import warnings
 from abc import ABC, abstractmethod
-from copy import deepcopy
+from copy import copy, deepcopy
 from dataclasses import dataclass, field
 from typing import Any, ClassVar, Dict, List, Optional, Set, Tuple, Type, TypedDict, Union, cast
 
@@ -1107,14 +1107,19 @@ class ObjectProperty(Property):
         return violations
 
     def _fill_nested_values_with_explicit_defaults(self, value: Any) -> Any:
-        if not isinstance(value, dict):
-            return value
+        if isinstance(value, dict):
+            return self._fill_dict_with_explicit_defaults(value)
+        if hasattr(value, "__dict__"):
+            return self._fill_object_with_explicit_defaults(value)
+        return value
 
+    def _fill_dict_with_explicit_defaults(self, value: Dict[str, Any]) -> Dict[str, Any]:
         filled_value = dict(value)
         for name, nested_property in self.properties.items():
             if name not in filled_value:
                 if nested_property.has_default:
-                    filled_value[name] = nested_property.default_value
+                    # the default itself may omit nested properties that have defaults
+                    filled_value[name] = _get_filled_default_value(nested_property)
             else:
                 filled_value[name] = nested_property._fill_nested_values_with_explicit_defaults(
                     filled_value[name]
@@ -1129,15 +1134,45 @@ class ObjectProperty(Property):
                     )
         return filled_value
 
+    def _fill_object_with_explicit_defaults(self, value: Any) -> Any:
+        # Attributes are filled on a shallow copy so that the caller's instance is left untouched.
+        # Objects rejecting new or updated attributes (e.g. frozen dataclasses) are returned as is.
+        try:
+            filled_value = copy(value)
+            for name, nested_property in self.properties.items():
+                if not hasattr(filled_value, name):
+                    if nested_property.has_default:
+                        setattr(filled_value, name, _get_filled_default_value(nested_property))
+                else:
+                    nested_value = getattr(filled_value, name)
+                    filled_nested_value = (
+                        nested_property._fill_nested_values_with_explicit_defaults(nested_value)
+                    )
+                    if (
+                        filled_nested_value is not nested_value
+                        and filled_nested_value != nested_value
+                    ):
+                        setattr(filled_value, name, filled_nested_value)
+        except Exception as e:
+            logger.debug("Could not fill the nested defaults of `%s` into `%s`: %s", self, value, e)
+            return value
+        return filled_value
+
     @staticmethod
     def _check_dict_has_correct_entry(
         value: Dict[str, Any], name: str, property_: Property
     ) -> bool:
-        return name in value and property_.is_value_of_expected_type(value[name])
+        if name not in value:
+            # A nested property with a default value is optional (it is not required
+            # in the JSON schema), so a value omitting it is still valid
+            return property_.has_default
+        return property_.is_value_of_expected_type(value[name])
 
     @staticmethod
     def _check_object_has_correct_attribute(value: Any, name: str, value_type: Property) -> bool:
-        return hasattr(value, name) and value_type.is_value_of_expected_type(getattr(value, name))
+        if not hasattr(value, name):
+            return value_type.has_default
+        return value_type.is_value_of_expected_type(getattr(value, name))
 
     @property
     def _type_default_value(self) -> Any:
@@ -1573,6 +1608,18 @@ def _property_can_be_casted_into_property(from_type: Property, to_type: Property
     )
 
 
+def _get_filled_default_value(property_: Property) -> Any:
+    """Return the default of a property, with the defaults of its own nested properties filled in."""
+    return property_._fill_nested_values_with_explicit_defaults(property_.default_value)
+
+
+def _get_default_value_of_missing_entry(name: str, property_: Property) -> Any:
+    """Return the default of a nested property missing from an object value, or fail."""
+    if property_.has_default:
+        return _get_filled_default_value(property_)
+    raise KeyError(f"Missing required property `{name}` in object value")
+
+
 def _cast_value_into(value: Any, target_type: Property) -> Any:
     casted_value = _try_cast_value_into(value, target_type)
     if target_type.enum is None:
@@ -1629,11 +1676,19 @@ def _try_cast_value_into(value: Any, target_type: Property) -> Any:
                 "Cannot convert non dict object types: %s to %s", value, str(target_type)
             )
             return {
-                prop_name: _cast_value_into(getattr(value, prop_name), property_)
+                prop_name: (
+                    _cast_value_into(getattr(value, prop_name), property_)
+                    if hasattr(value, prop_name)
+                    else _get_default_value_of_missing_entry(prop_name, property_)
+                )
                 for prop_name, property_ in target_type.properties.items()
             }
         return {
-            prop_name: _cast_value_into(value[prop_name], property_)
+            prop_name: (
+                _cast_value_into(value[prop_name], property_)
+                if prop_name in value
+                else _get_default_value_of_missing_entry(prop_name, property_)
+            )
             for prop_name, property_ in target_type.properties.items()
         }
     elif isinstance(target_type, UnionProperty):

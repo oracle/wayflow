@@ -50,7 +50,13 @@ from wayflowcore.executors.interrupts.executioninterrupt import (
 from wayflowcore.messagelist import Message, MessageList, MessageType
 from wayflowcore.ociagent import OciAgent
 from wayflowcore.planning import ExecutionPlan
-from wayflowcore.property import JsonSchemaParam, Property, StringProperty, _validate_strict_outputs
+from wayflowcore.property import (
+    JsonSchemaParam,
+    Property,
+    StringProperty,
+    _get_filled_default_value,
+    _validate_strict_outputs,
+)
 from wayflowcore.tools import ClientTool, Tool, ToolRequest, ToolResult
 from wayflowcore.tools.tools import _descriptors_to_json_schema_map, _sanitize_tool_name
 from wayflowcore.tracing.span import AgentExecutionSpan
@@ -108,10 +114,21 @@ def _log_messages_for_debug(messages: List[Message]) -> None:
 
 
 def _normalize_tool_request_args(
-    tool_request: ToolRequest, expected_types: Dict[str, JsonSchemaParam]
+    tool_request: ToolRequest,
+    expected_properties: Sequence[Property],
+    expected_types: Optional[Dict[str, JsonSchemaParam]] = None,
 ) -> None:
     # Drop hallucinated keys and coerce model-produced values to the tool schema.
+    if expected_types is None:
+        expected_types = _descriptors_to_json_schema_map(expected_properties)
     normalized_args = correct_arguments(tool_request.args or {}, expected_types)
+    # Nested properties omitted from object values take their declared defaults, so that tools
+    # receive the same normalized arguments as when called from a `ToolExecutionStep` in a `Flow`.
+    for property_ in expected_properties:
+        if property_.name in normalized_args:
+            normalized_args[property_.name] = property_._fill_nested_values_with_explicit_defaults(
+                normalized_args[property_.name]
+            )
     if normalized_args != tool_request.args:
         logger.debug(
             'Normalized arguments for "%s" (id=%s) from %s to %s',
@@ -593,8 +610,7 @@ class AgentConversationExecutor(ConversationExecutor):
         for flow in config.flows:
             if tool_request.name == _sanitize_tool_name(flow.name):
                 _normalize_tool_request_args(
-                    tool_request,
-                    _descriptors_to_json_schema_map(flow.input_descriptors_dict.values()),
+                    tool_request, list(flow.input_descriptors_dict.values())
                 )
                 return await AgentConversationExecutor._handle_flow_call(
                     config, state, flow, tool_request, messages
@@ -612,7 +628,7 @@ class AgentConversationExecutor(ConversationExecutor):
             state.current_retrieved_tools = retrieved_tools
         for tool in state.current_retrieved_tools or []:
             if tool_request.name == tool.name:
-                _normalize_tool_request_args(tool_request, tool.parameters)
+                _normalize_tool_request_args(tool_request, tool.input_descriptors, tool.parameters)
                 return await AgentConversationExecutor._handle_tool_call(
                     config, tool, conversation, tool_request, messages
                 )
@@ -1255,10 +1271,7 @@ class AgentConversationExecutor(ConversationExecutor):
                     successful_submission = False
             else:
                 submit_tool_call.args = tool_inputs
-                _normalize_tool_request_args(
-                    submit_tool_call,
-                    _descriptors_to_json_schema_map(config.output_descriptors),
-                )
+                _normalize_tool_request_args(submit_tool_call, config.output_descriptors)
                 tool_inputs = submit_tool_call.args or {}
                 missing_inputs = [
                     o.name
@@ -1420,7 +1433,8 @@ def _fill_submit_result_defaults(
     for output in expected_outputs:
         if output.name not in filled_outputs:
             if output.has_default:
-                filled_outputs[output.name] = output.default_value
+                # the default itself may omit nested properties that have defaults
+                filled_outputs[output.name] = _get_filled_default_value(output)
         else:
             filled_outputs[output.name] = output._fill_nested_values_with_explicit_defaults(
                 filled_outputs[output.name]

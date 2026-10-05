@@ -1237,6 +1237,13 @@ class Flow(ConversationalComponent, SerializableObject):
                         f"The input passed: `{inputs[input_name]}` of type `{inputs[input_name].__class__.__name__}` is not of the expected type `{input_descriptor.pretty_str()}`"
                     )
 
+            if input_name in inputs:
+                # Nested properties omitted from object values take their declared defaults,
+                # so the steps receive the normalized value
+                inputs[input_name] = input_descriptor._fill_nested_values_with_explicit_defaults(
+                    inputs[input_name]
+                )
+
         record_event(
             ConversationCreatedEvent(
                 conversational_component=self,
