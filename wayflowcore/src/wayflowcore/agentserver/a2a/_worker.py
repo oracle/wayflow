@@ -31,6 +31,39 @@ Context = Any
 """The shape of the context stored in the storage (is not used in our case but is added to be compatible with fasta2a's Worker class"""
 
 
+def _flow_yields_at_input_step_before_any_real_message(flow: WayflowFlow) -> bool:
+    """Whether pre-executing ``flow`` (before any real message has been
+    appended) would run all the way to an ``InputMessageStep`` and yield
+    there.
+
+    Pre-execution always runs on a brand-new conversation, before the
+    caller's first message is ever appended. If that pre-execution reaches
+    and yields at an ``InputMessageStep`` — whether or not other,
+    non-yielding steps ran first — the worker then immediately appends the
+    caller's first message and re-executes, which the ``InputMessageStep``
+    misinterprets as the answer to a question the caller was never actually
+    asked. We only walk a single, unambiguous path (a step with more than one
+    distinct outgoing destination is treated as "can't tell", and we
+    conservatively keep the existing pre-execute behaviour).
+    """
+    visited: set[int] = set()
+    step = flow.begin_step
+    while id(step) not in visited:
+        visited.add(id(step))
+        if isinstance(step, InputMessageStep):
+            return True
+        destinations = {
+            edge.destination_step for edge in flow.control_flow_edges if edge.source_step is step
+        }
+        if len(destinations) != 1:
+            return False
+        (destination,) = destinations
+        if destination is None:
+            return False
+        step = destination
+    return False
+
+
 @dataclass
 class A2AAgentWorker(Worker[Context]):  # type: ignore[misc]
     """A worker that uses a WayFlow conversational component to execute tasks"""
@@ -77,8 +110,12 @@ class A2AAgentWorker(Worker[Context]):  # type: ignore[misc]
             messages = None if conversation is None else conversation.message_list
             conversation = self.assistant.start_conversation(messages=messages)
 
-            if isinstance(self.assistant, WayflowFlow) and any(
-                isinstance(step, InputMessageStep) for step in self.assistant.steps.values()
+            if (
+                isinstance(self.assistant, WayflowFlow)
+                and any(
+                    isinstance(step, InputMessageStep) for step in self.assistant.steps.values()
+                )
+                and not _flow_yields_at_input_step_before_any_real_message(self.assistant)
             ):
                 await conversation.execute_async()
 
