@@ -1,8 +1,8 @@
 Changelog
 =========
 
-WayFlow 26.3.1
---------------
+WayFlow |current_version|
+-------------------------
 
 Improvements
 ^^^^^^^^^^^^
