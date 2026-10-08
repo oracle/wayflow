@@ -69,7 +69,7 @@ setup(
         "exceptiongroup>=1.0.2",
         "uvicorn>=0.23.1",
         "fastapi>=0.116.2,<1.0.0",
-        "litellm>=1.84.0,<2.0; python_version < '3.14'",
+        "litellm>=1.100.4,<2.0",  # GHSA-7hp6-4w63-5g45 is fixed by 1.100.4.
         "opentelemetry-sdk>=1.33.0,<2.0.0",
         "opentelemetry-api>=1.33.0,<2.0.0",
         # 4rth party dependencies version bounds, for CVE patching
@@ -77,8 +77,9 @@ setup(
         "certifi>=2025.4.26",
         "httpcore>=1.0.9",  # Required by MCP 1.x.
         "idna>=3.7",
+        "multidict>=6.9.1",  # CVE-2026-104874 is fixed by 6.9.1.
         "pydantic_core>=2.33.0",  # warning but no vulnerabilities
-        "PyJWT>=2.13.0,<3.0.0",  # Versions <2.13.0 were affected with CVEs; 2.13.0 is required.
+        "PyJWT>=2.15.1,<3.0.0",  # Known CVE findings are fixed by 2.15.1.
         "aiohttp>=3.14.3,<4.0.0",  # Versions <3.14.3 included affected releases; 3.14.3 is required.
         # `mcp` 1.x's FastMCP.Settings emits IncompleteFieldDefinitionWarning with pydantic-settings 2.15.0.
         "pydantic-settings>=2.14.2,<2.15.0",
@@ -86,6 +87,7 @@ setup(
         "starlette>=1.3.1,<2.0.0",  # Known CVE findings are fixed by 1.3.1.
         "cryptography>=50.0.0,<60.0.0",  # Known CVE findings are fixed by 50.0.0.
         "sniffio>=1.1",
+        "urllib3>=2.8.0",  # Known CVE findings are fixed by 2.8.0.
     ],
     test_suite="tests",
     entry_points={
