@@ -10,6 +10,18 @@ New features
 Improvements
 ^^^^^^^^^^^^
 
+Bug fixes
+^^^^^^^^^
+
+WayFlow 26.3.1
+--------------
+
+New features
+^^^^^^^^^^^^
+
+Improvements
+^^^^^^^^^^^^
+
 * **GPT reasoning with tools**
 
   WayFlow now automatically uses the Responses API for GPT-5.4 and newer models on OpenAI and OCI when using tools with reasoning enabled to maintain compatibility with newer OpenAI models, and fixes an OCI streaming error.
