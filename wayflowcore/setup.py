@@ -69,7 +69,7 @@ setup(
         "exceptiongroup>=1.0.2",
         "uvicorn>=0.23.1",
         "fastapi>=0.116.2,<1.0.0",
-        "litellm>=1.100.4,<2.0",  # GHSA-7hp6-4w63-5g45 is fixed by 1.100.4.
+        "litellm>=1.104.2,<2.0",  # Patched floor for known LiteLLM security advisories.
         "opentelemetry-sdk>=1.33.0,<2.0.0",
         "opentelemetry-api>=1.33.0,<2.0.0",
         # 4rth party dependencies version bounds, for CVE patching

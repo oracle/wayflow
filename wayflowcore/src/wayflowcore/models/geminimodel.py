@@ -69,9 +69,9 @@ def _get_litellm() -> Any:
     except ImportError as exc:
         install_hint = (
             "On Python 3.14 or newer, install it explicitly with "
-            "`uv pip install 'litellm>=1.100.4,<2.0'`."
+            "`uv pip install 'litellm>=1.104.2,<2.0'`."
             if sys.version_info >= (3, 14)
-            else "Install `litellm>=1.100.4,<2.0`."
+            else "Install `litellm>=1.104.2,<2.0`."
         )
         raise ImportError(
             "GeminiModel requires optional dependency `litellm`, which is not installed. "
