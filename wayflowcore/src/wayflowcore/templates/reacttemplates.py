@@ -100,7 +100,7 @@ class ReactToolOutputParser(ToolOutputParser, SerializableObject):
         thoughts = ""
         if len(splits) == 2:
             thoughts, raw_txt = splits
-            thoughts = thoughts.lstrip("## Thought:")
+            thoughts = thoughts.removeprefix("## Thought:").lstrip()
         if "## Observation:" in raw_txt:
             raw_txt = raw_txt.split("## Observation:")[0]
         parsed_raw_txt = re.findall(r"```(?:json)?(.*?)```", raw_txt, flags=re.DOTALL)
