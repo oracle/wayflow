@@ -4,9 +4,6 @@ Changelog
 WayFlow |current_version|
 -------------------------
 
-New features
-^^^^^^^^^^^^
-
 Improvements
 ^^^^^^^^^^^^
 
@@ -20,6 +17,11 @@ Improvements
 
 Bug fixes
 ^^^^^^^^^
+
+* **Preserved thought text in ReAct parsing**
+
+  ReAct parsing now removes the exact ``## Thought:`` marker, preserving thought text that starts
+  with marker characters such as the ``Th`` in ``The``.
 
 * **Structured tool argument normalization**
 

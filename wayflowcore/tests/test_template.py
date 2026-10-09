@@ -934,6 +934,18 @@ def test_react_template_parsing_works_with_no_whitespaces():
     assert output_message.tool_requests[0].args == {"place": "ABC"}
 
 
+def test_react_thought_parsing_strips_correct_thought_marker():
+    react_output_parser = ReactToolOutputParser()
+    thoughts, raw_action = react_output_parser.parse_thoughts_and_calls("""## Thought: The user...
+## Action:
+```json
+{"name": "do_thing", "parameters": {}}
+```""")
+
+    assert thoughts == "The user...\n"
+    assert raw_action == '\n{"name": "do_thing", "parameters": {}}\n'
+
+
 @pytest.mark.parametrize(
     "template",
     [
