@@ -1,7 +1,7 @@
 [build-system]
 requires = [
     # lower bound 83.0.0 to address CVE-2026-59890
-    "setuptools>=83.0.0,<90.0.0",
+    "setuptools>=84.1.0,<90.0.0",
     "wheel",
     # setuptools-scm lets us include all necessary files (e.g. .pyx files) in the source
     # distribution (sdist) without needing a MANIFEST.in file.
