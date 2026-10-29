@@ -129,7 +129,7 @@ def _detect_provider_from_model_id(model_id: str) -> ModelProvider:
         return ModelProvider.GOOGLE
     elif "xai" in provider_name.lower():
         return ModelProvider.XAI
-    elif provider_name.lower() == "openai":
+    elif "openai" in provider_name.lower():
         return ModelProvider.OPENAI
     else:
         return ModelProvider.OTHER
@@ -593,9 +593,7 @@ class OCIGenAIModel(LlmModel):
         provider = _MODEL_PROVIDER_TO_FORMATTER.get(self.provider, _GenericOciApiFormatter)
 
         response = await run_sync_in_thread(self._post_stream_with_retry, provider, prompt)
-        root_openai_list = provider is _OpenAIOciApiFormatter and isinstance(
-            prompt.response_format, ListProperty
-        )
+        buffer_stream = provider.should_buffer_stream(prompt)
         # Buffer wrapped lists until the complete JSON can be unwrapped, so the
         # request-only object wrapper is never exposed as streamed text.
 
@@ -607,10 +605,10 @@ class OCIGenAIModel(LlmModel):
                 iterator=response.data.events(), post_processing=post_processing
             )
         ):
-            if root_openai_list and chunk_type == StreamChunkType.TEXT_CHUNK:
+            if buffer_stream and chunk_type == StreamChunkType.TEXT_CHUNK:
                 continue
             if (
-                root_openai_list
+                buffer_stream
                 and chunk_type == StreamChunkType.END_CHUNK
                 and not message.tool_requests
             ):
@@ -732,6 +730,10 @@ class OCIGenAIModel(LlmModel):
 
 
 class _OciApiFormatter(ABC):
+    @staticmethod
+    def should_buffer_stream(prompt: "Prompt") -> bool:
+        return False
+
     @staticmethod
     def unwrap_response_message(message: "Message", prompt: "Prompt") -> "Message":
         return message
@@ -1020,6 +1022,10 @@ class _MetaOciApiFormatter(_GenericOciApiFormatter):
 
 class _OpenAIOciApiFormatter(_GenericOciApiFormatter):
     _LIST_KEY = "items"
+
+    @staticmethod
+    def should_buffer_stream(prompt: "Prompt") -> bool:
+        return isinstance(prompt.response_format, ListProperty)
 
     @staticmethod
     def response_format_property(prompt: "Prompt") -> Optional[Property]:

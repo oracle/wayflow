@@ -500,7 +500,17 @@ def test_oci_generic_stream_ignores_done_sentinel():
 
 
 @pytest.mark.parametrize("value", [[], ["one"], ["one", "two"]])
-def test_oci_openai_stream_exposes_only_unwrapped_root_list(monkeypatch, value):
+@pytest.mark.parametrize("use_subclass", [False, True])
+def test_oci_openai_stream_exposes_only_unwrapped_root_list(monkeypatch, value, use_subclass):
+    if use_subclass:
+
+        class CustomOpenAIFormatter(_OpenAIOciApiFormatter):
+            pass
+
+        monkeypatch.setitem(
+            _MODEL_PROVIDER_TO_FORMATTER, ModelProvider.OPENAI, CustomOpenAIFormatter
+        )
+
     prompt = Prompt(
         messages=[Message(content="List items", role="user")],
         response_format=ListProperty(name="results"),
