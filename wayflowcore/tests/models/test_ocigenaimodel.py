@@ -4,13 +4,14 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
+import asyncio
 import logging
 import os
 import re
 from copy import deepcopy
 from types import SimpleNamespace
 from typing import Any
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import pytest
 
@@ -18,11 +19,15 @@ from wayflowcore.messagelist import Message, MessageContent, TextContent
 from wayflowcore.models import LlmGenerationConfig, LlmModelFactory, OCIGenAIModel, Prompt
 from wayflowcore.models.ociclientconfig import OCIClientConfig, _OCIAuthType
 from wayflowcore.models.ocigenaimodel import (
+    _MODEL_PROVIDER_TO_FORMATTER,
     ModelProvider,
     OciAPIType,
     ServingMode,
+    _detect_provider_from_model_id,
     _GenericOciApiFormatter,
+    _OpenAIOciApiFormatter,
 )
+from wayflowcore.property import ListProperty, ObjectProperty, StringProperty
 from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.templates import PromptTemplate
 from wayflowcore.tools import ClientTool
@@ -490,6 +495,67 @@ def test_oci_generic_stream_ignores_done_sentinel():
     )
 
     assert chunks[-1][1].content == "Hi"
+
+
+def test_oci_openai_root_list_stream_rejected_before_client_initialization(monkeypatch):
+    prompt = Prompt(messages=[], response_format=ListProperty(name="results"))
+    model = object.__new__(OCIGenAIModel)
+    model.provider = ModelProvider.OPENAI
+    initialize = Mock()
+    monkeypatch.setattr(model, "_init_client_if_needed", initialize)
+
+    async def collect():
+        return [chunk async for chunk in model._stream_generate_impl_oci_sdk(prompt)]
+
+    with pytest.raises(NotImplementedError, match="Use generate"):
+        asyncio.run(collect())
+    initialize.assert_not_called()
+
+
+@pytest.mark.parametrize("model_id", ["openai.gpt-6-sol"])
+def test_oci_openai_root_list_request(model_id):
+    provider = _detect_provider_from_model_id(model_id)
+    assert provider == ModelProvider.OPENAI
+    formatter = _MODEL_PROVIDER_TO_FORMATTER[provider]
+    assert formatter is _OpenAIOciApiFormatter
+    response_format = ListProperty(
+        name="results",
+        item_type=ObjectProperty(
+            properties={"label": StringProperty()}, additional_properties=False
+        ),
+    )
+    prompt = Prompt(
+        messages=[Message(content="List items", role="user")], response_format=response_format
+    )
+    original_schema = response_format.to_json_schema(openai_compatible=True)
+    request = formatter.convert_prompt_into_request(prompt, model_id)
+    schema = request.response_format.json_schema.schema
+    assert schema["type"] == "object"
+    assert schema["required"] == ["items"]
+    assert schema["additionalProperties"] is False
+    assert schema["properties"]["items"] == original_schema
+    assert prompt.response_format is response_format
+    assert response_format.to_json_schema(openai_compatible=True) == original_schema
+
+
+@pytest.mark.parametrize(
+    "response_format",
+    [
+        None,
+        ObjectProperty(
+            name="result", properties={"items": ListProperty()}, additional_properties=False
+        ),
+    ],
+)
+def test_oci_openai_non_list_request_unchanged(response_format):
+    prompt = Prompt(
+        messages=[Message(content="Hello", role="user")], response_format=response_format
+    )
+    actual = _OpenAIOciApiFormatter.convert_prompt_into_request(prompt, "openai.gpt")
+    expected = _GenericOciApiFormatter.convert_prompt_into_request(prompt, "openai.gpt")
+    assert actual == expected
+    message = Message(content='{"items": ["one"]}', role="assistant")
+    assert _OpenAIOciApiFormatter.unwrap_response_message(message, prompt) is message
 
 
 def test_oci_openai_responses_generation_config_reaches_service(oci_reasoning_model):
