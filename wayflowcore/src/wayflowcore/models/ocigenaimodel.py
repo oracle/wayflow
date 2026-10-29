@@ -586,38 +586,20 @@ class OCIGenAIModel(LlmModel):
         self,
         prompt: Prompt,
     ) -> AsyncIterable[TaggedMessageChunkTypeWithTokenUsage]:
+        provider = _MODEL_PROVIDER_TO_FORMATTER.get(self.provider, _GenericOciApiFormatter)
+        provider.validate_streaming_prompt(prompt)
+
         self._init_client_if_needed()
         if self._client is None or self._oci_serving_mode is None:
             raise ValueError("Could not initialize the OCI client")
 
-        provider = _MODEL_PROVIDER_TO_FORMATTER.get(self.provider, _GenericOciApiFormatter)
-
         response = await run_sync_in_thread(self._post_stream_with_retry, provider, prompt)
-        buffer_stream = provider.should_buffer_stream(prompt)
-        # Buffer wrapped lists until the complete JSON can be unwrapped, so the
-        # request-only object wrapper is never exposed as streamed text.
-
-        def post_processing(message: "Message") -> "Message":
-            return prompt.parse_output(provider.unwrap_response_message(message, prompt))
-
-        async for chunk_type, message, usage in sync_to_async_iterator(
+        async for chunk in sync_to_async_iterator(
             provider.convert_oci_chunk_iterator_into_tagged_chunk_iterator(
-                iterator=response.data.events(), post_processing=post_processing
+                iterator=response.data.events(), post_processing=prompt.parse_output
             )
         ):
-            if buffer_stream and chunk_type == StreamChunkType.TEXT_CHUNK:
-                continue
-            if (
-                buffer_stream
-                and chunk_type == StreamChunkType.END_CHUNK
-                and not message.tool_requests
-            ):
-                from wayflowcore.messagelist import Message
-
-                yield StreamChunkType.TEXT_CHUNK, Message(
-                    content=message.content, role="assistant"
-                ), None
-            yield chunk_type, message, usage
+            yield chunk
 
     async def _stream_generate_impl_openai_sdk(
         self,
@@ -731,8 +713,8 @@ class OCIGenAIModel(LlmModel):
 
 class _OciApiFormatter(ABC):
     @staticmethod
-    def should_buffer_stream(prompt: "Prompt") -> bool:
-        return False
+    def validate_streaming_prompt(prompt: "Prompt") -> None:
+        pass
 
     @staticmethod
     def unwrap_response_message(message: "Message", prompt: "Prompt") -> "Message":
@@ -1024,8 +1006,12 @@ class _OpenAIOciApiFormatter(_GenericOciApiFormatter):
     _LIST_KEY = "items"
 
     @staticmethod
-    def should_buffer_stream(prompt: "Prompt") -> bool:
-        return isinstance(prompt.response_format, ListProperty)
+    def validate_streaming_prompt(prompt: "Prompt") -> None:
+        if isinstance(prompt.response_format, ListProperty):
+            raise NotImplementedError(
+                "Streaming top-level ListProperty outputs is not supported for OpenAI models "
+                "through OCI's native chat API. Use generate() or generate_async() instead."
+            )
 
     @staticmethod
     def response_format_property(prompt: "Prompt") -> Optional[Property]:

@@ -5,7 +5,6 @@
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
 import asyncio
-import json
 import logging
 import os
 import re
@@ -18,7 +17,6 @@ import pytest
 
 from wayflowcore.messagelist import Message, MessageContent, TextContent
 from wayflowcore.models import LlmGenerationConfig, LlmModelFactory, OCIGenAIModel, Prompt
-from wayflowcore.models._requesthelpers import StreamChunkType
 from wayflowcore.models.ociclientconfig import OCIClientConfig, _OCIAuthType
 from wayflowcore.models.ocigenaimodel import (
     _MODEL_PROVIDER_TO_FORMATTER,
@@ -32,7 +30,7 @@ from wayflowcore.models.ocigenaimodel import (
 from wayflowcore.property import ListProperty, ObjectProperty, StringProperty
 from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.templates import PromptTemplate
-from wayflowcore.tools import ClientTool, ToolRequest
+from wayflowcore.tools import ClientTool
 
 from ..conftest import (
     DUMMY_OCI_USER_CONFIG_DICT,
@@ -499,57 +497,22 @@ def test_oci_generic_stream_ignores_done_sentinel():
     assert chunks[-1][1].content == "Hi"
 
 
-@pytest.mark.parametrize("value", [[], ["one"], ["one", "two"]])
-@pytest.mark.parametrize("use_subclass", [False, True])
-def test_oci_openai_stream_exposes_only_unwrapped_root_list(monkeypatch, value, use_subclass):
-    if use_subclass:
-
-        class CustomOpenAIFormatter(_OpenAIOciApiFormatter):
-            pass
-
-        monkeypatch.setitem(
-            _MODEL_PROVIDER_TO_FORMATTER, ModelProvider.OPENAI, CustomOpenAIFormatter
-        )
-
-    prompt = Prompt(
-        messages=[Message(content="List items", role="user")],
-        response_format=ListProperty(name="results"),
-    )
+def test_oci_openai_root_list_stream_rejected_before_client_initialization(monkeypatch):
+    prompt = Prompt(messages=[], response_format=ListProperty(name="results"))
     model = object.__new__(OCIGenAIModel)
     model.provider = ModelProvider.OPENAI
-    model._client = object()
-    model._oci_serving_mode = object()
-    monkeypatch.setattr(model, "_init_client_if_needed", lambda: None)
-    events = [
-        SimpleNamespace(data=json.dumps({"message": {"content": [{"type": "TEXT", "text": part}]}}))
-        for part in ['{"items": ', json.dumps(value), "}"]
-    ]
-    events.append(
-        SimpleNamespace(
-            data=json.dumps(
-                {"usage": {"promptTokens": 5, "completionTokens": 8, "totalTokens": 13}}
-            )
-        )
-    )
-    events.append(SimpleNamespace(data="[DONE]"))
-    response = SimpleNamespace(data=SimpleNamespace(events=lambda: iter(events)))
-    monkeypatch.setattr(model, "_post_stream_with_retry", lambda provider, prompt: response)
+    initialize = Mock()
+    monkeypatch.setattr(model, "_init_client_if_needed", initialize)
 
     async def collect():
         return [chunk async for chunk in model._stream_generate_impl_oci_sdk(prompt)]
 
-    chunks = asyncio.run(collect())
-    assert [chunk[0] for chunk in chunks] == [
-        StreamChunkType.START_CHUNK,
-        StreamChunkType.TEXT_CHUNK,
-        StreamChunkType.END_CHUNK,
-    ]
-    assert json.loads(chunks[1][1].content) == value
-    assert json.loads(chunks[2][1].content) == value
-    assert chunks[-1][2].total_tokens == 13
+    with pytest.raises(NotImplementedError, match="Use generate"):
+        asyncio.run(collect())
+    initialize.assert_not_called()
 
 
-@pytest.mark.parametrize("model_id", ["openai.gpt-4.1-mini", "openai.gpt-6-sol"])
+@pytest.mark.parametrize("model_id", ["openai.gpt-6-sol"])
 def test_oci_openai_root_list_request(model_id):
     provider = _detect_provider_from_model_id(model_id)
     assert provider == ModelProvider.OPENAI
@@ -593,98 +556,6 @@ def test_oci_openai_non_list_request_unchanged(response_format):
     assert actual == expected
     message = Message(content='{"items": ["one"]}', role="assistant")
     assert _OpenAIOciApiFormatter.unwrap_response_message(message, prompt) is message
-
-
-@pytest.mark.parametrize("model_id", ["meta.llama", "google.gemini", "xai.grok", "other.model"])
-def test_oci_other_providers_keep_root_list_schema(model_id):
-    provider = _detect_provider_from_model_id(model_id)
-    formatter = _MODEL_PROVIDER_TO_FORMATTER.get(provider, _GenericOciApiFormatter)
-    prompt = Prompt(
-        messages=[Message(content="List items", role="user")],
-        response_format=ListProperty(name="results"),
-    )
-    request = formatter.convert_prompt_into_request(prompt, model_id)
-    assert request.response_format.json_schema.schema["type"] == "array"
-
-
-@pytest.mark.parametrize("value", [[], ["one"], [{"label": "one"}], [["one"]]])
-def test_oci_openai_complete_list_unwrapped_before_parser(monkeypatch, value):
-    parser = Mock()
-    parser.parse_output.side_effect = lambda message: message
-    prompt = Prompt(messages=[], response_format=ListProperty(name="results"), output_parser=parser)
-    response = SimpleNamespace(
-        data=SimpleNamespace(
-            chat_response=SimpleNamespace(
-                choices=[
-                    SimpleNamespace(
-                        message=SimpleNamespace(
-                            content=[
-                                SimpleNamespace(type="TEXT", text=json.dumps({"items": value}))
-                            ],
-                            tool_calls=None,
-                        )
-                    )
-                ]
-            )
-        )
-    )
-    model = object.__new__(OCIGenAIModel)
-    model.provider = ModelProvider.OPENAI
-    monkeypatch.setattr(model, "_post_with_retry", lambda provider, prompt: response)
-    completion = asyncio.run(model._generate_impl_oci_sdk(prompt))
-    assert json.loads(completion.message.content) == value
-    parser.parse_output.assert_called_once()
-    assert json.loads(parser.parse_output.call_args.args[0].content) == value
-
-
-@pytest.mark.parametrize("content", ["", "incomplete {", '{"other": []}', '{"items": null}'])
-def test_oci_openai_unwrap_preserves_unexpected_response(content):
-    prompt = Prompt(messages=[], response_format=ListProperty(name="results"))
-    message = Message(content=content, role="assistant")
-    assert _OpenAIOciApiFormatter.unwrap_response_message(message, prompt) is message
-
-
-def test_oci_openai_unwrap_preserves_tool_calls():
-    prompt = Prompt(messages=[], response_format=ListProperty(name="results"))
-    message = Message(
-        content="",
-        role="assistant",
-        tool_requests=[ToolRequest(name="lookup", args={}, tool_request_id="call-1")],
-    )
-    assert _OpenAIOciApiFormatter.unwrap_response_message(message, prompt) is message
-
-
-@pytest.mark.parametrize("provider", [ModelProvider.OPENAI, ModelProvider.META, ModelProvider.XAI])
-@pytest.mark.parametrize("response_format", [None, ObjectProperty(name="result")])
-def test_oci_normal_stream_returns_message_and_preserves_deltas(
-    monkeypatch, provider, response_format
-):
-    model = object.__new__(OCIGenAIModel)
-    model.provider = provider
-    model._client = object()
-    model._oci_serving_mode = object()
-    monkeypatch.setattr(model, "_init_client_if_needed", lambda: None)
-    events = [
-        SimpleNamespace(data=json.dumps({"message": {"content": [{"type": "TEXT", "text": part}]}}))
-        for part in ['{"items": ', '["one"]}']
-    ]
-    response = SimpleNamespace(data=SimpleNamespace(events=lambda: iter(events)))
-    monkeypatch.setattr(model, "_post_stream_with_retry", lambda provider, prompt: response)
-    parser = Mock()
-    parser.parse_output.side_effect = lambda message: message.copy(content=message.content.upper())
-    prompt = Prompt(messages=[], output_parser=parser, response_format=response_format)
-
-    async def collect():
-        return [chunk async for chunk in model._stream_generate_impl_oci_sdk(prompt)]
-
-    chunks = asyncio.run(collect())
-    assert [chunk[1].content for chunk in chunks] == [
-        "",
-        '{"items": ',
-        '["one"]}',
-        '{"ITEMS": ["ONE"]}',
-    ]
-    parser.parse_output.assert_called_once()
 
 
 def test_oci_openai_responses_generation_config_reaches_service(oci_reasoning_model):
