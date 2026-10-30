@@ -6,7 +6,7 @@ pydantic==2.12.5
 # pre-commit is used for installing commit hooks which ensure code quality
 # Learn more at: https://pre-commit.com/
 pre-commit
-black==26.3.1
+black==26.10.1
 isort==6.0.1
 bandit==1.8.3
 flake8==5.0.4

@@ -63,7 +63,8 @@ setup(
         "json_repair>=0.60.1,<0.70.0",  # Versions <0.60.1 were affected; 0.60.1 is the fixed version.
         "PyYAML>=5.4,<7.0.0",
         "pydantic>=2.7.4,<3.0.0",
-        "mcp>=1.28.1,<2",
+        # CVE patching.
+        "mcp>=1.30.0,<2",
         "anyio>=4.14.2,<5.0.0",
         "typing_extensions>=4.12.2",
         "exceptiongroup>=1.0.2",
@@ -71,8 +72,9 @@ setup(
         "fastapi>=0.116.2,<1.0.0",
         # Patched floor for known LiteLLM security advisories.
         "litellm>=1.104.2,<2.0,!=1.107.0",
-        "opentelemetry-sdk>=1.33.0,<2.0.0",
-        "opentelemetry-api>=1.33.0,<2.0.0",
+        # CVE patching.
+        "opentelemetry-sdk>=1.45.1,<2.0.0",
+        "opentelemetry-api>=1.45.1,<2.0.0",
         # 4rth party dependencies version bounds, for CVE patching
         "annotated-types>=0.6.0",
         "certifi>=2025.4.26",
