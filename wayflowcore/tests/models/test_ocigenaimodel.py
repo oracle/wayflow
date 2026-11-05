@@ -18,11 +18,15 @@ from wayflowcore.messagelist import Message, MessageContent, TextContent
 from wayflowcore.models import LlmGenerationConfig, LlmModelFactory, OCIGenAIModel, Prompt
 from wayflowcore.models.ociclientconfig import OCIClientConfig, _OCIAuthType
 from wayflowcore.models.ocigenaimodel import (
+    _MODEL_PROVIDER_TO_FORMATTER,
     ModelProvider,
     OciAPIType,
     ServingMode,
+    _detect_provider_from_model_id,
     _GenericOciApiFormatter,
+    _OpenAIOciApiFormatter,
 )
+from wayflowcore.property import ListProperty, ObjectProperty, StringProperty
 from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.templates import PromptTemplate
 from wayflowcore.tools import ClientTool
@@ -490,6 +494,52 @@ def test_oci_generic_stream_ignores_done_sentinel():
     )
 
     assert chunks[-1][1].content == "Hi"
+
+
+@pytest.mark.parametrize("model_id", ["openai.gpt-6-sol"])
+def test_oci_openai_root_list_request(model_id):
+    provider = _detect_provider_from_model_id(model_id)
+    assert provider == ModelProvider.OPENAI
+    formatter = _MODEL_PROVIDER_TO_FORMATTER[provider]
+    assert formatter is _OpenAIOciApiFormatter
+    response_format = ListProperty(
+        name="results",
+        item_type=ObjectProperty(
+            properties={"label": StringProperty()}, additional_properties=False
+        ),
+    )
+    prompt = Prompt(
+        messages=[Message(content="List items", role="user")], response_format=response_format
+    )
+    original_schema = response_format.to_json_schema(openai_compatible=True)
+    request = formatter.convert_prompt_into_request(prompt, model_id)
+    schema = request.response_format.json_schema.schema
+    assert schema["type"] == "object"
+    assert schema["required"] == ["items"]
+    assert schema["additionalProperties"] is False
+    assert schema["properties"]["items"] == original_schema
+    assert prompt.response_format is response_format
+    assert response_format.to_json_schema(openai_compatible=True) == original_schema
+
+
+@pytest.mark.parametrize(
+    "response_format",
+    [
+        None,
+        ObjectProperty(
+            name="result", properties={"items": ListProperty()}, additional_properties=False
+        ),
+    ],
+)
+def test_oci_openai_non_list_request_unchanged(response_format):
+    prompt = Prompt(
+        messages=[Message(content="Hello", role="user")], response_format=response_format
+    )
+    actual = _OpenAIOciApiFormatter.convert_prompt_into_request(prompt, "openai.gpt")
+    expected = _GenericOciApiFormatter.convert_prompt_into_request(prompt, "openai.gpt")
+    assert actual == expected
+    message = Message(content='{"items": ["one"]}', role="assistant")
+    assert _OpenAIOciApiFormatter.unwrap_response_message(message, prompt) is message
 
 
 def test_oci_openai_responses_generation_config_reaches_service(oci_reasoning_model):
