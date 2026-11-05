@@ -4,14 +4,13 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
-import asyncio
 import logging
 import os
 import re
 from copy import deepcopy
 from types import SimpleNamespace
 from typing import Any
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -495,21 +494,6 @@ def test_oci_generic_stream_ignores_done_sentinel():
     )
 
     assert chunks[-1][1].content == "Hi"
-
-
-def test_oci_openai_root_list_stream_rejected_before_client_initialization(monkeypatch):
-    prompt = Prompt(messages=[], response_format=ListProperty(name="results"))
-    model = object.__new__(OCIGenAIModel)
-    model.provider = ModelProvider.OPENAI
-    initialize = Mock()
-    monkeypatch.setattr(model, "_init_client_if_needed", initialize)
-
-    async def collect():
-        return [chunk async for chunk in model._stream_generate_impl_oci_sdk(prompt)]
-
-    with pytest.raises(NotImplementedError, match="Use generate"):
-        asyncio.run(collect())
-    initialize.assert_not_called()
 
 
 @pytest.mark.parametrize("model_id", ["openai.gpt-6-sol"])

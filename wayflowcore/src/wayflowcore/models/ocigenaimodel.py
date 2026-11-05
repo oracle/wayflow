@@ -586,12 +586,11 @@ class OCIGenAIModel(LlmModel):
         self,
         prompt: Prompt,
     ) -> AsyncIterable[TaggedMessageChunkTypeWithTokenUsage]:
-        provider = _MODEL_PROVIDER_TO_FORMATTER.get(self.provider, _GenericOciApiFormatter)
-        provider.validate_streaming_prompt(prompt)
-
         self._init_client_if_needed()
         if self._client is None or self._oci_serving_mode is None:
             raise ValueError("Could not initialize the OCI client")
+
+        provider = _MODEL_PROVIDER_TO_FORMATTER.get(self.provider, _GenericOciApiFormatter)
 
         response = await run_sync_in_thread(self._post_stream_with_retry, provider, prompt)
         async for chunk in sync_to_async_iterator(
@@ -712,10 +711,6 @@ class OCIGenAIModel(LlmModel):
 
 
 class _OciApiFormatter(ABC):
-    @staticmethod
-    def validate_streaming_prompt(prompt: "Prompt") -> None:
-        pass
-
     @staticmethod
     def unwrap_response_message(message: "Message", prompt: "Prompt") -> "Message":
         return message
@@ -1004,14 +999,6 @@ class _MetaOciApiFormatter(_GenericOciApiFormatter):
 
 class _OpenAIOciApiFormatter(_GenericOciApiFormatter):
     _LIST_KEY = "items"
-
-    @staticmethod
-    def validate_streaming_prompt(prompt: "Prompt") -> None:
-        if isinstance(prompt.response_format, ListProperty):
-            raise NotImplementedError(
-                "Streaming top-level ListProperty outputs is not supported for OpenAI models "
-                "through OCI's native chat API. Use generate() or generate_async() instead."
-            )
 
     @staticmethod
     def response_format_property(prompt: "Prompt") -> Optional[Property]:
