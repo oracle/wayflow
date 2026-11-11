@@ -14,6 +14,7 @@ import pytest
 
 from wayflowcore.agent import Agent
 from wayflowcore.executors.executionstatus import ToolExecutionConfirmationStatus
+from wayflowcore.property import AnyProperty, FloatProperty, IntegerProperty, StringProperty
 from wayflowcore.tools import RemoteTool
 
 from ...testhelpers.testhelpers import retry_test
@@ -221,3 +222,143 @@ def test_remote_tool_warns_with_json_body():
             json_body="{{param1}}",
             method="GET",
         )
+
+
+@patch.object(
+    httpx2.AsyncClient, "request", return_value=MockResponse.from_object({"sum": 9, "product": 18})
+)
+def test_remote_tool_with_multiple_outputs_maps_json_response_keys(patched_request):
+    # The endpoint returns the JSON object expected by the declared outputs; the tool used to
+    # return the raw body as a string and fail the multiple-outputs check.
+    tool = RemoteTool(
+        name="sum_multiply_tool",
+        description="sums and multiplies two numbers",
+        url="https://example.com/compute",
+        method="POST",
+        data={"a": "{{a}}", "b": "{{b}}"},
+        output_descriptors=[FloatProperty(name="sum"), FloatProperty(name="product")],
+    )
+    assert tool.run(a=3, b=6) == {"sum": 9, "product": 18}
+
+
+@patch.object(
+    httpx2.AsyncClient,
+    "request",
+    return_value=MockResponse.from_object({"result": {"sum": 9, "product": 18}, "status": "ok"}),
+)
+def test_remote_tool_with_multiple_outputs_applies_jq_query_first(patched_request):
+    tool = RemoteTool(
+        name="sum_multiply_tool",
+        description="sums and multiplies two numbers",
+        url="https://example.com/compute",
+        method="GET",
+        output_jq_query=".result",
+        output_descriptors=[FloatProperty(name="sum"), FloatProperty(name="product")],
+    )
+    assert tool.run() == {"sum": 9, "product": 18}
+
+
+@patch.object(
+    httpx2.AsyncClient, "request", return_value=MockResponse.from_object({"sum": 9, "other": 1})
+)
+def test_remote_tool_with_multiple_outputs_uses_default_for_missing_key(patched_request):
+    tool = RemoteTool(
+        name="sum_multiply_tool",
+        description="sums and multiplies two numbers",
+        url="https://example.com/compute",
+        method="GET",
+        output_descriptors=[
+            FloatProperty(name="sum"),
+            FloatProperty(name="product", default_value=0.0),
+        ],
+    )
+    # jq yields null for a missing key, which is replaced by the output default
+    assert tool.run() == {"sum": 9, "product": 0.0}
+
+
+@patch.object(httpx2.AsyncClient, "request", return_value=MockResponse.from_object(42))
+def test_remote_tool_with_single_typed_output_parses_json_response(patched_request):
+    tool = RemoteTool(
+        name="count_tool",
+        description="counts things",
+        url="https://example.com/count",
+        method="GET",
+        output_descriptors=[IntegerProperty(name="count")],
+    )
+    assert tool.run() == 42
+
+
+@pytest.mark.parametrize(
+    "output_descriptor", [StringProperty(name="body"), AnyProperty(name="body")]
+)
+@patch.object(
+    httpx2.AsyncClient, "request", return_value=MockResponse.from_object({"full": "response"})
+)
+def test_remote_tool_with_single_text_output_keeps_raw_response(patched_request, output_descriptor):
+    tool = RemoteTool(
+        name="get_example_tool",
+        description="does a GET request to the example domain",
+        url="https://example.com/endpoint",
+        method="GET",
+        output_descriptors=[output_descriptor],
+    )
+    assert tool.run() == '{"full": "response"}'
+
+
+@patch.object(
+    httpx2.AsyncClient, "request", return_value=MockResponse.from_object({"full": "response"})
+)
+def test_remote_tool_without_output_descriptors_returns_raw_response(patched_request):
+    tool = RemoteTool(
+        name="get_example_tool",
+        description="does a GET request to the example domain",
+        url="https://example.com/endpoint",
+        method="GET",
+    )
+    assert [output.name for output in tool.output_descriptors] == ["http_response"]
+    assert tool.run() == '{"full": "response"}'
+
+
+@patch.object(
+    httpx2.AsyncClient,
+    "request",
+    return_value=MockResponse.from_object(
+        {"http_status_code": "created", "http_response": {"id": 7}, "count": 3}
+    ),
+)
+def test_remote_tool_with_multiple_outputs_named_like_api_call_step_outputs(patched_request):
+    # `http_status_code` and `http_response` are also outputs of the underlying ApiCallStep: the
+    # values extracted from the response must not be dropped or replaced by the step outputs.
+    tool = RemoteTool(
+        name="create_tool",
+        description="creates a thing",
+        url="https://example.com/create",
+        method="POST",
+        output_descriptors=[
+            StringProperty(name="http_status_code"),
+            AnyProperty(name="http_response"),
+            IntegerProperty(name="count"),
+        ],
+    )
+    assert [output.name for output in tool.output_descriptors] == [
+        "http_status_code",
+        "http_response",
+        "count",
+    ]
+    assert tool.run() == {"http_status_code": "created", "http_response": {"id": 7}, "count": 3}
+
+
+@pytest.mark.parametrize("output_name", ["http_status_code", "http_response"])
+@patch.object(httpx2.AsyncClient, "request", return_value=MockResponse.from_object(42))
+def test_remote_tool_with_single_typed_output_named_like_api_call_step_output(
+    patched_request, output_name
+):
+    tool = RemoteTool(
+        name="count_tool",
+        description="counts things",
+        url="https://example.com/count",
+        method="GET",
+        output_descriptors=[IntegerProperty(name=output_name)],
+    )
+    assert [output.name for output in tool.output_descriptors] == [output_name]
+    assert tool.run() == 42

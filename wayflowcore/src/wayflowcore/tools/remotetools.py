@@ -4,17 +4,18 @@
 # (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0) or Universal Permissive License
 # (UPL) 1.0 (LICENSE-UPL or https://oss.oracle.com/licenses/upl), at your option.
 
+import json
 import logging
 import warnings
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union, cast
 
 from wayflowcore._metadata import MetadataType
-from wayflowcore.property import Property
+from wayflowcore.property import AnyProperty, Property, StringProperty
 from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.serialization.serializer import SerializableDataclassMixin, SerializableObject
 
-from .servertools import ServerTool
+from .servertools import ServerTool, _FlowAsToolCallable
 from .tools import SupportedToolTypesT
 
 if TYPE_CHECKING:
@@ -22,6 +23,78 @@ if TYPE_CHECKING:
 
 
 logger = logging.getLogger(__name__)
+
+_JQ_SELECTION_OUTPUT = "step_output"
+_RENAMED_OUTPUT_PREFIX = "_remote_tool_output_"
+
+
+def _rename_reserved_outputs(
+    declared_outputs: List[Property], reserved_names: Tuple[str, ...]
+) -> Tuple[List[Property], Dict[str, str]]:
+    """Rename the declared outputs that collide with the outputs the ``ApiCallStep`` always
+    produces, which would otherwise be dropped or overwritten by the step.
+
+    Returns the step output descriptors and, for each renamed one, the tool output name.
+    """
+    taken_names = {descriptor.name for descriptor in declared_outputs}
+    step_descriptors: List[Property] = []
+    tool_output_names: Dict[str, str] = {}
+    for descriptor in declared_outputs:
+        if descriptor.name in reserved_names:
+            step_output_name = _RENAMED_OUTPUT_PREFIX + descriptor.name
+            while step_output_name in taken_names:
+                step_output_name = "_" + step_output_name
+            taken_names.add(step_output_name)
+            tool_output_names[step_output_name] = descriptor.name
+            descriptor = descriptor.copy(name=step_output_name)
+        step_descriptors.append(descriptor)
+    return step_descriptors, tool_output_names
+
+
+def _resolve_remote_tool_outputs(
+    output_descriptors: Optional[List[Property]],
+    output_jq_query: Optional[str],
+) -> Tuple[Union[str, List[str]], Optional[Dict[Union[str, Property], str]], bool, Dict[str, str]]:
+    """Decide how the API response is mapped onto the declared outputs of a remote tool.
+
+    Returns the ``ApiCallStep`` output(s) exposed by the tool, the ``output_values_json``
+    mapping to configure on the step, whether the raw response must be stored and the tool
+    output name of the step outputs that were renamed.
+
+    - Without declared outputs, or with a single string (or untyped) output, the raw response
+      body is returned, optionally reduced with ``output_jq_query``.
+    - With several declared outputs, the JSON response (or the value selected by
+      ``output_jq_query``) must be an object whose keys are the output names: each output
+      is extracted from it, so the tool returns the dictionary expected for multiple outputs.
+    - With a single typed non-string output, the JSON response (or the jq selection) is parsed
+      instead of being returned as text.
+
+    The declared descriptors are used as the step output descriptors so that the extracted
+    values keep the declared types. Those named like ``ApiCallStep.HTTP_RESPONSE`` or
+    ``ApiCallStep.HTTP_STATUS_CODE`` are extracted under another step output name.
+    """
+    from wayflowcore.steps import ApiCallStep
+
+    declared_outputs = output_descriptors or []
+    step_descriptors, tool_output_names = _rename_reserved_outputs(
+        declared_outputs, (ApiCallStep.HTTP_RESPONSE, ApiCallStep.HTTP_STATUS_CODE)
+    )
+    if len(declared_outputs) > 1:
+        base_query = output_jq_query or "."
+        output_values_json: Dict[Union[str, Property], str] = {
+            step_descriptor: f"{base_query} | .{json.dumps(descriptor.name)}"
+            for step_descriptor, descriptor in zip(step_descriptors, declared_outputs)
+        }
+        step_outputs = [descriptor.name for descriptor in step_descriptors]
+        return step_outputs, output_values_json, False, tool_output_names
+    if len(declared_outputs) == 1 and not isinstance(
+        declared_outputs[0], (StringProperty, AnyProperty)
+    ):
+        descriptor = step_descriptors[0]
+        return descriptor.name, {descriptor: output_jq_query or "."}, False, tool_output_names
+    if output_jq_query is not None:
+        return _JQ_SELECTION_OUTPUT, {_JQ_SELECTION_OUTPUT: output_jq_query}, False, {}
+    return ApiCallStep.HTTP_RESPONSE, None, True, {}
 
 
 @dataclass
@@ -265,7 +338,9 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
     ) -> None:
         from wayflowcore.steps import ApiCallStep
 
-        step_output = ApiCallStep.HTTP_RESPONSE if output_jq_query is None else "step_output"
+        step_output, output_values_json, store_response, tool_output_names = (
+            _resolve_remote_tool_outputs(output_descriptors, output_jq_query)
+        )
         if json_body:
             warnings.warn(
                 "Usage of `json_body` parameter in RemoteTool is Deprecated, it will be removed in version 26.2.0, Please use the `data` parameter instead.",
@@ -291,8 +366,8 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
             allow_credentials=allow_credentials,
             allow_fragments=allow_fragments,
             default_ports=default_ports,
-            store_response=True if output_jq_query is None else False,
-            output_values_json={step_output: output_jq_query} if output_jq_query else None,
+            store_response=store_response,
+            output_values_json=output_values_json,
         )
         name = name or tool_name
         description = description or tool_description
@@ -302,6 +377,8 @@ class RemoteTool(SerializableDataclassMixin, ServerTool, SerializableObject):
             raise ValueError("RemoteTool should have a description, but got None")
 
         tmp_tool = ServerTool.from_step(api_call_step, name, description, step_output)
+        if tool_output_names:
+            cast(_FlowAsToolCallable, tmp_tool.func).output_names = tool_output_names
         super().__init__(
             name=tmp_tool.name,
             description=tmp_tool.description or "",

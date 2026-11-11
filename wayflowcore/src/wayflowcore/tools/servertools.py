@@ -613,9 +613,16 @@ class ServerTool(Tool):
 class _FlowAsToolCallable:
     """A stateful callable for flows that can be bound to a conversation"""
 
-    def __init__(self, flow: "Flow", flow_outputs: Optional[List[str]]):
+    def __init__(
+        self,
+        flow: "Flow",
+        flow_outputs: Optional[List[str]],
+        output_names: Optional[Dict[str, str]] = None,
+    ):
         self.flow = flow
         self.flow_outputs = flow_outputs
+        # Name under which a flow output is returned, when it differs from the flow output name
+        self.output_names: Dict[str, str] = output_names or {}
         self._parent_conversation: Optional["Conversation"] = None
 
     # Types of this callable will depend on the tool and are defined by `server_tool.parameters`
@@ -671,7 +678,8 @@ class _FlowAsToolCallable:
             return status.output_values[self.flow_outputs[0]]
         else:
             return {
-                flow_output: status.output_values[flow_output] for flow_output in self.flow_outputs
+                self.output_names.get(flow_output, flow_output): status.output_values[flow_output]
+                for flow_output in self.flow_outputs
             }
 
 
