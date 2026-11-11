@@ -344,6 +344,7 @@ from wayflowcore.flow import Flow as RuntimeFlow
 from wayflowcore.managerworkers import ManagerWorkers as RuntimeManagerWorkers
 from wayflowcore.mcp import MCPTool as RuntimeMCPTool
 from wayflowcore.mcp import MCPToolBox as RuntimeMCPToolBox
+from wayflowcore.mcp.clienttransport import SessionParameters as RuntimeSessionParameters
 from wayflowcore.mcp.clienttransport import SSEmTLSTransport as RuntimeSSEmTLSTransport
 from wayflowcore.mcp.clienttransport import SSETransport as RuntimeSSETransport
 from wayflowcore.mcp.clienttransport import StdioTransport as RuntimeStdioTransport
@@ -1649,12 +1650,18 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                         cwd=agentspec_component.cwd,
                         encoding=agentspec_component.encoding,
                         encoding_error_handler=agentspec_component.encoding_error_handler,
+                        session_parameters=self._convert_session_parameters_to_runtime(
+                            agentspec_component
+                        ),
                     )
                 return RuntimeStdioTransport(
                     command=agentspec_component.command,
                     args=agentspec_component.args,
                     env=agentspec_component.env,
                     cwd=agentspec_component.cwd,
+                    session_parameters=self._convert_session_parameters_to_runtime(
+                        agentspec_component
+                    ),
                 )
 
             class SupportsTimeoutKwargs(TypedDict, total=False):
@@ -1662,8 +1669,12 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                 sse_read_timeout: float
                 id: str
                 retry_policy: Optional[RuntimeRetryPolicy]
+                session_parameters: RuntimeSessionParameters
 
-            kwargs: SupportsTimeoutKwargs = dict(id=agentspec_component.id)
+            kwargs: SupportsTimeoutKwargs = dict(
+                id=agentspec_component.id,
+                session_parameters=self._convert_session_parameters_to_runtime(agentspec_component),
+            )
             if hasattr(agentspec_component, "retry_policy"):
                 kwargs["retry_policy"] = self._convert_retry_policy_to_runtime(
                     agentspec_component.retry_policy
@@ -2515,6 +2526,21 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
             raise ValueError(
                 f"Agent Spec LlmConfig '{agentspec_component.__class__.__name__}' is not supported yet."
             )
+
+    @staticmethod
+    def _convert_session_parameters_to_runtime(
+        agentspec_component: AgentSpecClientTransport,
+    ) -> RuntimeSessionParameters:
+        """Convert the Agent Spec MCP session parameters (read timeout) to the runtime ones."""
+        session_parameters = getattr(agentspec_component, "session_parameters", None)
+        if session_parameters is None:
+            return RuntimeSessionParameters()
+        read_timeout_seconds = session_parameters.read_timeout_seconds
+        if float(read_timeout_seconds).is_integer():
+            # Agent Spec stores the timeout as a float; keep integral values as int so that
+            # exporting and re-importing a transport gives back an identical configuration
+            read_timeout_seconds = int(read_timeout_seconds)
+        return RuntimeSessionParameters(read_timeout_seconds=read_timeout_seconds)
 
     def _convert_retry_policy_to_runtime(
         self, agentspec_component: Optional[AgentSpecRetryPolicy]

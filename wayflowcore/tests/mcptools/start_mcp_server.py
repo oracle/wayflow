@@ -240,6 +240,11 @@ def create_server(
         # Deterministic value for testing
         return {"result": "maybe"}
 
+    @server.tool(description="Tool that takes longer to answer than the client read timeout")
+    async def slow_tool() -> str:
+        await anyio.sleep(10)
+        return "done"
+
     @server.tool(description="Tool that consumes a list and a dict")
     def consumes_list_and_dict(vals: list[str], props: dict[str, str]) -> str:
         return f"vals={vals!r}, props={props!r}"

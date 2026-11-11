@@ -12,6 +12,8 @@ from pyagentspec.adapters._agentspecloader import (
 )
 from pyagentspec.mcp import MCPTool as AgentSpecMCPTool
 from pyagentspec.mcp import MCPToolBox as AgentSpecMCPToolBox
+from pyagentspec.mcp import SessionParameters as AgentSpecSessionParameters
+from pyagentspec.mcp import StreamableHTTPTransport as AgentSpecStreamableHTTPTransport
 from pyagentspec.versioning import AgentSpecVersionEnum
 
 from wayflowcore import Agent
@@ -29,6 +31,7 @@ from wayflowcore.mcp import (
     authless_mcp_enabled,
 )
 from wayflowcore.mcp._session_persistence import AsyncRuntime
+from wayflowcore.mcp.clienttransport import SessionParameters
 from wayflowcore.property import StringProperty
 from wayflowcore.retrypolicy import RetryPolicy
 from wayflowcore.warnings import SecurityWarning
@@ -283,3 +286,52 @@ def test_agentspec_loader_authless_context_approves_reloaded_toolbox_transport(
         assert (
             runtime.get_or_create_session(reloaded_agent._toolboxes[0].client_transport) is session
         )
+
+
+def test_mcp_transport_session_parameters_round_trip_to_agentspec() -> None:
+    # `read_timeout_seconds` used to be dropped with a "not supported" warning on export and
+    # ignored on import, so the 60 seconds default always applied at runtime
+    toolbox = MCPToolBox(
+        client_transport=StreamableHTTPTransport(
+            url="https://example.com/mcp",
+            session_parameters=SessionParameters(read_timeout_seconds=7),
+        ),
+        _validate_mcp_client_transport=False,
+    )
+
+    with warnings.catch_warnings(record=True) as captured_warnings:
+        warnings.simplefilter("always")
+        agentspec_toolbox = AgentSpecExporter().to_component(toolbox)
+
+    assert not [
+        warning for warning in captured_warnings if "session_parameters" in str(warning.message)
+    ]
+    assert isinstance(agentspec_toolbox, AgentSpecMCPToolBox)
+    assert agentspec_toolbox.client_transport.session_parameters.read_timeout_seconds == 7
+
+    with pytest.warns(match="without authentication"):
+        with authless_mcp_enabled():
+            deserialized_toolbox = AgentSpecLoader().load_component(agentspec_toolbox)
+
+    assert isinstance(deserialized_toolbox, MCPToolBox)
+    assert deserialized_toolbox.client_transport.session_parameters.read_timeout_seconds == 7
+
+
+def test_agentspec_mcp_transport_read_timeout_is_applied_to_runtime_transport() -> None:
+    agentspec_tool = AgentSpecMCPTool(
+        name="search",
+        description="Searches documents",
+        inputs=[],
+        client_transport=AgentSpecStreamableHTTPTransport(
+            name="transport",
+            url="https://example.com/mcp",
+            session_parameters=AgentSpecSessionParameters(read_timeout_seconds=3),
+        ),
+    )
+
+    with pytest.warns(match="without authentication"):
+        with authless_mcp_enabled():
+            runtime_tool = AgentSpecLoader().load_component(agentspec_tool)
+
+    assert isinstance(runtime_tool, MCPTool)
+    assert runtime_tool.client_transport.session_parameters.read_timeout_seconds == 3

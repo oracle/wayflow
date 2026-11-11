@@ -42,6 +42,7 @@ from wayflowcore.events.event import ToolExecutionStreamingChunkReceivedEvent
 from wayflowcore.events.eventlistener import record_event
 from wayflowcore.exceptions import NoSuchToolFoundOnMCPServerError
 from wayflowcore.mcp._session_persistence import (
+    _get_mcp_error_message,
     _raise_if_translatable_mcp_error,
     get_mcp_async_runtime,
 )
@@ -177,6 +178,11 @@ def _catch_and_raise_mcp_connection_errors() -> Any:
     try:
         yield
     except ExceptionGroup as e:
+        _raise_if_translatable_mcp_error(e)
+        raise e
+    except Exception as e:
+        # Once the session is initialized, failing requests (e.g. a `tools/call` or `tools/list`
+        # timing out) raise plain exceptions such as `McpError` instead of exception groups
         _raise_if_translatable_mcp_error(e)
         raise e
 
@@ -351,7 +357,9 @@ def _is_missing_mcp_tool_error(exc: BaseException) -> bool:
     if not isinstance(exc, McpError):
         return False
 
-    message = exc.error.message.lower()
+    # `error` is not always an ErrorData (some paths attach a plain string), so read the
+    # message defensively instead of masking the original error with an AttributeError
+    message = _get_mcp_error_message(exc).lower()
     return "tool" in message and (
         "not found" in message or "unknown" in message or "does not exist" in message
     )
