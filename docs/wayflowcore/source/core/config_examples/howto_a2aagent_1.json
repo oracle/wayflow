@@ -1,7 +1,7 @@
 {
     "component_type": "A2AAgent",
-    "id": "5ba508ef-7cae-417a-9197-8f2aeee870b6",
-    "name": "a2a_agent_4311ebd5__auto",
+    "id": "47b982ac-dbbe-4674-8c97-f6d82a21554c",
+    "name": "a2a_agent_a5ea926f__auto",
     "description": "",
     "metadata": {
         "__metadata_info__": {}
@@ -11,8 +11,8 @@
     "agent_url": "http://<URL>",
     "connection_config": {
         "component_type": "A2AConnectionConfig",
-        "id": "c01ebe14-f467-4c01-a25b-0f3f22bfa550",
-        "name": "connection_config",
+        "id": "1912133f-0bc6-4846-a140-2a5bfb5f9c42",
+        "name": "",
         "description": null,
         "metadata": {},
         "timeout": 600.0,
