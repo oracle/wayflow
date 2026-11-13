@@ -110,3 +110,13 @@ class AuthInterrupt(_AssistantInterrupt):
 
     def __str__(self) -> str:
         return "AuthInterrupt: Requesting auth challenge to be completed."
+
+
+class CodeServerError(WayFlowException):
+    """Raised when a request to a code server fails."""
+
+    def __init__(self, detail: str):
+        self.detail = detail
+
+    def __str__(self) -> str:
+        return f"Request failed with: {self.detail}"

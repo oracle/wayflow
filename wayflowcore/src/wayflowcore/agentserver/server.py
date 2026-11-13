@@ -62,7 +62,7 @@ class A2AServer:
             Config for the storage to save the conversations. If not provided, the default storage with `InMemoryDatastore` will be used.
         """
 
-        self.storage_config = ServerStorageConfig()
+        self.storage_config = storage_config or ServerStorageConfig()
         self._storage = A2AStorage(self.storage_config)
         self._broker = InMemoryBroker()
 
@@ -179,7 +179,8 @@ class OpenAIResponsesServer:
             Datastore for server persistence. Needs to have the proper table and columns as specified
             in the `storage_config`.
         storage_config:
-            Cch will not guarantee persistence of data across runs.
+            Configuration for the datastore schema and retention behavior. When omitted,
+            the default in-memory storage configuration is used.
         allowed_origins:
             Origins allowed to make browser cross-origin requests to the server through
             CORS (Cross-Origin Resource Sharing). CORS is a browser access-control
