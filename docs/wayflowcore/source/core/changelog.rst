@@ -13,6 +13,12 @@ Improvements
 Bug fixes
 ^^^^^^^^^
 
+* **ExtendedAgentNode deserialization**
+
+  Loading an ``ExtendedAgentNode`` now keeps its ``caller_input_mode``, ``input_mapping`` and
+  ``output_mapping`` on the resulting ``AgentExecutionStep``. Before, it was loaded like a plain
+  ``AgentNode`` and these settings were dropped.
+
 WayFlow 26.3.1
 --------------
 

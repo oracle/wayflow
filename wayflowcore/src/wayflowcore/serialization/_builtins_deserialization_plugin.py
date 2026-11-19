@@ -1750,20 +1750,26 @@ class WayflowBuiltinsDeserializationPlugin(WayflowDeserializationPlugin):
                     getattr(agentspec_component, "retry_policy", None)
                 ),
             )
+        # ExtendedAgentNode is a subclass of AgentNode, so it has to be checked first
+        elif isinstance(agentspec_component, AgentSpecExtendedAgentNode):
+            # An unset caller_input_mode is exported as ALWAYS (a plain Agent Spec Agent has no
+            # caller_input_mode to fall back to), so ALWAYS is loaded as unset to keep the agent's mode
+            caller_input_mode = agentspec_component.caller_input_mode
+            return RuntimeAgentExecutionStep(
+                agent=conversion_context.convert(
+                    agentspec_component.agent, tool_registry, converted_components
+                ),
+                caller_input_mode=(
+                    None if caller_input_mode == CallerInputMode.ALWAYS else caller_input_mode
+                ),
+                **self._get_rt_nodes_arguments(agentspec_component, metadata_info),
+            )
         elif isinstance(agentspec_component, AgentSpecAgentNode):
             return RuntimeAgentExecutionStep(
                 agent=conversion_context.convert(
                     agentspec_component.agent, tool_registry, converted_components
                 ),
                 **self._get_node_arguments(agentspec_component, metadata_info),
-            )
-        elif isinstance(agentspec_component, AgentSpecExtendedAgentNode):
-            return RuntimeAgentExecutionStep(
-                agent=conversion_context.convert(
-                    agentspec_component.agent, tool_registry, converted_components
-                ),
-                caller_input_mode=agentspec_component.caller_input_mode,
-                **self._get_rt_nodes_arguments(agentspec_component, metadata_info),
             )
         elif isinstance(agentspec_component, AgentSpecFlowNode):
             return RuntimeFlowExecutionStep(
