@@ -25,7 +25,13 @@ from wayflowcore.exceptions import (
     DatastoreKeyError,
     DatastoreTypeError,
 )
-from wayflowcore.property import DictProperty, FloatProperty, IntegerProperty, StringProperty
+from wayflowcore.property import (
+    DictProperty,
+    FloatProperty,
+    IntegerProperty,
+    StringProperty,
+    UnionProperty,
+)
 from wayflowcore.serialization.serializer import autodeserialize, serialize
 from wayflowcore.warnings import SecurityWarning
 
@@ -153,6 +159,34 @@ def test_nullable_property(testing_data_store: Datastore):
     }
     new_department = testing_data_store.create("departments", department_without_optional_manager)
     assert new_department["assistant_to_the_regional_manager"] is None
+
+
+def test_in_memory_nullable_string_values_are_preserved():
+    entity = Entity(properties={"value": nullable(StringProperty())})
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message=f"{_INMEMORY_USER_WARNING}*")
+        datastore = InMemoryDatastore({"items": entity})
+
+    datastore.create("items", [{"value": "text"}, {"value": None}])
+
+    assert datastore.list("items") == [{"value": "text"}, {"value": None}]
+
+
+def test_in_memory_union_property_can_be_updated_to_another_type():
+    entity = Entity(
+        properties={
+            "ID": IntegerProperty(),
+            "value": UnionProperty(any_of=[StringProperty(), IntegerProperty()]),
+        }
+    )
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message=f"{_INMEMORY_USER_WARNING}*")
+        datastore = InMemoryDatastore({"items": entity})
+
+    datastore.create("items", {"ID": 1, "value": "text"})
+    updated = datastore.update("items", where={"ID": 1}, update={"value": 42})
+
+    assert updated == [{"ID": 1, "value": 42}]
 
 
 def test_multiple_datastores_in_same_process():
