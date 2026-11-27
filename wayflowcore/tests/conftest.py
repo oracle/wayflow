@@ -212,7 +212,7 @@ VLLM_OSS_CONFIG = {
     "model_type": "vllm",
     "host_port": oss_api_url,
     "model_id": "openai/gpt-oss-120b",
-    "generation_config": {"max_tokens": 512},
+    "generation_config": {"max_tokens": 1024},
     "api_type": OpenAIAPIType.RESPONSES,
     "retry_policy": _create_live_llm_test_retry_policy(),
 }
