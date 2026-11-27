@@ -316,6 +316,36 @@ def datastore_agent_inmemory_server(oracle_db_with_names, session_tmp_path):
         tee.stop()
 
 
+# These server fixtures use native tool calling for the stateful response tests.
+NATIVE_HR_AGENT_PARAMS = {
+    **HR_AGENT_PARAMS,
+    "agent_configs": [TEST_DIR / "hr_agent_native.json", TEST_DIR / "simple_flow.json"],
+}
+
+wayflow_server_http_native_inmemory = register_wayflow_server_fixture(
+    name="wayflow_server_http_native_inmemory",
+    host="127.0.0.1",
+    **NATIVE_HR_AGENT_PARAMS,
+    server_storage="in-memory",
+)
+
+wayflow_server_http_native_postgres = register_wayflow_server_fixture(
+    name="wayflow_server_http_native_postgres",
+    **NATIVE_HR_AGENT_PARAMS,
+    host="127.0.0.1",
+    server_storage="postgres-db",
+    connection_config_callable=get_postgres_connection_config,
+)
+
+wayflow_server_http_native_oracle = register_wayflow_server_fixture(
+    name="wayflow_server_http_native_oracle",
+    **NATIVE_HR_AGENT_PARAMS,
+    host="127.0.0.1",
+    server_storage="oracle-db",
+    connection_config_callable=get_oracle_connection_config,
+)
+
+
 def get_all_server_fixtures_name():
     server_fixtures_names = ["wayflow_server_http_inmemory"]
     if all_postgres_connection_config_env_variables_are_specified():
@@ -323,3 +353,10 @@ def get_all_server_fixtures_name():
     if all_oracle_tls_connection_config_env_variables_are_specified():
         server_fixtures_names.append("wayflow_server_http_oracle")
     return server_fixtures_names
+
+
+def get_all_native_server_fixtures_name():
+    return [
+        name.replace("wayflow_server_http_", "wayflow_server_http_native_")
+        for name in get_all_server_fixtures_name()
+    ]

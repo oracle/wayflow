@@ -39,7 +39,11 @@ from wayflowcore.tools import ToolRequest, ToolResult
 from ..testhelpers.dummy import DummyModel
 from ..testhelpers.patching import patch_llm
 from ..testhelpers.testhelpers import retry_test
-from .conftest import _get_api_key_headers, get_all_server_fixtures_name
+from .conftest import (
+    _get_api_key_headers,
+    get_all_native_server_fixtures_name,
+    get_all_server_fixtures_name,
+)
 
 all_available_servers = pytest.mark.parametrize(
     "server_fixture_name", get_all_server_fixtures_name()
@@ -737,7 +741,7 @@ def test_create_output_text_stream_events_emits_visible_text_delta() -> None:
 
 
 @retry_test(max_attempts=10)  # not uniform
-@all_available_servers
+@pytest.mark.parametrize("server_fixture_name", get_all_native_server_fixtures_name())
 @with_and_without_streaming
 def test_create_response_stateful(server_url, streaming) -> None:
     """
@@ -771,7 +775,7 @@ def test_create_response_stateful(server_url, streaming) -> None:
 
 
 @retry_test(max_attempts=3)
-@all_available_servers
+@pytest.mark.parametrize("server_fixture_name", get_all_native_server_fixtures_name())
 @with_and_without_streaming
 def test_create_response_with_tool_request_and_tools_stateful(server_url, streaming) -> None:
     """

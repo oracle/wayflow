@@ -1,0 +1,193 @@
+{
+  "component_type": "ExtendedAgent",
+  "id": "fb012282-e913-44d0-8d96-cae13e6f1412",
+  "name": "agent_568a37ce__auto",
+  "description": "",
+  "metadata": {
+    "__metadata_info__": {}
+  },
+  "inputs": [],
+  "outputs": [],
+  "llm_config": {
+    "component_type": "VllmConfig",
+    "id": "f8e6557d-8248-44c0-ba8f-a935a1bbc647",
+    "name": "llm_ebcf02c7__auto",
+    "description": null,
+    "metadata": {
+      "__metadata_info__": {}
+    },
+    "model_id": "meta-llama/Meta-Llama-3.1-8B-Instruct",
+    "provider": null,
+    "api_type": "chat_completions",
+    "url": "LLAMA_API_URL",
+    "api_key": null,
+    "default_generation_parameters": null,
+    "retry_policy": null,
+    "key_file": null,
+    "cert_file": null,
+    "ca_file": null
+  },
+  "system_prompt": "You are a knowledgeable, factual, and helpful HR assistant that can answer simple HR-related questions like salary and benefits.\nYou are given a tool to look up the HR database.\nYour task:\n    - Ask the user if they need assistance\n    - Use the provided tool below to retrieve HR data\n    - Based on the data you retrieved, answer the user's question\nImportant:\n    - Be helpful and concise in your messages\n    - Do not tell the user any details not mentioned in the tool response, let's be factual.\n    - for simple math questions, just give the answer as an number",
+  "tools": [
+    {
+      "component_type": "ServerTool",
+      "id": "379149ac-4565-4545-8b81-dbebe014e42b",
+      "name": "search_hr_database",
+      "description": "Function that searches the HR database for employee benefits.\n\nParameters\n----------\nquery:\n    a query string\n\nReturns\n-------\n    a JSON response",
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "inputs": [
+        {
+          "type": "string",
+          "title": "query"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "string",
+          "title": "tool_output"
+        }
+      ],
+      "requires_confirmation": false
+    },
+    {
+      "component_type": "ClientTool",
+      "id": "444ae7fb-5fc2-46c7-bba1-fb529a98a4f7",
+      "name": "get_weather",
+      "description": "Get weather in some city",
+      "metadata": {
+        "__metadata_info__": {}
+      },
+      "inputs": [
+        {
+          "type": "string",
+          "title": "city"
+        }
+      ],
+      "outputs": [
+        {
+          "type": "string",
+          "title": "tool_output"
+        }
+      ],
+      "requires_confirmation": false
+    }
+  ],
+  "toolboxes": [],
+  "human_in_the_loop": true,
+  "transforms": [],
+  "context_providers": null,
+  "can_finish_conversation": false,
+  "raise_exceptions": false,
+  "max_iterations": 10,
+  "initial_message": null,
+  "caller_input_mode": "always",
+  "strict_output_validation": false,
+  "agents": [],
+  "flows": [],
+  "agent_template": {
+    "component_type": "PluginPromptTemplate",
+    "id": "c31bbc63-7afa-4ff2-ae95-5a8a2b904aba",
+    "name": "",
+    "description": null,
+    "metadata": {
+      "__metadata_info__": {}
+    },
+    "messages": [
+      {
+        "role": "system",
+        "contents": [
+          {
+            "type": "text",
+            "content": "{% if custom_instruction %}{{custom_instruction}}{% endif %}"
+          }
+        ],
+        "tool_requests": null,
+        "tool_result": null,
+        "display_only": false,
+        "sender": null,
+        "recipients": [],
+        "time_created": "2026-11-27T14:34:08.776525+00:00",
+        "time_updated": "2026-11-27T14:34:08.776525+00:00"
+      },
+      {
+        "role": "system",
+        "contents": [
+          {
+            "type": "text",
+            "content": "$$__CHAT_HISTORY_PLACEHOLDER__$$"
+          }
+        ],
+        "tool_requests": null,
+        "tool_result": null,
+        "display_only": false,
+        "sender": null,
+        "recipients": [],
+        "time_created": "2026-11-27T14:34:08.770324+00:00",
+        "time_updated": "2026-11-27T14:34:08.770325+00:00"
+      },
+      {
+        "role": "system",
+        "contents": [
+          {
+            "type": "text",
+            "content": "{% if __PLAN__ %}The current plan you should follow is the following: \n{{__PLAN__}}{% endif %}"
+          }
+        ],
+        "tool_requests": null,
+        "tool_result": null,
+        "display_only": false,
+        "sender": null,
+        "recipients": [],
+        "time_created": "2026-11-27T14:34:08.776561+00:00",
+        "time_updated": "2026-11-27T14:34:08.776561+00:00"
+      }
+    ],
+    "output_parser": null,
+    "inputs": [
+      {
+        "description": "\"custom_instruction\" input variable for the template",
+        "type": "string",
+        "title": "custom_instruction",
+        "default": ""
+      },
+      {
+        "description": "\"__PLAN__\" input variable for the template",
+        "type": "string",
+        "title": "__PLAN__",
+        "default": ""
+      },
+      {
+        "type": "array",
+        "items": {},
+        "title": "__CHAT_HISTORY__"
+      }
+    ],
+    "pre_rendering_transforms": null,
+    "post_rendering_transforms": [
+      {
+        "component_type": "PluginRemoveEmptyNonUserMessageTransform",
+        "id": "b5eb82e4-b9d9-4271-bc44-0e692df30005",
+        "name": "removeemptynonusermessage_messagetransform",
+        "description": null,
+        "metadata": {
+          "__metadata_info__": {}
+        },
+        "component_plugin_name": "MessageTransformPlugin",
+        "component_plugin_version": "26.1.2"
+      }
+    ],
+    "tools": null,
+    "native_tool_calling": true,
+    "response_format": null,
+    "native_structured_generation": true,
+    "strict_output_validation": false,
+    "generation_config": null,
+    "component_plugin_name": "PromptTemplatePlugin",
+    "component_plugin_version": "26.1.2"
+  },
+  "component_plugin_name": "AgentPlugin",
+  "component_plugin_version": "26.1.2",
+  "agentspec_version": "26.1.2"
+}
