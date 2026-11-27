@@ -13,6 +13,9 @@ Improvements
 Bug fixes
 ^^^^^^^^^
 
+* **Pandas 3 in-memory datastore compatibility**
+  In-memory datastores preserve nullable and union-typed property values across pandas versions.
+
 WayFlow 26.3.1
 --------------
 

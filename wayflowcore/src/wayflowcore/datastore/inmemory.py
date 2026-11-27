@@ -58,7 +58,10 @@ class _InMemoryDatatable(Datatable):
     def __init__(self, entity_description: Entity):
         self.entity_description = entity_description
         column_names = [p_name for p_name in entity_description.properties]
-        self._data = pd.DataFrame(columns=column_names)
+        # Keep the backing table object-typed for all entity fields. Pandas 3 infers string-only
+        # columns as ``str``, which can reject values allowed by nullable/union properties and
+        # turn ``None`` into NaN when records are returned.
+        self._data = pd.DataFrame(columns=column_names, dtype=object)
 
     def _convert_where_to_filter(
         self, where: Dict[str, Any]
@@ -118,15 +121,17 @@ class _InMemoryDatatable(Datatable):
             entities = [entities]
             unpack_list = True
         new_data = self._add_defaults(entities)
+        # Keep incoming batches object-typed as well so concatenation preserves the table's
+        # support for values allowed by nullable/union properties.
         if len(self._data) > 0:
-            self._data = pd.concat([self._data, pd.DataFrame(new_data)])
+            self._data = pd.concat([self._data, pd.DataFrame(new_data, dtype=object)])
         else:
             # Pandas throws a FutureWarning on concatenation when self._data is empty:
             # The behavior of DataFrame concatenation with empty or all-NA entries is deprecated.
             # In a future version, this will no longer exclude empty or all-NA columns when
             # determining the result dtypes. To retain the old behavior, exclude the relevant
             # entries before the concat operation.
-            self._data = pd.DataFrame(new_data)
+            self._data = pd.DataFrame(new_data, dtype=object)
         return new_data[0] if unpack_list else new_data
 
     def delete(self, where: Dict[str, Any]) -> None:
